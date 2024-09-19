@@ -2,7 +2,11 @@
 
 import React from 'react'
 
+import Link from 'next/link';
+
 import Image from "next/image";
+import logo from '../../public/logo.svg';
+import login_bg from '../../public/beachThree.png'
 
 export function login() {
   return (
@@ -10,10 +14,21 @@ export function login() {
       {/* Flex container for left and right sections */}
       <div className="flex">
         {/* Left side: logo, background image, text */}
-        <div className="flex-[1] flex flex-col min-h-screen">
+        <div className="flex-[1] flex flex-col min-h-screen " 
+        style={{ backgroundImage: `url(${login_bg.src})`,
+            backgroundPosition: 'bottom',
+            backgroundSize: 'cover', 
+            backgroundRepeat: 'no-repeat'
+          }} 
+        >
           {/* logo div */}
-          <div className="pl-8 pt-8">
-            logo
+          <div className="absolute top-0 left-0 ">
+            <Image
+              src={logo}
+              width={150}
+              height={150}
+              alt="logo"
+            />
           </div>
 
           <div className="mb-8 flex-grow flex justify-center items-center">
@@ -61,7 +76,7 @@ export function login() {
 
               <div className="self-start pb-8 text-lg font-light" style={{ color: '#423D38' }}>
                 <p className='text-left'>Do not have an account?</p>
-                <p className='text-left'>Register here.</p>
+                <Link href="/register" className="text-left block hover:underline">Register here.</Link>
               </div>
 
               <button
