@@ -75,7 +75,7 @@ const NotificationPage = () => {
       </div>
 
       {/* Content Area */}
-      <div className="text-black flex-1 bg-white bg-opacity-20 p-6 ml-6 shadow-md bg-opacity-80">
+      <div className="text-black flex-1 bg-white bg-opacity-20 p-6 ml-6 shadow-md ">
         <h2 className="text-2xl font-semibold mb-4">Notifications</h2>
         <div className="border border-gray-300 p-4">
           <h3 className="text-lg font-semibold mb-4">
