@@ -16,10 +16,10 @@ export default function LandingPage() {
             </div>
 
             <div className="flex flex-col space-y-8"> 
-              <div className="font-semibold text-xl text-[#423D38]"> JOIN HANDS FOR GLOBAL ENVIRONMENTAL CHANGE </div>
+              <div className="font-geistMono font-semibold text-xl text-[#423D38]"> JOIN HANDS FOR GLOBAL ENVIRONMENTAL CHANGE </div>
               <div className="flex flex-col space-y-4"> 
-                <div className="font-normal text-lg text-[#423D38]"> By joining us, you'll gain access to volunteer opportunities that match your <br/> skills and interests. Help us address critical environmental issues and support <br/> efforts to restore marine ecosystems and protect ocean health. </div>
-                <div className="font-normal text-lg text-[#423D38]"> Your contributions will directly impact global conservation initiatives and <br/> promote sustainable practices. Get involved, make a tangible difference, and <br/> be part of a community working towards meaningful environmental change. </div>
+                <div className="font-geistMono font-normal text-lg text-[#423D38]"> By joining us, you'll gain access to volunteer opportunities that match your <br/> skills and interests. Help us address critical environmental issues and support <br/> efforts to restore marine ecosystems and protect ocean health. </div>
+                <div className="font-geistMono font-normal text-lg text-[#423D38]"> Your contributions will directly impact global conservation initiatives and <br/> promote sustainable practices. Get involved, make a tangible difference, and <br/> be part of a community working towards meaningful environmental change. </div>
               </div>
             </div>
           </div>
