@@ -45,7 +45,7 @@ export default function dashBoard()  {
 
         <div className="bg-white rounded-lg shadow-md p-6 flex flex-col items-center">
             <h2 className="text-black text-xl mb-4 font-geistMono mt-10 italic" style={{ color: '#423D38' }}>Our Mission</h2>
-                <p className="text-gray-700 font-geistMono mb-20 mt-20" style={{ color: '#423D38' }}>Volunteering is at the heart of building strong, compassionate communities, where everyone has the opportunity to make a difference. Our mission is to create meaningful opportunities that allow individuals to contribute their time and skills, fostering a culture of giving back. By volunteering, we not only support those in need but also inspire others to take action and create lasting, positive change. Together, we can amplify our impact and shape a better future for everyone.</p>
+                <p className="text-gray-700 font-geistMono mb-20 mt-10" style={{ color: '#423D38' }}>Volunteering is at the heart of building strong, compassionate communities, where everyone has the opportunity to make a difference. Our mission is to create meaningful opportunities that allow individuals to contribute their time and skills, fostering a culture of giving back. By volunteering, we not only support those in need but also inspire others to take action and create lasting, positive change. Together, we can amplify our impact and shape a better future for everyone.</p>
         </div>
 
         </div>
