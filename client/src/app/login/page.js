@@ -12,7 +12,7 @@ export function login() {
   return (
     <>
       {/* Flex container for left and right sections */}
-      <div className="flex">
+      <div className="flex font-geistMono">
         {/* Left side: logo, background image, text */}
         <div className="flex-[1] flex flex-col min-h-screen " 
         style={{ backgroundImage: `url(${login_bg.src})`,
