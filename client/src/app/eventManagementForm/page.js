@@ -13,7 +13,7 @@ export default function EventManagementForm() {
           <div className="flex flex-col space-y-6"> 
             <input 
             required 
-            maxlength="100"
+            maxLength="100"
             type="text" 
             placeholder="Event Name" 
             className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
@@ -67,7 +67,7 @@ export default function EventManagementForm() {
               required
               type="date"
               id="date"
-              class="block w-full px-2 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38]"
+              className="block w-full px-2 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38]"
             />
           </div>
         </div>

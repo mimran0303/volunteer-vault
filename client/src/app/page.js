@@ -21,7 +21,7 @@ export default function LandingPage() {
     <section id="landingPage" className="flex w-screen h-screen">
       <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${landingPage_bg.src})` }}>
 
-        <div id="topNavbar" class="sticky top-0 bg-transparent flex flex-row">
+        <div id="topNavbar" className="sticky top-0 bg-transparent flex flex-row">
           <div className="mr-[1100px]"> <Image src={logo} alt="logo" width={100} height={100}/>  </div>
           <div className="flex flex-row space-x-5 justify-end my-10 mx-12"> 
             <div className="font-geistMono font-bold text-md text-[#423D38] bg-white rounded-full px-5 py-1 cursor-pointer hover:-translate-y-2 duration-300"> SIGN-UP </div>
