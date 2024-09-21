@@ -2,6 +2,8 @@ import Image from "next/image";
 import hutbg from '../../public/hut.png';
 import logo from '../../public/logo_1.png';
 
+import Link from 'next/link'
+
 // sidebar color: D9D9D9
 // right side bg: style = {{backgroundImage: `url(${hutbg.src})`}}
 
@@ -17,21 +19,29 @@ export default function dashBoard()  {
 
         <div className="h-24 w-24 bg-center bg-no-repeat mb-10 -mt-40 absolute" style={{ backgroundImage: `url(${logo.src})` }} />
           
-        <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center mb-10 text-xs font-geistMono hover:bg-[#ACB7BC]">
-             Profile
-        </button>
+        <Link href="/userProfileManagement">
+          <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center mb-10 text-xs font-geistMono hover:bg-[#ACB7BC]">
+               Profile
+          </button>
+        </Link>  
+        
+        <Link href="/eventManagementForm">
+          <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center mb-10 text-xs font-geistMono hover:bg-[#ACB7BC]">
+               Manage Events
+          </button>
+        </Link>
 
-        <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center mb-10 text-xs font-geistMono hover:bg-[#ACB7BC]">
-             Manage Events
-        </button>
+        <Link href="/volunteer_match">
+          <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center mb-10 text-xs font-geistMono hover:bg-[#ACB7BC]">
+               Volunteer Matches
+          </button>
+        </Link>
 
-        <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center mb-10 text-xs font-geistMono hover:bg-[#ACB7BC]">
-             Volunteer Matches
-        </button>
-
-        <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center text-xs font-geistMono hover:bg-[#ACB7BC]">
-             Notifications
-        </button>
+        <Link href="/notification-system">
+          <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center text-xs font-geistMono hover:bg-[#ACB7BC]">
+               Notifications
+          </button>
+        </Link>
 
           </div>
         </div>
