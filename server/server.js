@@ -52,16 +52,38 @@ app.post('/register', (req, res) => {
             req.body.email,
             hash
         ]
+
+        // TODO: ensure no duplicate emails
         
         users.push(values);
         console.log(users);
-        res.status(200).json({ message: 'Data received successfully!' });
+        // res.status(200).json({ message: 'Data received successfully!' });
+        return res.json({Status: "Success"});
     })
 })
 
+app.post("/login", (req, res) => {
+    const { email, password } = req.body;
 
-app.get("/login", (req, res) => {
-    res.json({ message: "Hello!" })
+    // Find the user based on the email
+    const user = users.find((user) => user[1] === email);
+
+    if(!user) {
+        return res.json({ Error: "Incorrect Email!" });
+    }
+    else {
+        bcrypt.compare(password.toString(), user[2], (err, response) => {
+            if(err) {
+                return res.json({ Error: "Error in bcrypt password comparison!" });
+            }    
+            if(response) {
+                return res.json({Status: "Success"});
+            } else {
+                return res.json({Error: "Incorrect password!"});
+            }
+        })
+        
+    }
 })
 
 app.listen(PORT, () => {

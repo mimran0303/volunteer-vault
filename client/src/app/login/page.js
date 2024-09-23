@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect, useState} from 'react'
+import React, {useState} from 'react'
 
 import Link from 'next/link';
 
@@ -8,18 +8,36 @@ import Image from "next/image";
 import logo from '../../public/logo.svg';
 import login_bg from '../../public/beachThree.png'
 
-export function login() {
+import {useRouter} from 'next/navigation';
 
-  useEffect(() => {
-    fetch("http://localhost:8080/login").then (
-      response => response.json()
-    ).then(
-      data => {
-        console.log(data)
+import axios from 'axios';
+
+export function login() {
+  const router = useRouter();
+  const [values, setValues] = useState({
+    email: '',
+    password: ''
+  })
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    axios.post('http://localhost:8080/login', values)
+    .then(res => {
+      // Success: handle the response data
+      if(res.data.Status === "Success") {
+        router.push('/dashboard')
+      } 
+      else {
+        // TODO: keep alert() or display the error on the page
+        alert(res.data.Error)
       }
-    )
-  }, [])
-  
+    })
+    .catch(err => {
+      // Error: handle the error message
+      console.error(err);
+    });
+  }
 
   return (
     <>
@@ -55,7 +73,7 @@ export function login() {
           {/* Parent div of the form section */}
           <div className="text-center w-[66%]">
             {/* Should be completely centered */}
-            <form className="flex flex-col items-center space-y-4">
+            <form className="flex flex-col items-center space-y-4" onSubmit={handleSubmit}>
               <span className="font-medium text-5xl font-normal pb-16 italic" style={{ color: '#423D38' }}>
                 { "Start Making Waves".split("").map((char, index) => (
                   <span
@@ -73,6 +91,7 @@ export function login() {
                   type="email"
                   placeholder="Email Address (Username)"
                   name='email'
+                  onChange={e => {setValues({...values, email: e.target.value})}}
                   required
                   className="p-2 border-b-2 border-black placeholder-black text-black	 focus:outline-none rounded w-[100%] transition-transform duration-300 transform focus:scale-105"
                   style={{ backgroundColor: '#FAF5F1' }}
@@ -81,6 +100,7 @@ export function login() {
                   type="password"
                   placeholder="Password"
                   name='password'
+                  onChange={e => {setValues({...values, password: e.target.value})}}
                   required
                   className="p-2 border-b-2 border-black placeholder-black text-black	 focus:outline-none rounded w-[100%] transition-transform duration-300 transform focus:scale-105" 
                   style={{ backgroundColor: '#FAF5F1' }}

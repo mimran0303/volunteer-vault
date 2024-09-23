@@ -8,9 +8,12 @@ import Image from "next/image";
 import logo from '../../public/logo.svg';
 import register_bg from '../../public/beachThree.png';
 
+import {useRouter} from 'next/navigation';
+
 import axios from 'axios';
 
 export function register() {
+  const router = useRouter();
   const [accountType, setAccountType] = useState('');
   const [values, setValues] = useState({
     accountType: '',
@@ -20,11 +23,17 @@ export function register() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    
+
     axios.post('http://localhost:8080/register', values)
     .then(res => {
       // Success: handle the response data
-      console.log(res.data);
+      if(res.data.Status === "Success") {
+        router.push('/login')
+      }
+      else {
+        // TODO: display reason why registration failed. alert() or on display text page
+        console.log("Registration failed");
+      }
     })
     .catch(err => {
       // Error: handle the error message
