@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 
 import Link from 'next/link';
 
@@ -9,6 +9,18 @@ import logo from '../../public/logo.svg';
 import login_bg from '../../public/beachThree.png'
 
 export function login() {
+
+  useEffect(() => {
+    fetch("http://localhost:8080/login").then (
+      response => response.json()
+    ).then(
+      data => {
+        console.log(data)
+      }
+    )
+  }, [])
+  
+
   return (
     <>
       {/* Flex container for left and right sections */}
@@ -60,6 +72,7 @@ export function login() {
                 <input
                   type="email"
                   placeholder="Email Address (Username)"
+                  name='email'
                   required
                   className="p-2 border-b-2 border-black placeholder-black text-black	 focus:outline-none rounded w-[100%] transition-transform duration-300 transform focus:scale-105"
                   style={{ backgroundColor: '#FAF5F1' }}
@@ -67,6 +80,7 @@ export function login() {
                 <input
                   type="password"
                   placeholder="Password"
+                  name='password'
                   required
                   className="p-2 border-b-2 border-black placeholder-black text-black	 focus:outline-none rounded w-[100%] transition-transform duration-300 transform focus:scale-105" 
                   style={{ backgroundColor: '#FAF5F1' }}
