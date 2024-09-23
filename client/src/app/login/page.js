@@ -21,6 +21,7 @@ export function login() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    axios.defaults.withCredentials = true;
 
     axios.post('http://localhost:8080/login', values)
     .then(res => {

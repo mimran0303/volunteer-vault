@@ -3,7 +3,11 @@ const app = express();
 const PORT = 8080;
 
 const cors = require("cors");
-app.use(cors());
+app.use(cors({
+    origin: ["http://localhost:3000"],
+    methods: ["POST", "GET"],
+    credentials: true
+}));
 app.use(express.json());
 
 const jwt = require("jsonwebtoken");
@@ -77,12 +81,15 @@ app.post("/login", (req, res) => {
                 return res.json({ Error: "Error in bcrypt password comparison!" });
             }    
             if(response) {
+                const username = user[1]
+                // const accountType = user[0]
+                const token = jwt.sign({username}, "jwt-secret-key", {expiresIn: '1d'})
+                res.cookie('token', token)
                 return res.json({Status: "Success"});
             } else {
                 return res.json({Error: "Incorrect password!"});
             }
         })
-        
     }
 })
 
