@@ -51,7 +51,7 @@ const salt = 10;
 // ? [accountType, email, password]
 let users = [
     ["volunteer", "user1@example.com", bcrypt.hashSync('password1', salt)],
-    ["administrator", "user2@example.com", bcrypt.hashSync('password1', salt)]
+    ["administrator", "user2@example.com", bcrypt.hashSync('password2', salt)]
 ]
 
 // * Middleware
@@ -114,8 +114,8 @@ app.post("/login", (req, res) => {
             }    
             if(response) {
                 const username = user[1]
-                // const accountType = user[0]
-                const token = jwt.sign({username}, `${process.env.JWT_SECRET_KEY}`, {expiresIn: '1d'})
+                const accountType = user[0]
+                const token = jwt.sign({username, accountType}, `${process.env.JWT_SECRET_KEY}`, {expiresIn: '1d'})
                 res.cookie('token', token, { httpOnly: true });
                 return res.json({Status: "Success"});
             } else {
