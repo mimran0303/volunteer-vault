@@ -1,9 +1,22 @@
+"use client"
+
 import React from 'react';
 import Image from 'next/image';
 import userProfile_bg from '../../public/userProfile.png';
 
+import { useAuth } from '@/hooks/auth'; // authenticator 
 
 export default function UserProfileManagement() {
+  const { isAuthenticated, user, isLoading } = useAuth(); // Both admins and non-admins can access (no "administrator argument")
+
+  if (isLoading) {
+    return <p></p>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null; // Redirect handled in the hook
+  }
+
     
   return (
     <section id="landingPage" className="flex w-screen h-screen">

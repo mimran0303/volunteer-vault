@@ -1,8 +1,23 @@
+"use client"
+
 import React from 'react';
 import Image from 'next/image';
 import beachOne from '../../public/beachOne.png';
 
+import { useAuth } from '@/hooks/auth'; // authenticator
+
+
 export default function EventManagementForm() {
+  const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
+
+  if (isLoading) {
+    return <p></p>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null; // Redirect handled in the hook
+  }
+  
   return (
 
     <section id="eventManagement" className="w-screen h-screen bg-[#FAF5F1]">
