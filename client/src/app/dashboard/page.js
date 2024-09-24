@@ -22,7 +22,7 @@ export default function dashBoard()  {
   const { isAuthenticated, user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <p></p>;
   }
 
   if (!isAuthenticated || !user) {

@@ -10,7 +10,7 @@ export default function UserProfileManagement() {
   const { isAuthenticated, user, isLoading } = useAuth(); // Both admins and non-admins can access
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <p></p>;
   }
 
   if (!isAuthenticated || !user) {

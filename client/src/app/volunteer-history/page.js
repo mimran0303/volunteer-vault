@@ -12,7 +12,7 @@ const VolunteerHistory = () => {
   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <p></p>;
   }
 
   if (!isAuthenticated || !user) {

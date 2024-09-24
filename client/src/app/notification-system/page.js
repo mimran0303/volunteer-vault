@@ -21,7 +21,7 @@ const NotificationPage = () => {
   };
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <p></p>;
   }
 
   if (!isAuthenticated || !user) {
