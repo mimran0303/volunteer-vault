@@ -1,7 +1,21 @@
+"use client"
+
 import Image from "next/image";
 import waterbg from '../../public/waterbg.png';
 
+import { useAuth } from "@/hooks/auth";
+
 export default function volunteerMatchForm()  {
+
+  const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null; // Redirect handled in the hook
+  }
 
     return (
     <> 

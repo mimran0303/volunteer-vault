@@ -7,7 +7,11 @@ import Image from "next/image";
 import notification_system_bg from '../../public/rectangle46.png'
 import volunteerProfilePic from '../../public/volunteer1pfp.jpg'
 
+import { useAuth } from '@/hooks/auth';
+
 const NotificationPage = () => {
+  const { isAuthenticated, user, isLoading } = useAuth(); // Both admins and non-admins can access
+
   // State to track the selected tab
   const [activeTab, setActiveTab] = useState("assignments");
 
@@ -15,6 +19,14 @@ const NotificationPage = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null; // Redirect handled in the hook
+  }
 
   return (
     <div
@@ -34,7 +46,7 @@ const NotificationPage = () => {
             height={100} // Height of the profile picture
             className="rounded-full mr-4"
           />
-          <h2 className="text-xl text-black font-semibold">Tristan Fry</h2> {/* Name of volunteer */}
+          <h2 className="text-xl text-black font-semibold">{user.username}</h2> {/* Name of volunteer */}
         </div>
          {/* Horizontal bar (divider) */}
         <div className="border-b border-gray-400 mb-4"></div>
