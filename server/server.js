@@ -10,9 +10,16 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Environment
+const dotenv = require('dotenv');
+dotenv.config();
+
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+
 const cookieParser = require("cookie-parser");
+app.use(cookieParser())
+
 const salt = 10;
 
 // Hardcoded data
@@ -46,6 +53,31 @@ let users = [
     ["volunteer", "user1@example.com", bcrypt.hashSync('password1', salt)],
     ["administrator", "user2@example.com", bcrypt.hashSync('password1', salt)]
 ]
+
+// * Middleware
+const verifyToken = (req, res, next) => {
+    const token = req.cookies.token; // Get token from cookies
+  
+    if (!token) {
+      return res.json({Error: "You are not authenticated."});
+    }
+  
+    // Verify the token
+    jwt.verify(token, `${process.env.JWT_SECRET_KEY}`, (err, decoded) => {
+      if (err) {
+        return res.json({Error: "Token is not OK."});
+      } else {
+        // Token is valid, attach user data to request and proceed
+        req.user = decoded;
+        next();
+      }
+    });
+  };
+  
+
+app.get('/dashboard', verifyToken, (req, res) => {
+    res.json({ message: 'This is a protected route!', user: req.user });
+})
 
 
 app.post('/register', (req, res) => {
@@ -83,14 +115,19 @@ app.post("/login", (req, res) => {
             if(response) {
                 const username = user[1]
                 // const accountType = user[0]
-                const token = jwt.sign({username}, "jwt-secret-key", {expiresIn: '1d'})
-                res.cookie('token', token)
+                const token = jwt.sign({username}, `${process.env.JWT_SECRET_KEY}`, {expiresIn: '1d'})
+                res.cookie('token', token, { httpOnly: true });
                 return res.json({Status: "Success"});
             } else {
                 return res.json({Error: "Incorrect password!"});
             }
         })
     }
+})
+
+app.get('/logout', (req, res) => {
+    res.clearCookie('token')
+    return res.json({Status: "Success"});
 })
 
 app.listen(PORT, () => {
