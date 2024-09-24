@@ -24,7 +24,7 @@ export function register() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    axios.post('http://localhost:8080/register', values)
+    axios.post('http://localhost:8080/auth/register', values)
     .then(res => {
       // Success: handle the response data
       if(res.data.Status === "Success") {

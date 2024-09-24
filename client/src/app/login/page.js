@@ -23,7 +23,7 @@ export function login() {
     event.preventDefault();
     axios.defaults.withCredentials = true;
 
-    axios.post('http://localhost:8080/login', values)
+    axios.post('http://localhost:8080/auth/login', values)
     .then(res => {
       // Success: handle the response data
       if(res.data.Status === "Success") {

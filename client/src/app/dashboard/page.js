@@ -31,7 +31,7 @@ export default function dashBoard()  {
   
 
   const handleLogout = () => {
-    axios.get('http://localhost:8080/logout')
+    axios.get('http://localhost:8080/auth/logout')
     .then(res => {
       // location.reload(true);
       router.push('/');

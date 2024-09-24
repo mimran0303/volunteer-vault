@@ -10,7 +10,7 @@ export const useAuth = (requiredRole = null) => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:8080/dashboard', { withCredentials: true })
+      .get('http://localhost:8080/protected/dashboard', { withCredentials: true })
       .then(res => {
         if (res.data.user) {
           setIsAuthenticated(true);
