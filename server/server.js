@@ -81,6 +81,12 @@ app.get('/dashboard', verifyToken, (req, res) => {
 
 
 app.post('/register', (req, res) => {
+    // Check if the email already exists in the users array
+    const userExists = users.find(user => user[1] === req.body.email);
+    if(userExists) {
+        return res.json({ Error: "This email is already registered." });
+    }
+
     bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
         if(err) return res.json({Error: "Error in hashing password!"});
         const values = [
@@ -88,8 +94,6 @@ app.post('/register', (req, res) => {
             req.body.email,
             hash
         ]
-
-        // TODO: ensure no duplicate emails
         
         users.push(values);
         console.log(users);

@@ -31,8 +31,8 @@ export function register() {
         router.push('/login')
       }
       else {
-        // TODO: display reason why registration failed. alert() or on display text page
-        console.log("Registration failed");
+        // TODO: keep alert() or display the error on the page
+        alert(res.data.Error)
       }
     })
     .catch(err => {
