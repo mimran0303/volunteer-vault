@@ -31,6 +31,7 @@ export default function dashBoard()  {
   
 
   const handleLogout = () => {
+    // server.js: app.use("/auth", authRoutes);
     axios.get('http://localhost:8080/auth/logout')
     .then(res => {
       // location.reload(true);
@@ -59,7 +60,7 @@ export default function dashBoard()  {
               </Link>
 
 
-
+              {/* only admins can view these modules */}
               {user.accountType === 'administrator' && (  
               <>
                 <Link href="/eventManagementForm">

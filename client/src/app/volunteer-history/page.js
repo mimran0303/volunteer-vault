@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 import volunteer_history_bg from '../../public/rectangle48.png'
 
-import { useAuth } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth'; // authenticator 
 
 const VolunteerHistory = () => {
   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access

@@ -8,7 +8,7 @@ import Image from "next/image";
 import logo from '../../public/logo.svg';
 import register_bg from '../../public/beachThree.png';
 
-import {useRouter} from 'next/navigation';
+import {useRouter} from 'next/navigation'; // routes users to other pages
 
 import axios from 'axios';
 
@@ -23,7 +23,7 @@ export function register() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
+    // server.js: app.use("/auth", authRoutes);
     axios.post('http://localhost:8080/auth/register', values)
     .then(res => {
       // Success: handle the response data

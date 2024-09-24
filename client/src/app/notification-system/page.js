@@ -7,10 +7,10 @@ import Image from "next/image";
 import notification_system_bg from '../../public/rectangle46.png'
 import volunteerProfilePic from '../../public/volunteer1pfp.jpg'
 
-import { useAuth } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth'; // authenticator
 
 const NotificationPage = () => {
-  const { isAuthenticated, user, isLoading } = useAuth(); // Both admins and non-admins can access
+  const { isAuthenticated, user, isLoading } = useAuth(); // Both admins and non-admins can access (no "administrator argument")
 
   // State to track the selected tab
   const [activeTab, setActiveTab] = useState("assignments");

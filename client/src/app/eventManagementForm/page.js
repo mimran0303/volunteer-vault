@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import beachOne from '../../public/beachOne.png';
 
-import { useAuth } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth'; // authenticator
 
 
 export default function EventManagementForm() {

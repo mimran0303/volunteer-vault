@@ -8,7 +8,7 @@ import Image from "next/image";
 import logo from '../../public/logo.svg';
 import login_bg from '../../public/beachThree.png'
 
-import {useRouter} from 'next/navigation';
+import {useRouter} from 'next/navigation'; // routes users to different pages
 
 import axios from 'axios';
 
@@ -23,6 +23,7 @@ export function login() {
     event.preventDefault();
     axios.defaults.withCredentials = true;
 
+    // server.js: app.use("/auth", authRoutes);
     axios.post('http://localhost:8080/auth/login', values)
     .then(res => {
       // Success: handle the response data

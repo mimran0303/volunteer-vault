@@ -17,7 +17,17 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
+
+/*
+Routes
+boilerplate:
+
+const someRoutes = require ("./routes/someRoutes")
+app.use("/some", someRoutes)
+
+axios.post('http://localhost:8080/some/page)
+axios.get('http://localhost:8080/some/page)
+*/
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protectedRoutes");
 
