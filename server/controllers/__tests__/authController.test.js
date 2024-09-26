@@ -11,7 +11,7 @@ jest.mock('jsonwebtoken');
 let users = require('../../data/users'); 
 
 describe('Auth Controller', () => {
-    let req, res;
+
 
     beforeEach(() => {
         req = {
@@ -55,9 +55,8 @@ describe('Auth Controller', () => {
             expect(res.json).toHaveBeenCalledWith({ Status: "Success" });
         });
 
-        // ! THIS FAILS
         it('should return error if bcrypt fails during registration', async () => {
-            req.body.email = 'newuser@example.com';
+            req.body.email = 'newuser@example.edu';
             req.body.password = 'newpassword';
             req.body.accountType = 'volunteer';
 
@@ -81,18 +80,20 @@ describe('Auth Controller', () => {
             expect(res.json).toHaveBeenCalledWith({ Error: "Incorrect Email!" });
         });
 
-        // ! THIS FAILS
-        it('should return error if bcrypt fails during login', async () => {
+        it('should return error if bcrypt comparison fails during login', async () => {
             req.body.email = 'user1@example.com';
             req.body.password = 'password1';
 
-            bcrypt.compare.mockImplementation((password, hash, callback) => {
+            const mockUser = ['volunteer', 'user1@example.com', '$2b$10$somehashedpassword']; 
+            users.find = jest.fn().mockReturnValue(mockUser);
+
+            bcrypt.compare = jest.fn((password, hash, callback) => {
                 callback(new Error('Bcrypt compare error'), false);
             });
 
             await authController.login(req, res);
 
-            expect(bcrypt.compare).toHaveBeenCalledWith(req.body.password.toString(), expect.any(String), expect.any(Function));
+            expect(bcrypt.compare).toHaveBeenCalledWith(req.body.password.toString(), mockUser[2], expect.any(Function));
             expect(res.json).toHaveBeenCalledWith({ Error: "Error in bcrypt password comparison!" });
         });
 
@@ -109,7 +110,6 @@ describe('Auth Controller', () => {
             expect(res.json).toHaveBeenCalledWith({ Error: "Incorrect password!" });
         });
 
-        // ! THIS FAILS
         it('should return a success and set JWT token if login is correct', async () => {
             req.body.email = 'user1@example.com';
             req.body.password = 'password1';
