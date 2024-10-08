@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/auth"; // authenticator
 export default function VolunteerMatchForm()  {
   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
   const [matches, setMatches] = useState([]); // State to store matched volunteers
+  const [selectedVolunteers, setSelectedVolunteers] = useState([]); // State to store selected volunteers for assignment
+  const [assignedVolunteers, setAssignedVolunteers] = useState([]); // Store assigned volunteers
   const [skillsRequired, setSkillsRequired] = useState(""); // State for skills input
   const [city, setCity] = useState(""); // State for city input
   const [state, setState] = useState(""); // State for state input
@@ -15,7 +17,16 @@ export default function VolunteerMatchForm()  {
   const [availability, setAvailability] = useState(""); // State for availability input
   const [userNotFound, setUserNotFound] = useState(false); // State to track if no volunteers are found
 
-  // Fetch matching data from backend when the "Match!" button is clicked
+  // Handle selecting/deselecting volunteers
+  const handleVolunteerSelection = (volunteer) => {
+    setSelectedVolunteers(prevSelected =>
+      prevSelected.includes(volunteer)
+        ? prevSelected.filter(v => v !== volunteer) // Deselect if already selected
+        : [...prevSelected, volunteer] // Add if not selected
+    );
+  };
+
+  // Fetch matching data from backend when the "Find Matches" button is clicked
   const fetchMatches = async () => {
     try {
       const response = await fetch('http://localhost:8080/api/volunteers/match', {
@@ -31,6 +42,60 @@ export default function VolunteerMatchForm()  {
       console.error('Error fetching matches:', error);
     }
   };
+
+  // Assign selected volunteers to the event and store them in an array
+  const assignVolunteers = async () => {
+      const eventDetails = {
+          skillsRequired,
+          city,
+          state,
+          zipcode,
+          availability,
+      };
+
+      // Filter out volunteers that are already assigned to the event
+      const newAssignments = selectedVolunteers.filter(volunteer => {
+          return !assignedVolunteers.some(assigned => {
+              console.log('Checking assignment: ', assigned);
+              return assigned.fullName === volunteer.fullName && 
+                          assigned.event.skillsRequired === skillsRequired && 
+                          assigned.event.city === city && 
+                          assigned.event.state === state &&
+                          assigned.event.zipcode === zipcode &&
+                          assigned.event.availability === availability
+          });
+      });
+
+      // If there are no new assignments, don't proceed
+      if (newAssignments.length === 0) {
+          console.log("No new volunteers to assign.");
+          return;
+      }
+
+      try {
+          // Send the new assignments to the backend
+          const response = await fetch('http://localhost:8080/api/assignments/assign', {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ eventDetails, volunteers: newAssignments })
+          });
+
+          const data = await response.json();
+          console.log('Assignment Response:', data);
+
+          // Update the assigned volunteers list in the frontend
+          setAssignedVolunteers(prevAssigned => [
+              ...prevAssigned,
+              ...newAssignments
+          ]);
+          console.log("Assigned volunteers Array: ", assignVolunteers);
+          setSelectedVolunteers([]);  // Clear the selected volunteers after assigning
+
+      } catch (error) {
+          console.error('Error assigning volunteers:', error);
+      }
+  };
+
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -99,19 +164,57 @@ export default function VolunteerMatchForm()  {
                 aria-label="Availability"
               />
 
-              {/* Display matched volunteers */}
+              {/* Display matched volunteers with checkboxes */}
               {matches.length > 0 && !userNotFound && (
                 <div className="mt-4">
                   <h2 className="text-lg mb-2 font-geistMono" style={{ color: '#423D38' }}>Matched Volunteers:</h2>
                   <ul>
-                    {matches.map((volunteer, index) => (
-                      <li key={index} className="font-geistMono" style={{ color: '#423D38' }}>
-                        {volunteer.fullName} - {volunteer.skills}, {volunteer.city}, {volunteer.state}, {volunteer.zipcode}
-                      </li>
-                    ))}
+                    {matches.map((volunteer, index) => {
+                      // Check if the volunteer has already been assigned to the event
+                      const isAssigned = assignedVolunteers.some(assigned => {
+                          // Safeguard against undefined volunteer or event
+                          if (!assigned.volunteer || !assigned.event) {
+                            return false;
+                          }
+
+                          return (
+                            assigned.volunteer.fullName === volunteer.fullName &&
+                            assigned.event.skillsRequired === skillsRequired &&
+                            assigned.event.city === city &&
+                            assigned.event.state === state &&
+                            assigned.event.zipcode === zipcode &&
+                            assigned.event.availability === availability
+                          );
+                      });
+
+                      // const isAssigned = assignedVolunteers.some(assigned => 
+                      //   assigned.volunteer.fullName === volunteer.fullName &&
+                      //   assigned.event.skillsRequired === skillsRequired &&
+                      //   assigned.event.city === city &&
+                      //   assigned.event.state === state &&
+                      //   assigned.event.zipcode === zipcode &&
+                      //   assigned.event.availability === availability
+                      // );
+
+                      return (
+                        <li key={index} className="font-geistMono" style={{ color: '#423D38' }}>
+                          {isAssigned ? (
+                            <span>Already assigned</span> // Show a message instead of checkbox if already assigned
+                          ) : (
+                            <input
+                              type="checkbox"
+                              checked={selectedVolunteers.includes(volunteer)}
+                              onChange={() => handleVolunteerSelection(volunteer)}
+                            />
+                          )}
+                          {volunteer.fullName} - {volunteer.skills}, {volunteer.city}, {volunteer.state}, {volunteer.zipcode}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
+
 
               {/* Display 'No volunteers found' message */}
               {userNotFound && (
@@ -126,8 +229,35 @@ export default function VolunteerMatchForm()  {
               type="button"
               onClick={fetchMatches}  // Fetch matches on button click
             >
-              Match!
+              Find Matches
             </button>
+
+            {/* Button to assign selected volunteers */}
+            {selectedVolunteers.length > 0 && (
+              <button
+                className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono"
+                style={{ color: '#FFFFFF' }}
+                type="button"
+                onClick={assignVolunteers}  // Assign selected volunteers
+              >
+                Assign Volunteers
+              </button>
+            )}
+
+            {/* Display assigned volunteers */}
+            {assignedVolunteers.length > 0 && (
+              <div className="mt-4">
+                <h2 className="text-lg mb-2 font-geistMono" style={{ color: '#423D38' }}>Assigned Volunteers:</h2>
+                <ul>
+                  {assignedVolunteers.map((volunteer, index) => (
+                    <li key={index} className="font-geistMono" style={{ color: '#423D38' }}>
+                      {volunteer.fullName} - {volunteer.skills}, {volunteer.city}, {volunteer.state}, {volunteer.zipcode}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
           </div>
         </div>
 
@@ -142,218 +272,3 @@ export default function VolunteerMatchForm()  {
     </>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// "use client"
-
-// import Image from "next/image";
-// import waterbg from '../../public/waterbg.png';
-// import { useState } from "react"; // Add this to manage state
-// import { useAuth } from "@/hooks/auth"; // authenticator 
-
-// export default function VolunteerMatchForm()  {
-//   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
-//   const [matches, setMatches] = useState([]); // State to store matched events
-//   const [volunteerName, setVolunteerName] = useState(""); // State for volunteer name input
-//   const [profilePreferences, setProfilePreferences] = useState(""); // State for preferences input
-
-//   // Fetch matching data from backend when the "Match!" button is clicked
-//   const fetchMatches = async () => {
-//     try {
-//       const response = await fetch('http://localhost:8080/api/volunteers/match'); // Fetch from your backend
-//       const data = await response.json();
-//       setMatches(data.matches);  // Update the state with matched events
-//     } catch (error) {
-//       console.error('Error fetching matches:', error);
-//     }
-//   };
-
-//   if (isLoading) {
-//     return <p>Loading...</p>;
-//   }
-
-//   if (!isAuthenticated || !user) {
-//     return null; // Redirect handled in the hook
-//   }
-
-//   return (
-//     <> 
-//       <div className="flex h-screen">
-//         {/* left and center 2/3 page */}
-//         <div className="w-2/3 p-4 bg-cover bg-center relative flex items-center justify-center text-center" style = {{backgroundImage: `url(${waterbg.src})`}}>
-//           <div className="flex flex-col items-center">
-//             <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
-            
-//             <form className="w-full max-w-md flex flex-col items-center">
-//               <input
-//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
-//                 style={{ color: '#423D38' }}
-//                 type="text"
-//                 placeholder="Volunteer Name"
-//                 value={volunteerName}
-//                 onChange={(e) => setVolunteerName(e.target.value)} // Update volunteer name
-//                 aria-label="Volunteer Name"
-//               />
-
-//               <input
-//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
-//                 style={{ color: '#423D38' }}
-//                 type="text"
-//                 placeholder="Profile Preferences"
-//                 value={profilePreferences}
-//                 onChange={(e) => setProfilePreferences(e.target.value)} // Update preferences
-//                 aria-label="Profile Preferences"
-//               />
-
-//               {/* Display matched events */}
-//               {matches.length > 0 && (
-//                 <div className="mt-4">
-//                   <h2 className="text-lg mb-2 font-geistMono" style={{ color: '#423D38' }}>Matched Event(s):</h2>
-//                   <ul>
-//                     {matches.map((match, index) => (
-//                       <li key={index} className="font-geistMono" style={{ color: '#423D38' }}>
-//                         {match.event} - {match.volunteers.length > 0 ? match.volunteers.join(", ") : "No volunteers matched"}
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 </div>
-//               )}
-//             </form>
-
-//             {/* Button to trigger matching */}
-//             <button
-//               className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono"
-//               style={{ color: '#FFFFFF' }}
-//               type="button"
-//               onClick={fetchMatches}  // Fetch matches on button click
-//             >
-//               Match!
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* right side 1/3 page */}
-//         <div className="w-1/3 bg-white p-4 flex items-center justify-center text-center">
-//           <div className="flex flex-col items-center">
-//             <h1 className="text-center text-2xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Tailored Volunteer Matches</h1>
-//             <p className="text-center text-lg mt-10 font-geistMono" style={{ color: '#423D38' }}>View and match volunteers <br /> to specifically chosen <br />events based on the<br /> individual’s profiles and <br />event requirement.</p>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// "use client"
-
-// import Image from "next/image";
-// import waterbg from '../../public/waterbg.png';
-
-// import { useAuth } from "@/hooks/auth"; // authenticator 
-
-// export default function volunteerMatchForm()  {
-
-//   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
-
-//   if (isLoading) {
-//     return <p></p>;
-//   }
-
-//   if (!isAuthenticated || !user) {
-//     return null; // Redirect handled in the hook
-//   }
-
-//     return (
-//     <> 
- 
-//  <div className="flex h-screen">
-//         {/* left and center 2/3 page */}
-//         <div className="w-2/3 p-4 bg-cover bg-center relative flex items-center justify-center text-center" style = {{backgroundImage: `url(${waterbg.src})`}}>
-//         <div className="flex flex-col items-center">
-//           <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
-          
-//           <form className="w-full max-w-md flex flex-col items-center">
-//               <input
-//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
-//                 type="text"
-//                 placeholder="Volunteer Name"
-//                 aria-label="Volunteer Name"
-//               />
-
-//               <input
-//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
-//                 type="text"
-//                 placeholder="Profile Preferences"
-//                 aria-label="Profile Preferences"
-//               />
-
-//               <input
-//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
-//                 type="text"
-//                 placeholder="Current Matched Event(s)"
-//                 aria-label="Current Matched Event(s)"
-//               />
-
-//               <input
-//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
-//                 type="text"
-//                 placeholder="Add a Matched Event"
-//                 aria-label="Add a Matched Event"
-//               />
-//             </form>
-
-//             <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="button">
-//               Match!
-//             </button>
-
-//           </div>
-//         </div>
-
-//         {/* right side 1/3 page */}
-//         <div className="w-1/3 bg-white p-4 flex items-center justify-center text-center">
-//         <div className="flex flex-col items-center">
-//           <h1 className="text-center text-2xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Tailored Volunteer Matches</h1>
-//           <p className="text-center text-lg mt-10 font-geistMono" style={{ color: '#423D38' }}>View and match volunteers <br /> to specifically chosen <br />events based on the<br /> individual’s profiles and <br />event requirement.</p>
-//         </div>
-//       </div>
-//       </div>
-
-//     </>
-
-//     );
-// }
