@@ -1,6 +1,1 @@
 # volunteer-vault
-
-hello
-
-* [ ] hi
-* [ ]

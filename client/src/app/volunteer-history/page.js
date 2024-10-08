@@ -6,7 +6,19 @@ import Link from 'next/link';
 
 import volunteer_history_bg from '../../public/rectangle48.png'
 
+import { useAuth } from '@/hooks/auth'; // authenticator 
+
 const VolunteerHistory = () => {
+  const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
+
+  if (isLoading) {
+    return <p></p>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null; // Redirect handled in the hook
+  }
+
   return (
     <div
       className="bg-white bg-opacity-80 relative min-h-screen flex justify-center items-center bg-cover bg-center text-black"

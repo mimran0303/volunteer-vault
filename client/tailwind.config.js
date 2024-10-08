@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+/ @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,7 +11,7 @@ module.exports = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
-        fontFamily: {
+      fontFamily: {
         geist: ['var(--font-geist-sans)', 'sans-serif'],
         geistMono: ['var(--font-geist-mono)', 'monospace'],
       },

@@ -1,101 +1,67 @@
-import Image from "next/image";
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import landingPage_bg from '../public/landingPage.png';
+import logo from '../public/vvLogo.png';
+import { HiArrowRight } from 'react-icons/hi';
 
-export default function Home() {
+export default function LandingPage() {
+
+  /* const HoverButton = () => {
+    const [isHovered, setIsHovered] = useState(false);
+  
+    const handleMouseEnter = () => {
+      setIsHovered(true);
+    };
+  
+    const handleMouseLeave = () => {
+      setIsHovered(false);
+    }; */
+    
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <section id="landingPage" className="flex w-screen h-screen">
+      <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${landingPage_bg.src})` }}>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div id="topNavbar" className="sticky top-0 bg-transparent flex flex-row">
+          <div className="mr-[1100px]"> <Image src={logo} alt="logo" width={100} height={100}/>  </div>
+          <div className="flex flex-row space-x-5 justify-end my-10 mx-12"> 
+            <Link href="register">
+              <div className="font-geistMono font-bold text-md text-[#423D38] bg-white rounded-full px-5 py-1 cursor-pointer hover:-translate-y-2 duration-300"> SIGN-UP </div>
+            </Link>
+            <Link href="login">
+              <div className="font-geistMono font-bold text-md text-[#423D38] bg-white rounded-full px-5 py-1 cursor-pointer hover:-translate-y-2 duration-300"> LOGIN </div>
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <div className="flex flex-row space-x-22">
+          <div id="leftSide" className="flex flex-col space-y-32 mx-16">
+            <div className="flex flex-col space-y-4 font-black text-7xl text-white font-geistMono italic pt-3  "> 
+              <span> YOUR </span>
+              <span> VOLUNTEER </span>
+              <span> VAULT </span> 
+            </div>
+
+            <div className="flex flex-col space-y-8"> 
+              <div className="font-geistMono font-semibold text-md text-[#423D38]"> JOIN HANDS FOR GLOBAL ENVIRONMENTAL CHANGE </div>
+              <div className="flex flex-col space-y-4"> 
+                <div className="font-geistMono font-normal text-md text-[#423D38]"> By joining us, you'll gain access to volunteer opportunities <br/> that match your skills and interests. </div>
+                <div className="font-geistMono font-normal text-md text-[#423D38]"> Help us address critical environmental issues and support efforts <br/> to restore marine ecosystems and protect ocean health.
+                </div>
+                <div className="font-geistMono font-normal text-md text-[#423D38]"> Get involved, make a tangible difference, and be part of a <br/> community working towards meaningful environmental change. </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="rightSide" className="flex flex-col mx-16 my-10">
+            <div className="font-geistMono font-black text-6xl text-white italic mt-48 mb-16"> TAKE ON </div>
+            <div className="font-geistMono font-normal text-5xl text-[#423D38] italic leading-10 mb-6"> THE WAVE OF </div>
+            <div className="font-geistMono font-normal text-5xl text-[#423D38] italic leading-10"> CHANGE </div>
+            <HiArrowRight className="w-12 h-12 my-6 text-[#423D38] cursor-pointer hover:translate-x-5 duration-300" />
+          </div>
+        </div>
+
+      </div>
+    </section>
   );
 }
