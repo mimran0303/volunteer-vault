@@ -1,14 +1,42 @@
+// server.js
 const express = require("express");
 const app = express();
 const PORT = 8080;
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
-const cors = require("cors")
-app.use(cors)
+// Environment variables
+require('./config');
 
-app.get("/api/home", (req, res) => {
-    res.json({ message: "Hello!" })
-})
+// Middleware
+app.use(cors({
+    origin: ["http://localhost:3000"],
+    methods: ["POST", "GET"],
+    credentials: true
+}));
+app.use(express.json());
+app.use(cookieParser());
+
+
+/*
+Routes
+boilerplate:
+
+const someRoutes = require ("./routes/someRoutes")
+app.use("/some", someRoutes)
+
+axios.post('http://localhost:8080/some/page)
+axios.get('http://localhost:8080/some/page)
+*/
+const authRoutes = require("./routes/authRoutes");
+const protectedRoutes = require("./routes/protectedRoutes");
+const volunteerMatchRoute = require('./routes/volunteerMatchRoutes');
+
+app.use("/auth", authRoutes);
+app.use("/protected", protectedRoutes);
+
+app.use("/api/volunteers", volunteerMatchRoute);
 
 app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`)
-})
+    console.log(`Server started on port ${PORT}`);
+});
