@@ -2,77 +2,358 @@
 
 import Image from "next/image";
 import waterbg from '../../public/waterbg.png';
-
+import { useState } from "react"; // Add this to manage state
 import { useAuth } from "@/hooks/auth"; // authenticator 
 
-export default function volunteerMatchForm()  {
-
+export default function VolunteerMatchForm()  {
   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
+  const [matches, setMatches] = useState([]); // State to store matched volunteers
+  const [skillsRequired, setSkillsRequired] = useState(""); // State for skills input
+  const [city, setCity] = useState(""); // State for city input
+  const [state, setState] = useState(""); // State for state input
+  const [zipcode, setZipcode] = useState(""); // State for zipcode input
+  const [availability, setAvailability] = useState(""); // State for availability input
+  const [userNotFound, setUserNotFound] = useState(false); // State to track if no volunteers are found
+
+  // Fetch matching data from backend when the "Match!" button is clicked
+  const fetchMatches = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/volunteers/match', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skillsRequired, city, state, zipcode, availability }) // Send event details to backend
+      });
+
+      const data = await response.json();
+      setMatches(data.matches);  // Update the state with matched volunteers
+      setUserNotFound(data.matches.length === 0);  // If no matches, set userNotFound to true
+    } catch (error) {
+      console.error('Error fetching matches:', error);
+    }
+  };
 
   if (isLoading) {
-    return <p></p>;
+    return <p>Loading...</p>;
   }
 
   if (!isAuthenticated || !user) {
     return null; // Redirect handled in the hook
   }
 
-    return (
+  return (
     <> 
- 
- <div className="flex h-screen">
+      <div className="flex h-screen">
         {/* left and center 2/3 page */}
         <div className="w-2/3 p-4 bg-cover bg-center relative flex items-center justify-center text-center" style = {{backgroundImage: `url(${waterbg.src})`}}>
-        <div className="flex flex-col items-center">
-          <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
-          
-          <form className="w-full max-w-md flex flex-col items-center">
+          <div className="flex flex-col items-center">
+            <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
+            
+            <form className="w-full max-w-md flex flex-col items-center">
               <input
-                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
+                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+                style={{ color: '#423D38' }}
                 type="text"
-                placeholder="Volunteer Name"
-                aria-label="Volunteer Name"
+                placeholder="Skills Required"
+                value={skillsRequired}
+                onChange={(e) => setSkillsRequired(e.target.value)} // Update skills required
+                aria-label="Skills Required"
               />
 
               <input
-                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
+                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+                style={{ color: '#423D38' }}
                 type="text"
-                placeholder="Profile Preferences"
-                aria-label="Profile Preferences"
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)} // Update city
+                aria-label="City"
               />
 
               <input
-                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
+                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+                style={{ color: '#423D38' }}
                 type="text"
-                placeholder="Current Matched Event(s)"
-                aria-label="Current Matched Event(s)"
+                placeholder="State"
+                value={state}
+                onChange={(e) => setState(e.target.value)} // Update state
+                aria-label="State"
               />
 
               <input
-                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
+                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+                style={{ color: '#423D38' }}
                 type="text"
-                placeholder="Add a Matched Event"
-                aria-label="Add a Matched Event"
+                placeholder="Zipcode"
+                value={zipcode}
+                onChange={(e) => setZipcode(e.target.value)} // Update zipcode
+                aria-label="Zipcode"
               />
+
+              <input
+                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+                style={{ color: '#423D38' }}
+                type="text"
+                placeholder="Availability (e.g. 2024-01-01)"
+                value={availability}
+                onChange={(e) => setAvailability(e.target.value)} // Update availability
+                aria-label="Availability"
+              />
+
+              {/* Display matched volunteers */}
+              {matches.length > 0 && !userNotFound && (
+                <div className="mt-4">
+                  <h2 className="text-lg mb-2 font-geistMono" style={{ color: '#423D38' }}>Matched Volunteers:</h2>
+                  <ul>
+                    {matches.map((volunteer, index) => (
+                      <li key={index} className="font-geistMono" style={{ color: '#423D38' }}>
+                        {volunteer.fullName} - {volunteer.skills}, {volunteer.city}, {volunteer.state}, {volunteer.zipcode}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Display 'No volunteers found' message */}
+              {userNotFound && (
+                <p className="text-red-500 mt-4">No volunteers found</p>
+              )}
             </form>
 
-            <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="button">
+            {/* Button to trigger matching */}
+            <button
+              className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono"
+              style={{ color: '#FFFFFF' }}
+              type="button"
+              onClick={fetchMatches}  // Fetch matches on button click
+            >
               Match!
             </button>
-
           </div>
         </div>
 
         {/* right side 1/3 page */}
         <div className="w-1/3 bg-white p-4 flex items-center justify-center text-center">
-        <div className="flex flex-col items-center">
-          <h1 className="text-center text-2xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Tailored Volunteer Matches</h1>
-          <p className="text-center text-lg mt-10 font-geistMono" style={{ color: '#423D38' }}>View and match volunteers <br /> to specifically chosen <br />events based on the<br /> individual’s profiles and <br />event requirement.</p>
+          <div className="flex flex-col items-center">
+            <h1 className="text-center text-2xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Tailored Volunteer Matches</h1>
+            <p className="text-center text-lg mt-10 font-geistMono" style={{ color: '#423D38' }}>View and match volunteers <br /> to specifically chosen <br />events based on the<br /> individual’s profiles and <br />event requirement.</p>
+          </div>
         </div>
       </div>
-      </div>
-
     </>
-
-    );
+  );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// "use client"
+
+// import Image from "next/image";
+// import waterbg from '../../public/waterbg.png';
+// import { useState } from "react"; // Add this to manage state
+// import { useAuth } from "@/hooks/auth"; // authenticator 
+
+// export default function VolunteerMatchForm()  {
+//   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
+//   const [matches, setMatches] = useState([]); // State to store matched events
+//   const [volunteerName, setVolunteerName] = useState(""); // State for volunteer name input
+//   const [profilePreferences, setProfilePreferences] = useState(""); // State for preferences input
+
+//   // Fetch matching data from backend when the "Match!" button is clicked
+//   const fetchMatches = async () => {
+//     try {
+//       const response = await fetch('http://localhost:8080/api/volunteers/match'); // Fetch from your backend
+//       const data = await response.json();
+//       setMatches(data.matches);  // Update the state with matched events
+//     } catch (error) {
+//       console.error('Error fetching matches:', error);
+//     }
+//   };
+
+//   if (isLoading) {
+//     return <p>Loading...</p>;
+//   }
+
+//   if (!isAuthenticated || !user) {
+//     return null; // Redirect handled in the hook
+//   }
+
+//   return (
+//     <> 
+//       <div className="flex h-screen">
+//         {/* left and center 2/3 page */}
+//         <div className="w-2/3 p-4 bg-cover bg-center relative flex items-center justify-center text-center" style = {{backgroundImage: `url(${waterbg.src})`}}>
+//           <div className="flex flex-col items-center">
+//             <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
+            
+//             <form className="w-full max-w-md flex flex-col items-center">
+//               <input
+//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+//                 style={{ color: '#423D38' }}
+//                 type="text"
+//                 placeholder="Volunteer Name"
+//                 value={volunteerName}
+//                 onChange={(e) => setVolunteerName(e.target.value)} // Update volunteer name
+//                 aria-label="Volunteer Name"
+//               />
+
+//               <input
+//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+//                 style={{ color: '#423D38' }}
+//                 type="text"
+//                 placeholder="Profile Preferences"
+//                 value={profilePreferences}
+//                 onChange={(e) => setProfilePreferences(e.target.value)} // Update preferences
+//                 aria-label="Profile Preferences"
+//               />
+
+//               {/* Display matched events */}
+//               {matches.length > 0 && (
+//                 <div className="mt-4">
+//                   <h2 className="text-lg mb-2 font-geistMono" style={{ color: '#423D38' }}>Matched Event(s):</h2>
+//                   <ul>
+//                     {matches.map((match, index) => (
+//                       <li key={index} className="font-geistMono" style={{ color: '#423D38' }}>
+//                         {match.event} - {match.volunteers.length > 0 ? match.volunteers.join(", ") : "No volunteers matched"}
+//                       </li>
+//                     ))}
+//                   </ul>
+//                 </div>
+//               )}
+//             </form>
+
+//             {/* Button to trigger matching */}
+//             <button
+//               className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono"
+//               style={{ color: '#FFFFFF' }}
+//               type="button"
+//               onClick={fetchMatches}  // Fetch matches on button click
+//             >
+//               Match!
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* right side 1/3 page */}
+//         <div className="w-1/3 bg-white p-4 flex items-center justify-center text-center">
+//           <div className="flex flex-col items-center">
+//             <h1 className="text-center text-2xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Tailored Volunteer Matches</h1>
+//             <p className="text-center text-lg mt-10 font-geistMono" style={{ color: '#423D38' }}>View and match volunteers <br /> to specifically chosen <br />events based on the<br /> individual’s profiles and <br />event requirement.</p>
+//           </div>
+//         </div>
+//       </div>
+//     </>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// "use client"
+
+// import Image from "next/image";
+// import waterbg from '../../public/waterbg.png';
+
+// import { useAuth } from "@/hooks/auth"; // authenticator 
+
+// export default function volunteerMatchForm()  {
+
+//   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
+
+//   if (isLoading) {
+//     return <p></p>;
+//   }
+
+//   if (!isAuthenticated || !user) {
+//     return null; // Redirect handled in the hook
+//   }
+
+//     return (
+//     <> 
+ 
+//  <div className="flex h-screen">
+//         {/* left and center 2/3 page */}
+//         <div className="w-2/3 p-4 bg-cover bg-center relative flex items-center justify-center text-center" style = {{backgroundImage: `url(${waterbg.src})`}}>
+//         <div className="flex flex-col items-center">
+//           <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
+          
+//           <form className="w-full max-w-md flex flex-col items-center">
+//               <input
+//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
+//                 type="text"
+//                 placeholder="Volunteer Name"
+//                 aria-label="Volunteer Name"
+//               />
+
+//               <input
+//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
+//                 type="text"
+//                 placeholder="Profile Preferences"
+//                 aria-label="Profile Preferences"
+//               />
+
+//               <input
+//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
+//                 type="text"
+//                 placeholder="Current Matched Event(s)"
+//                 aria-label="Current Matched Event(s)"
+//               />
+
+//               <input
+//                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono" style={{ color: '#423D38' }}
+//                 type="text"
+//                 placeholder="Add a Matched Event"
+//                 aria-label="Add a Matched Event"
+//               />
+//             </form>
+
+//             <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="button">
+//               Match!
+//             </button>
+
+//           </div>
+//         </div>
+
+//         {/* right side 1/3 page */}
+//         <div className="w-1/3 bg-white p-4 flex items-center justify-center text-center">
+//         <div className="flex flex-col items-center">
+//           <h1 className="text-center text-2xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Tailored Volunteer Matches</h1>
+//           <p className="text-center text-lg mt-10 font-geistMono" style={{ color: '#423D38' }}>View and match volunteers <br /> to specifically chosen <br />events based on the<br /> individual’s profiles and <br />event requirement.</p>
+//         </div>
+//       </div>
+//       </div>
+
+//     </>
+
+//     );
+// }

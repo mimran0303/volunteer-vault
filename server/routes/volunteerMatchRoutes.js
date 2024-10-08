@@ -1,12 +1,9 @@
-// routes/volunteerMatch.js
 
 const express = require('express');
-const { matchVolunteersToEvents } = require('../utils/volunteerMatch');
+const { matchVolunteersToEventController } = require('../controllers/volunteerMatchController');
 const router = express.Router();
 
-router.get('/match', (req, res) => {
-    const matches = matchVolunteersToEvents();
-    res.json({ success: true, matches });
-});
+// POST route for volunteer matching
+router.post('/match', matchVolunteersToEventController);
 
 module.exports = router;
