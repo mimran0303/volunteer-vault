@@ -1,4 +1,4 @@
-// data/users.js
+
 const bcrypt = require("bcrypt");
 const salt = 10;
 

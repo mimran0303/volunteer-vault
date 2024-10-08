@@ -1,13 +1,15 @@
 
-const { matchVolunteersToEvents } = require('../utils/volunteerMatch');
+const { matchVolunteersToEvent } = require('../utils/volunteerMatch');
 
-const getMatchedVolunteers = (req, res) => {
+const matchVolunteersToEventController = (req, res) => {
+    const { skillsRequired, city, state, zipcode, availability } = req.body;  // Get event details from the request body
+
     try {
-        const matches = matchVolunteersToEvents();
-        res.status(200).json({ success: true, data: matches });
+        const matchedVolunteers = matchVolunteersToEvent({ skillsRequired, city, state, zipcode, availability });
+        res.status(200).json({ matches: matchedVolunteers });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-module.exports = { getMatchedVolunteers };
+module.exports = { matchVolunteersToEventController };
