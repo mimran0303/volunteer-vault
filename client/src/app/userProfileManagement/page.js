@@ -162,12 +162,11 @@ export default function UserProfileManagement() {
                         />
                     </div>
                 </div>
-
-
-
-
-
             </form>
+
+            <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-2 rounded-full mt-10 font-geistMono w-40 h-12" style={{ color: '#FFFFFF' }} type="button">
+              SAVE CHANGES
+          </button>
 
         </div>
       </div>
