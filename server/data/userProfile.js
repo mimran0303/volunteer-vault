@@ -5,11 +5,11 @@ let userProfiles = [
       address1: "123 Main St",
       address2: "",
       city: "Houston",
-      state: "TX",
+      state: "Texas",
       zipcode: "10001",
       skills: "Research Skills",
       preferences: "Volunteering on weekends",
-      availability: "2024-01-01",
+      availability: "01-01-2025",
     },
   ];
   

@@ -4,8 +4,9 @@ let userProfiles = [
       eventName: "Bakesale Fundraiser",
       location: "University of Houston",
       eventDescription: "Sell baked goods for a cause",
-      urgency: "High priority",
-      date: "2024-01-01",
+      skills: "Research Skills",
+      urgency: "Urgent",
+      date: "01-01-2024",
     },
   ];
   
