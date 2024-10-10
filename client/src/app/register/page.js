@@ -103,8 +103,8 @@ export function register() {
                   <option value="" disabled>
                     Account Type
                   </option>
-                  <option value="Volunteer">Volunteer</option>
-                  <option value="Administrator">Administrator</option>
+                  <option value="volunteer">Volunteer</option>
+                  <option value="administrator">Administrator</option>
                 </select>
 
                 <input
