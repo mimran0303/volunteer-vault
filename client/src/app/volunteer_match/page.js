@@ -17,6 +17,11 @@ export default function VolunteerMatchForm()  {
   const [availability, setAvailability] = useState(""); // State for availability input
   const [userNotFound, setUserNotFound] = useState(false); // State to track if no volunteers are found
 
+
+
+  const token = localStorage.getItem('token'); // Get token from localStorage or use cookies if needed
+  console.log("stored token", token);
+
   // Handle selecting/deselecting volunteers
   const handleVolunteerSelection = (volunteer) => {
     setSelectedVolunteers(prevSelected =>
@@ -43,7 +48,8 @@ export default function VolunteerMatchForm()  {
     }
   };
 
-  // Assign selected volunteers to the event and store them in an array
+  const notifications = []; // Array to store notifications (or move this to a more permanent storage)
+
   const assignVolunteers = async () => {
       const eventDetails = {
           skillsRequired,
@@ -53,27 +59,25 @@ export default function VolunteerMatchForm()  {
           availability,
       };
 
-      // Filter out volunteers that are already assigned to the event
       const newAssignments = selectedVolunteers.filter(volunteer => {
           return !assignedVolunteers.some(assigned => {
-              console.log('Checking assignment: ', assigned);
-              return assigned.fullName === volunteer.fullName && 
-                          assigned.event.skillsRequired === skillsRequired && 
-                          assigned.event.city === city && 
-                          assigned.event.state === state &&
-                          assigned.event.zipcode === zipcode &&
-                          assigned.event.availability === availability
+              if (!assigned.volunteer || !assigned.event) return false;
+
+              return assigned.volunteer.fullName === volunteer.fullName &&
+                  assigned.event.skillsRequired === skillsRequired &&
+                  assigned.event.city === city &&
+                  assigned.event.state === state &&
+                  assigned.event.zipcode === zipcode &&
+                  assigned.event.availability === availability;
           });
       });
 
-      // If there are no new assignments, don't proceed
       if (newAssignments.length === 0) {
           console.log("No new volunteers to assign.");
           return;
       }
 
       try {
-          // Send the new assignments to the backend
           const response = await fetch('http://localhost:8080/api/assignments/assign', {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -83,19 +87,27 @@ export default function VolunteerMatchForm()  {
           const data = await response.json();
           console.log('Assignment Response:', data);
 
-          // Update the assigned volunteers list in the frontend
-          setAssignedVolunteers(prevAssigned => [
-              ...prevAssigned,
-              ...newAssignments
-          ]);
-          console.log("Assigned volunteers Array: ", assignVolunteers);
-          setSelectedVolunteers([]);  // Clear the selected volunteers after assigning
+          // Update assigned volunteers in the frontend
+          setAssignedVolunteers(prevAssigned => [...prevAssigned, ...newAssignments]);
+
+          // Create notifications for each assigned volunteer
+          newAssignments.forEach(volunteer => {
+              notifications.push({
+                  userId: volunteer.id,  // Assume volunteer has an ID
+                  message: `You have been assigned to the ${eventDetails.skillsRequired} event on ${eventDetails.availability}.`,
+                  isRead: false,
+                  date: new Date().toISOString()
+              });
+          });
+
+          console.log("Notifications: ", notifications);
+
+          setSelectedVolunteers([]);  // Clear selected volunteers
 
       } catch (error) {
           console.error('Error assigning volunteers:', error);
       }
   };
-
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -170,9 +182,7 @@ export default function VolunteerMatchForm()  {
                   <h2 className="text-lg mb-2 font-geistMono" style={{ color: '#423D38' }}>Matched Volunteers:</h2>
                   <ul>
                     {matches.map((volunteer, index) => {
-                      // Check if the volunteer has already been assigned to the event
                       const isAssigned = assignedVolunteers.some(assigned => {
-                          // Safeguard against undefined volunteer or event
                           if (!assigned.volunteer || !assigned.event) {
                             return false;
                           }
@@ -186,15 +196,6 @@ export default function VolunteerMatchForm()  {
                             assigned.event.availability === availability
                           );
                       });
-
-                      // const isAssigned = assignedVolunteers.some(assigned => 
-                      //   assigned.volunteer.fullName === volunteer.fullName &&
-                      //   assigned.event.skillsRequired === skillsRequired &&
-                      //   assigned.event.city === city &&
-                      //   assigned.event.state === state &&
-                      //   assigned.event.zipcode === zipcode &&
-                      //   assigned.event.availability === availability
-                      // );
 
                       return (
                         <li key={index} className="font-geistMono" style={{ color: '#423D38' }}>
@@ -214,7 +215,6 @@ export default function VolunteerMatchForm()  {
                   </ul>
                 </div>
               )}
-
 
               {/* Display 'No volunteers found' message */}
               {userNotFound && (
@@ -257,7 +257,6 @@ export default function VolunteerMatchForm()  {
                 </ul>
               </div>
             )}
-
           </div>
         </div>
 

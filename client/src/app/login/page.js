@@ -23,12 +23,30 @@ export function login() {
     event.preventDefault();
     axios.defaults.withCredentials = true;
 
+
     // server.js: app.use("/auth", authRoutes);
     axios.post('http://localhost:8080/auth/login', values)
     .then(res => {
+
+      console.log("Sending login data: ", res.data);
       // Success: handle the response data
       if(res.data.Status === "Success") {
-        router.push('/dashboard')
+        // router.push('/dashboard')
+
+        const token = res.data.token;
+        console.log("Token received: ", token);
+
+        if(token)
+        {
+          localStorage.setItem('token', token);
+          console.log("Token saved to local storage: ", token);
+
+          router.push('/dashboard');
+        }
+        else
+        {
+           console.error("No token in reponse");
+        }
       } 
       else {
         // TODO: keep alert() or display the error on the page

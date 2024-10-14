@@ -1,6 +1,6 @@
 let userProfiles = [
     {
-      id: 1,
+      userId: 1,
       fullName: "Jane Doe",
       address1: "123 Main St",
       address2: "",
@@ -12,7 +12,7 @@ let userProfiles = [
       availability: "2024-01-01",
     },
     {
-      id: 2,
+      userId: 2,
       fullName: "Tristan Fry",
       address1: "123 Main St",
       address2: "",
