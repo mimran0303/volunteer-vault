@@ -31,8 +31,23 @@ axios.get('http://localhost:8080/some/page)
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protectedRoutes");
 
+const volunteerMatchRoute = require('./routes/volunteerMatchRoutes');
+const assignmentRoutes = require('./routes/assignmentRoutes');
+const notificationRoutes = require('./routes/notificationsRoutes');
+
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
+
+app.use("/api/volunteers", volunteerMatchRoute);
+app.use("/api/assignments", assignmentRoutes);
+app.use('/api', notificationRoutes);
+
+app._router.stack.forEach(function(r) {
+  if (r.route && r.route.path) {
+    console.log(r.route.path);
+  }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
