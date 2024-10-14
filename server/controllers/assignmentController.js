@@ -1,11 +1,8 @@
-/*
-This controller is to get the user and their assigned event from the front end 
-*/
-
 // server/controllers/assignmentController.js
-
 let assignedVolunteers = [];
-
+let notifications = require('../data/notifications');  // Import notifications array
+const userProfiles = require('../data/userProfiles');  // Import user profiles
+const eventInfo = require('../data/eventManagement');
 const assignVolunteersToEvent = (req, res) => {
     const { eventDetails, volunteers } = req.body;
 
@@ -28,10 +25,37 @@ const assignVolunteersToEvent = (req, res) => {
 
     // Store the new assignments
     newAssignments.forEach(volunteer => {
-        assignedVolunteers.push({ event: eventDetails, volunteer });
+        // console.log("Volunteer Full Name:", volunteer.fullName);
+        // console.log("User Profiles Full Names:", userProfiles.map(profile => profile.fullName));
+        // Find the user profile by matching `fullName`
+        const userProfile = userProfiles.find(profile => profile.fullName.trim() === volunteer.fullName.trim());
+
+        if (userProfile) {
+            assignedVolunteers.push({
+                event: eventDetails,
+                volunteer: { ...volunteer, userId: userProfile.userId }  // Attach userId to the volunteer object
+            });
+
+            // console.log("User Profile for Notification:", userProfile);
+            // console.log("User Profile userId for Notification:", userProfile.userId);
+            // console.log("Before Notification Creation - userId:", userProfile.userId);
+
+            const notification = {
+                message: `You have been assigned to the ${eventDetails.skillsRequired} event on ${eventDetails.availability}.`,
+                date: new Date().toISOString(),  // Timestamp
+                isRead: false,  // New notification is unread
+                userId: userProfile.userId  // Use userId from the profile
+            };
+
+            notifications.push(notification);  // Push the notification to the array
+        } else {
+            console.log("User not found for volunteer:", volunteer);  // Log the missing user
+        }
     });
 
-    console.log("Assigned Volunteers Array: ", assignedVolunteers);
+    // console.log("Assigned Volunteers Array: ", assignedVolunteers);
+    // console.log("Notifications Array: ", notifications);  // Check the updated notifications array
+
     res.status(200).json({ success: true, message: 'Volunteers assigned successfully!', assignedVolunteers });
 };
 
