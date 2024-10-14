@@ -11,7 +11,7 @@ require('./config');
 // Middleware
 app.use(cors({
     origin: ["http://localhost:3000"],
-    methods: ["POST", "GET"],
+    methods: ["POST", "GET","PUT","DELETE"],
     credentials: true
 }));
 app.use(express.json());
@@ -31,8 +31,10 @@ axios.get('http://localhost:8080/some/page)
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protectedRoutes");
 
+
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
+
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
