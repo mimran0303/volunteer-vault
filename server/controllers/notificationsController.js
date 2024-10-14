@@ -18,7 +18,6 @@ const getUserNotifications = (req, res) => {
         }
 
         console.log("Decoded JWT: ", decoded);  // Log the decoded token
-        // const userId = decoded.userId;  // Extract the userId from the decoded token
         const userNotifications = notifications.filter(notification => notification.userId === userId);
 
         console.log("User Notifications for userId: ", userId, userNotifications);  // Log the user notifications

@@ -81,7 +81,7 @@ const NotificationPage = () => {
             height={100} // Height of the profile picture
             className="rounded-full mr-4"
           />
-          <h2 className="text-xl text-black font-semibold">{userId ? `User ID: ${userId}` : "Loading..."}</h2>
+          <h2 className="text-xl text-black font-semibold">{userId ? `User ID: ${userId}`: "Loading..."}</h2>
         </div>
         {/* Horizontal bar (divider) */}
         <div className="border-b border-gray-400 mb-4"></div>
@@ -137,8 +137,8 @@ const NotificationPage = () => {
                   {activeTab === "assignments" ? (
                     <div>
                       <p className="font-bold">{notification.message}</p>
-                      <p>Description: {notification.eventDescription}</p>
-                      <p>Date: {new Date(notification.eventDate).toLocaleDateString()}</p>
+                      {/* <p>Description: {notification.eventDescription}</p>
+                      <p>Date: {new Date(notification.eventDate).toLocaleDateString()}</p> */}
                     </div>
                   ) : (
                     <p>{notification.message}</p>
