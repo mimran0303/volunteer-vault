@@ -44,7 +44,7 @@ exports.login = (req, res) => {
         if (response) {
             // JWT signature! any user data we want to use should go in here
             const token = jwt.sign(
-                { username: user[1], accountType: user[0] },
+                { username: user[1], accountType: user[0], userId: user[3]},
                 `${process.env.JWT_SECRET_KEY}`,
                 { expiresIn: '1d' }
             );
