@@ -3,18 +3,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
-import {jwtDecode} from "jwt-decode"; // Assuming you have jwt-decode installed
+import { useAuth } from "@/hooks/auth"; // Import the useAuth hook
 
-import notification_system_bg  from '../../public/rectangle46.png'
-import volunteerProfilePic from '../../public/volunteer1pfp.jpg'
-
-
+import notification_system_bg from '../../public/rectangle46.png';
+import volunteerProfilePic from '../../public/volunteer1pfp.jpg';
 
 const NotificationPage = () => {
+  const { isAuthenticated, user, isLoading } = useAuth(); // Destructure the useAuth hook
   const [activeTab, setActiveTab] = useState("assignments");
   const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState("");
-  const [userId, setUserId] = useState(null);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -22,17 +20,18 @@ const NotificationPage = () => {
 
   // Fetch notifications from the backend
   const fetchNotifications = async () => {
+    if (!isAuthenticated || !user) {
+      setError("User not authenticated.");
+      return;
+    }
+
     const token = localStorage.getItem("token");
-    console.log("Stored token:", token);
     if (!token) {
       setError("No token found. Please log in.");
       return;
     }
 
     try {
-      const decodedToken = jwtDecode(token);
-      setUserId(decodedToken.userId);
-
       const response = await axios.get("http://localhost:8080/api/notifications", {
         withCredentials: true,
         headers: {
@@ -55,8 +54,10 @@ const NotificationPage = () => {
   };
 
   useEffect(() => {
-    fetchNotifications();
-  }, []);
+    if (!isLoading) {
+      fetchNotifications();
+    }
+  }, [isLoading]);
 
   // Filter notifications based on active tab
   const filteredNotifications = notifications.filter((notification) => {
@@ -81,7 +82,9 @@ const NotificationPage = () => {
             height={100} // Height of the profile picture
             className="rounded-full mr-4"
           />
-          <h2 className="text-xl text-black font-semibold">{userId ? `User ID: ${userId}`: "Loading..."}</h2>
+          <h2 className="text-xl text-black font-semibold">
+            {isAuthenticated && user ? user.username : "Loading..."}
+          </h2>
         </div>
         {/* Horizontal bar (divider) */}
         <div className="border-b border-gray-400 mb-4"></div>
@@ -137,8 +140,6 @@ const NotificationPage = () => {
                   {activeTab === "assignments" ? (
                     <div>
                       <p className="font-bold">{notification.message}</p>
-                      {/* <p>Description: {notification.eventDescription}</p>
-                      <p>Date: {new Date(notification.eventDate).toLocaleDateString()}</p> */}
                     </div>
                   ) : (
                     <p>{notification.message}</p>
@@ -156,3 +157,4 @@ const NotificationPage = () => {
 };
 
 export default NotificationPage;
+
