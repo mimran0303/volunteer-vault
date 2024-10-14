@@ -137,6 +137,12 @@ export default function EventManagementForm() {
             <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="submit"> {/* Change type to submit */}
               ADD EVENT
             </button>
+            <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="submit"> {/* Change type to submit */}
+              MODIFY EVENT
+            </button>
+            <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="submit"> {/* Change type to submit */}
+              DELETE EVENT
+            </button>
           </form>
         </div>
 
