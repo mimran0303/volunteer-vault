@@ -28,7 +28,6 @@ const assignVolunteersToEvent = (req, res) => {
         console.log("Volunteer Full Name:", volunteer.fullName);
         console.log("User Profiles Full Names:", userProfiles.map(profile => profile.fullName));
         // Find the user profile by matching `fullName`
-        // const userProfile = userProfiles.find(profile => profile.fullName === volunteer.fullName);
         const userProfile = userProfiles.find(profile => profile.fullName.trim() === volunteer.fullName.trim());
 
         if (userProfile) {
@@ -47,9 +46,7 @@ const assignVolunteersToEvent = (req, res) => {
                 isRead: false,  // New notification is unread
                 userId: userProfile.userId  // Use userId from the profile
             };
-            // console.log("After Notification Creation - userId in notification:", notification.userId);
-            // console.log("User Profiles:", userProfiles);
-            // console.log("Creating Notification for User: ", userProfile.fullName, notification);  // Log the user and notification
+
             notifications.push(notification);  // Push the notification to the array
         } else {
             console.log("User not found for volunteer:", volunteer);  // Log the missing user

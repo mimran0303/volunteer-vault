@@ -8,19 +8,3 @@ let users = [
 ];
 
 module.exports = users;
-
-
-// let users = [
-//     {
-//         id: 1,  // Matches with userProfiles id
-//         role: "volunteer", 
-//         email: "user1@example.com",
-//         password: bcrypt.hashSync('password1', salt)  // Hashed password
-//     },
-//     {
-//         id: 2,  // Matches with userProfiles id
-//         role: "administrator", 
-//         email: "user2@example.com",
-//         password: bcrypt.hashSync('password2', salt)
-//     }
-// ];
