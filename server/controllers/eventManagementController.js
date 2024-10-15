@@ -16,7 +16,7 @@ exports.getEvents = (req, res) => {
 // eventAdminId is taken from the client-side as the 'auth' uses the verifyToken middleware. Thus, we can call the token from the client-side
 // This is only an example, it would be easier to simply call verifyToken in the route instead of calling the token it from the client-side 
 exports.createEventManagement = (req, res) => {
-  const { eventAdminId, eventName, location, eventDescription, urgency, date } = req.body;
+  const { eventAdminId, eventName, location, eventDescription, skills, urgency, date } = req.body;
 
   const newEvent = {
     event_id: eventDetails.length + 1,
@@ -24,6 +24,7 @@ exports.createEventManagement = (req, res) => {
     eventName,
     location,
     eventDescription,
+    skills,
     urgency,
     date,
   };
