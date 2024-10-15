@@ -2,17 +2,22 @@ const eventDetails = require('../data/eventManagement');
 
 // Create a new event
 exports.createEventManagement = (req, res) => {
-  const { eventName, location, eventDescription, urgency, date } = req.body;
+  console.log(req.body)
+  const { eventAdminId, eventName, location, eventDescription, urgency, date } = req.body;
+
   const newEvent = {
     event_id: eventDetails.length + 1,
+    eventAdminId,
     eventName,
     location,
     eventDescription,
     urgency,
     date,
   };
+
   console.debug("Hello from Event Management!");
   eventDetails.push(newEvent);
+  console.log(eventDetails)
   res.status(201).json(newEvent);
 };
 
