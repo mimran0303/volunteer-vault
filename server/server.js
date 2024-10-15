@@ -35,12 +35,19 @@ const volunteerMatchRoute = require('./routes/volunteerMatchRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const notificationRoutes = require('./routes/notificationsRoutes');
 
+const volunteerHistoryRoutes = require("./routes/volunteerHistoryRoutes");
+
+
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
 
 app.use("/api/volunteers", volunteerMatchRoute);
 app.use("/api/assignments", assignmentRoutes);
 app.use('/api', notificationRoutes);
+
+app.use("/", volunteerHistoryRoutes);
+
+
 
 app._router.stack.forEach(function(r) {
   if (r.route && r.route.path) {
