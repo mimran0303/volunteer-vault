@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'; 
-import { useRouter } from 'next/navigation';
 import Modal from 'react-modal';  
 import axios from 'axios';
 import Image from 'next/image';
@@ -9,14 +8,13 @@ import beachOne from '../../public/beachOne.png';
 import { useAuth } from '@/hooks/auth'; 
 
 export default function EventManagementForm() {
-  const router = useRouter();
   const [events, setEvents] = useState([]);
   const [isBooting, setIsBooting] = useState(true); // ? same thing as isLoading
 
   const [isModalOpen, setIsModalOpen] = useState(false); // Control modal visibility
   const [editingEvent, setEditingEvent] = useState(null); // Store the event being edited
 
-  // Open the modal with pre-filled event data
+  // FOR EDITS: Open the modal with pre-filled event data
   const openModal = (event) => {
     setEditingEvent(event); // Set the event to edit
     setEventData({
@@ -58,6 +56,7 @@ export default function EventManagementForm() {
     }
   }, [user]);
 
+  // GET request to display events linked to the logged in admin
   useEffect(() => {
     // Fetch event data from the server
     axios.get('http://localhost:8080/eventManagement/events', { withCredentials: true })
@@ -79,9 +78,11 @@ export default function EventManagementForm() {
     return null; 
   }
 
+  // since we have two submit methods, create and edit, editingEvent is used to differentiate between editing or creating an event
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent default form submission behavior
 
+    // EDITING
     if (editingEvent) {
       // Editing existing event
       axios.put(`http://localhost:8080/eventManagement/edit/${editingEvent.event_id}`, eventData, { withCredentials: true })
@@ -98,13 +99,13 @@ export default function EventManagementForm() {
         });
     }
   
-    // Send the form data to the server
+    // CREATING
     else {
       axios.post('http://localhost:8080/eventManagement/create', eventData)
       .then(res => {
         if (res.status === 201) {
           alert('Event created successfully!'); // Show alert on success
-          window.location.reload();
+          window.location.reload(); // hard refresh to show new updates
         } else {
           alert('Error: ' + res.data.Error);
         }
@@ -116,6 +117,7 @@ export default function EventManagementForm() {
     }
   };
 
+  // function to handle deleting events
   const handleDelete = (eventId) => {
     if (confirm("Are you sure you want to delete this event?")) {
       axios.delete(`http://localhost:8080/eventManagement/delete/${eventId}`, { withCredentials: true })
@@ -263,7 +265,7 @@ export default function EventManagementForm() {
           />
         </div>
 
-        {/* Modal for editing */}
+        {/* Modal form for editing */}
         <Modal
           isOpen={isModalOpen}
           onRequestClose={closeModal}
