@@ -1,32 +1,68 @@
 "use client";
 
-import React, { useState } from 'react'
-
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Image from "next/image";
-import notification_system_bg from '../../public/rectangle46.png'
-import volunteerProfilePic from '../../public/volunteer1pfp.jpg'
+import { useAuth } from "@/hooks/auth"; // Import the useAuth hook
 
-import { useAuth } from '@/hooks/auth'; // authenticator
+import notification_system_bg from '../../public/rectangle46.png';
+import volunteerProfilePic from '../../public/volunteer1pfp.jpg';
 
 const NotificationPage = () => {
-  const { isAuthenticated, user, isLoading } = useAuth(); // Both admins and non-admins can access (no "administrator argument")
-
-  // State to track the selected tab
+  const { isAuthenticated, user, isLoading } = useAuth(); // Destructure the useAuth hook
   const [activeTab, setActiveTab] = useState("assignments");
+  const [notifications, setNotifications] = useState([]);
+  const [error, setError] = useState("");
 
-  // Handle tab switching
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
-  if (isLoading) {
-    return <p></p>;
-  }
+  // Fetch notifications from the backend
+  const fetchNotifications = async () => {
+    if (!isAuthenticated || !user) {
+      setError("User not authenticated.");
+      return;
+    }
 
-  if (!isAuthenticated || !user) {
-    return null; // Redirect handled in the hook
-  }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+
+    try {
+      const response = await axios.get("http://localhost:8080/api/notifications", {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("API response:", response.data);
+
+      if (response.data.success) {
+        setNotifications(response.data.notifications);
+      } else {
+        setError(response.data.message || "Failed to fetch notifications.");
+      }
+    } catch (err) {
+      setError("An error occurred while fetching notifications.");
+      console.error("Error fetching notifications:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoading) {
+      fetchNotifications();
+    }
+  }, [isLoading]);
+
+  // Filter notifications based on active tab
+  const filteredNotifications = notifications.filter((notification) => {
+    return activeTab === "assignments";
+  });
 
   return (
     <div
@@ -46,9 +82,11 @@ const NotificationPage = () => {
             height={100} // Height of the profile picture
             className="rounded-full mr-4"
           />
-          <h2 className="text-xl text-black font-semibold">{user.username}</h2> {/* Name of volunteer */}
+          <h2 className="text-xl text-black font-semibold">
+            {isAuthenticated && user ? user.username : "Loading..."}
+          </h2>
         </div>
-         {/* Horizontal bar (divider) */}
+        {/* Horizontal bar (divider) */}
         <div className="border-b border-gray-400 mb-4"></div>
 
         {/* Navigation Tabs */}
@@ -87,7 +125,7 @@ const NotificationPage = () => {
       </div>
 
       {/* Content Area */}
-      <div className="text-black flex-1 bg-white bg-opacity-20 p-6 ml-6 shadow-md bg-opacity-80">
+      <div className="text-black flex-1 bg-white bg-opacity-20 p-6 ml-6 shadow-md">
         <h2 className="text-2xl font-semibold mb-4">Notifications</h2>
         <div className="border border-gray-300 p-4">
           <h3 className="text-lg font-semibold mb-4">
@@ -95,15 +133,23 @@ const NotificationPage = () => {
             {activeTab === "updates" && "Updates Notifications"}
             {activeTab === "reminders" && "Reminders Notifications"}
           </h3>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>• Assignment/Update/Reminder</li>
-            <li>• Assignment/Update/Reminder</li>
-            <li>• Assignment/Update/Reminder</li>
-            <li>• Assignment/Update/Reminder</li>
-            <li>• Assignment/Update/Reminder</li>
-            <li>• Assignment/Update/Reminder</li>
-            <li>• Assignment/Update/Reminder</li>
-          </ul>
+          {filteredNotifications.length > 0 ? (
+            <ul className="list-disc pl-6 space-y-2">
+              {filteredNotifications.map((notification, index) => (
+                <li key={index}>
+                  {activeTab === "assignments" ? (
+                    <div>
+                      <p className="font-bold">{notification.message}</p>
+                    </div>
+                  ) : (
+                    <p>{notification.message}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No notifications available.</p>
+          )}
         </div>
       </div>
     </div>
@@ -111,3 +157,4 @@ const NotificationPage = () => {
 };
 
 export default NotificationPage;
+

@@ -9,7 +9,6 @@ The client side expects a response and is checking for either and Error or Statu
 see /register/page.js in the client side to see how these responses are handled under axios
 try to display all the errors when logging in or registering (i.e. try registering under an existing email, log in with the wrong email/password)
 */
-
 exports.register = (req, res) => {
     const userExists = users.find(user => user[1] === req.body.email); // looking for existing email in users array
     if (userExists) {
@@ -21,7 +20,7 @@ exports.register = (req, res) => {
         const values = [
             req.body.accountType,
             req.body.email,
-            hash
+            hash,
         ]; 
 
         users.push(values); // adding new user to users array
@@ -49,7 +48,7 @@ exports.login = (req, res) => {
                 { expiresIn: '1d' }
             );
             res.cookie('token', token, { httpOnly: true });
-            return res.json({ Status: "Success" });
+            return res.json({ Status: "Success", token});
         } else {
             return res.json({ Error: "Incorrect password!" });
         }

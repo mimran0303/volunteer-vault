@@ -12,4 +12,3 @@ router.put('/:id/update', userProfileController.updateUserProfileById);
 router.delete('/:id/delete', userProfileController.deleteUserProfileById);
 
 module.exports = router;
-
