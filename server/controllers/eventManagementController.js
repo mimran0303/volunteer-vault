@@ -1,5 +1,16 @@
 const eventDetails = require('../data/eventManagement');
 
+exports.getEvents = async (req, res) => {
+  try {
+    const userId = req.user.userId; 
+    const userEvents = eventDetails.filter(event => event.event_admin_id === userId);
+    console.log(userEvents)
+    res.status(200).json(userEvents);
+  } catch {
+    res.status(500).json({ Error: "Failed to retrieve events." });
+  }
+}
+
 // Create a new event
 exports.createEventManagement = (req, res) => {
   console.log(req.body)
@@ -21,32 +32,34 @@ exports.createEventManagement = (req, res) => {
   res.status(201).json(newEvent);
 };
 
+
+
 // Get all events
-exports.getEventManagement = (req, res) => {res.status(200).json(eventDetails);};
+// exports.getEventManagement = (req, res) => {res.status(200).json(eventDetails);};
 
-// Get an event by ID
-exports.getEventManagementId = (req, res) => {
-  const { id } = req.params;
-  const event = eventDetails.find((e) => e.event_id === parseInt(id));
-  if (!event) return res.status(404).send("Event not found");
-  res.status(200).json(event);
-};
+// // Get an event by ID
+// exports.getEventManagementId = (req, res) => {
+//   const { id } = req.params;
+//   const event = eventDetails.find((e) => e.event_id === parseInt(id));
+//   if (!event) return res.status(404).send("Event not found");
+//   res.status(200).json(event);
+// };
 
-// Update an event by ID
-exports.updateEventManagementId = (req, res) => {
-  const { id } = req.params;
-  const index = eventDetails.findIndex((e) => e.event_id === parseInt(id));
-  if (index === -1) return res.status(404).send("Event not found");
-  const updatedEvent = { ...eventDetails[index], ...req.body };
-  eventDetails[index] = updatedEvent;
-  res.status(200).json(updatedEvent);
-};
+// // Update an event by ID
+// exports.updateEventManagementId = (req, res) => {
+//   const { id } = req.params;
+//   const index = eventDetails.findIndex((e) => e.event_id === parseInt(id));
+//   if (index === -1) return res.status(404).send("Event not found");
+//   const updatedEvent = { ...eventDetails[index], ...req.body };
+//   eventDetails[index] = updatedEvent;
+//   res.status(200).json(updatedEvent);
+// };
 
-// Delete an event by ID
-exports.deleteEventManagementId = (req, res) => {
-  const { id } = req.params;
-  const index = eventDetails.findIndex((e) => e.event_id === parseInt(id));
-  if (index === -1) return res.status(404).send("Event not found");
-  const deletedEvent = eventDetails.splice(index, 1);
-  res.status(200).json(deletedEvent);
-};
+// // Delete an event by ID
+// exports.deleteEventManagementId = (req, res) => {
+//   const { id } = req.params;
+//   const index = eventDetails.findIndex((e) => e.event_id === parseInt(id));
+//   if (index === -1) return res.status(404).send("Event not found");
+//   const deletedEvent = eventDetails.splice(index, 1);
+//   res.status(200).json(deletedEvent);
+// };

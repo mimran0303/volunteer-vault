@@ -12,7 +12,7 @@ let userProfiles = [
     {
       event_id: 1,
       event_admin_id: 2,
-      eventName: "Stanfield Fundraiser",
+      eventName: "Turtle Fundraiser",
       location: "University of Austin",
       eventDescription: "Sell baked goods for a cause",
       skills: "Research Skills",
@@ -22,7 +22,7 @@ let userProfiles = [
     {
       event_id: 1,
       event_admin_id: 2,
-      eventName: "Bakesale Fundraiser",
+      eventName: "Shark Fundraiser",
       location: "University of Dallas",
       eventDescription: "Sell baked goods for a cause",
       skills: "Research Skills",

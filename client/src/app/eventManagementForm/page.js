@@ -9,6 +9,10 @@ import beachOne from '../../public/beachOne.png';
 import { useAuth } from '@/hooks/auth'; 
 
 export default function EventManagementForm() {
+  const [events, setEvents] = useState([]);
+  const [isBooting, setIsBooting] = useState(true); // ? same thing as isLoading
+
+  
   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
   const [eventData, setEventData] = useState({
     eventAdminId: "",
@@ -30,6 +34,19 @@ export default function EventManagementForm() {
     }
   }, [user]);
 
+  useEffect(() => {
+    // Fetch event data from the server
+    axios.get('http://localhost:8080/eventManagement/events', { withCredentials: true })
+      .then(response => {
+        setEvents(response.data); 
+        setIsBooting(false); 
+      })
+      .catch(error => {
+        console.error('Error fetching events:', error);
+        setIsBooting(false);
+      });
+  }, []);
+
   if (isLoading) {
     return <p></p>;
   }
@@ -42,7 +59,7 @@ export default function EventManagementForm() {
     event.preventDefault(); // Prevent default form submission behavior
   
     // Send the form data to the server
-    axios.post('http://localhost:8080/auth/eventManagementForm/create', eventData)
+    axios.post('http://localhost:8080/eventManagement/create', eventData)
       .then(res => {
         if (res.status === 201) {
           alert('Event created successfully!'); // Show alert on success
@@ -92,7 +109,7 @@ export default function EventManagementForm() {
               onChange={e => {setEventData({...eventData, eventDescription: e.target.value})}}
               required
               placeholder="Event Description"
-              rows="4"
+              rows="4" 
               className="block w-full px-2 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38] placeholder-[#423D38]"
             />
 
@@ -144,6 +161,24 @@ export default function EventManagementForm() {
           objectFit="cover" 
           className="h-screen w-1/2"
         />
+
+    <section id="eventList">
+      <h1>Your Events: </h1>
+      {events.length > 0 ? (
+        <ul>
+          {events.map(event => (
+            <li key={event._id}> {/* Assuming MongoDB ObjectId */}
+              <h2>{event.eventName}</h2>
+              <p>{event.eventDescription}</p>
+              <p>{event.location}</p>
+              <p>{event.date}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No events available</p>
+      )}
+    </section>
       </div>
  </section>
   );

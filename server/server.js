@@ -30,9 +30,11 @@ axios.get('http://localhost:8080/some/page)
 */
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protectedRoutes");
+const eventManagementRoutes = require("./routes/eventManagementRoutes")
 
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
+app.use("/eventManagement", eventManagementRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
