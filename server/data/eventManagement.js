@@ -7,7 +7,7 @@ let userProfiles = [
       eventDescription: "Sell baked goods for a cause",
       skills: "Research Skills",
       urgency: "Urgent",
-      date: "01-01-2024",
+      date: "2024-01-01",
     },
     {
       event_id: 2,
@@ -16,8 +16,8 @@ let userProfiles = [
       location: "University of Austin",
       eventDescription: "Sell baked goods for a cause",
       skills: "Research Skills",
-      urgency: "low",
-      date: "01-02-2024",
+      urgency: "Take your time",
+      date: "2024-01-02",
     },
     {
       event_id: 3,
@@ -26,8 +26,8 @@ let userProfiles = [
       location: "University of Dallas",
       eventDescription: "Sell baked goods for a cause",
       skills: "Research Skills",
-      urgency: "moderate",
-      date: "01-03-2024",
+      urgency: "Take your time",
+      date: "2024-01-03",
     },
     {
       event_id: 4,
@@ -37,7 +37,7 @@ let userProfiles = [
       eventDescription: "Sell baked goods for a cause",
       skills: "Research Skills",
       urgency: "Urgent",
-      date: "01-01-2024",
+      date: "2024-01-01",
     }
   ];
   

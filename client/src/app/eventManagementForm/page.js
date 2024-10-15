@@ -140,8 +140,6 @@ export default function EventManagementForm() {
         <div className="flex flex-col space-y-12 p-20 w-1/2 h-full overflow-y-scroll"> 
           {/* Set max-height to 100% of viewport and allow scrolling */}
           <div className="font-geistMono font-normal text-5xl italic text-[#423D38] leading-snug">EVENT MANAGEMENT FORM</div>
-
-          <div>Event Administrator ID: {user.userId}</div> {/* Display the eventAdminId */}
             
           <form onSubmit={handleSubmit} className="flex flex-col space-y-6"> {/* Wrap input fields in a form */}
             
@@ -270,10 +268,11 @@ export default function EventManagementForm() {
           isOpen={isModalOpen}
           onRequestClose={closeModal}
           contentLabel="Edit Event"
-
+          className="bg-white w-full max-w-lg mx-auto my-20 p-6 rounded-lg shadow-lg relative" // Modal content
+          overlayClassName="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center" // Overlay background
         >
-          <h2>Edit Event</h2>
-          <form onSubmit={handleSubmit}>
+          <h2 className="text-2xl font-bold text-center mb-6 text-[#423D38]">Edit Event</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <input
               name='eventName'
               value={eventData.eventName}
@@ -282,7 +281,7 @@ export default function EventManagementForm() {
               maxLength="100"
               type="text"
               placeholder="Event Name"
-              className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
+              className="block w-full p-2 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
             />
 
             <textarea
@@ -292,7 +291,7 @@ export default function EventManagementForm() {
               required
               rows="1"
               placeholder="Location"
-              className="block w-full px-1 py-1 bg-transparent border-b border-[#423D38] focus:ring-[#423D38] focus:border-[#423D38] placeholder-[#423D38]"
+              className="block w-full p-2 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
             />
 
             <textarea
@@ -302,7 +301,7 @@ export default function EventManagementForm() {
               required
               placeholder="Event Description"
               rows="4"
-              className="block w-full px-2 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38] placeholder-[#423D38]"
+              className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md placeholder-[#423D38]"
             />
 
             <select
@@ -310,7 +309,7 @@ export default function EventManagementForm() {
               value={eventData.skills}
               onChange={e => setEventData({...eventData, skills: e.target.value})}
               required
-              className="px-1 py-2 border border-[#423D38] rounded-md bg-transparent placeholder-[#423D38]"
+              className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             >
               <option value="">Select Skills</option>
               <option value="Research Skills">Research Skills</option>
@@ -330,7 +329,7 @@ export default function EventManagementForm() {
               value={eventData.urgency}
               onChange={e => setEventData({...eventData, urgency: e.target.value})}
               required
-              className="px-1 py-2 border border-[#423D38] rounded-md bg-transparent placeholder-[#423D38]"
+              className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             >
               <option value="">Select Urgency</option>
               <option value="Urgent">Urgent</option>
@@ -343,17 +342,24 @@ export default function EventManagementForm() {
               onChange={e => setEventData({...eventData, date: e.target.value})}
               required
               type="date"
-              className="block w-full px-2 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38]"
+              className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             />
 
-            <button type="submit" className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }}>
+            <button
+              type="submit"
+              className="w-full bg-[#423D38] hover:bg-[#B4C4C4] text-white font-bold py-2 px-4 rounded-full mt-6"
+            >
               Save Changes
             </button>
           </form>
-          <button onClick={closeModal} className="bg-[#B4C4C4] hover:bg-[#423D38] font-bold py-2 px-4 rounded-full mt-10">
-            Close
+          <button
+            onClick={closeModal}
+            className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+          >
+            ✕
           </button>
         </Modal>
+
 
       </div>
     </section>
