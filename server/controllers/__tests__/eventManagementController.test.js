@@ -106,4 +106,26 @@ describe('Event Management Controller', () => {
         expect(res.json).toHaveBeenCalledWith({ message: "Event deleted successfully." });
         expect(eventDetails.find(event => event.event_id === 1)).toBeUndefined(); // Ensure event is deleted
     })
+
+    // Test unauthorized access to edit an event
+    it('should return 404 if the event is not found or unauthorized to edit', () => {
+        req.params.id = 2; // Trying to edit event 2, which belongs to admin 6
+        req.user.userId = 2; // Admin 2 trying to edit admin 6's event
+
+        eventManagementController.editEvent(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({ Error: "Event not found or unauthorized." });
+    });
+
+    // Test unauthorized access to delete an event
+    it('should return 404 if the event is not found or unauthorized to delete', () => {
+        req.params.id = 2; // Trying to delete event 2, which belongs to admin 6
+        req.user.userId = 2; // Admin 2 trying to delete admin 6's event
+
+        eventManagementController.deleteEvent(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({ Error: "Event not found or unauthorized." });
+    });
 })
