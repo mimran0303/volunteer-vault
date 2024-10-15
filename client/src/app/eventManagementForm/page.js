@@ -9,6 +9,7 @@ import beachOne from '../../public/beachOne.png';
 import { useAuth } from '@/hooks/auth'; 
 
 export default function EventManagementForm() {
+  const router = useRouter();
   const [events, setEvents] = useState([]);
   const [isBooting, setIsBooting] = useState(true); // ? same thing as isLoading
 
@@ -63,6 +64,7 @@ export default function EventManagementForm() {
       .then(res => {
         if (res.status === 201) {
           alert('Event created successfully!'); // Show alert on success
+          window.location.reload();
         } else {
           alert('Error: ' + res.data.Error);
         }
@@ -74,11 +76,12 @@ export default function EventManagementForm() {
   };
   
   return (
+    <section id="eventManagement" className="w-screen h-screen bg-[#FAF5F1] flex">
+      <div className="flex flex-row w-full">
 
-    <section id="eventManagement" className="w-screen h-screen bg-[#FAF5F1]">
-
-<div className="flex flex-row space-x-10"> 
-        <div className="flex flex-col space-y-12 p-20">
+        {/* Left section: Form and Fetched Data */}
+        <div className="flex flex-col space-y-12 p-20 w-1/2 h-full overflow-y-scroll"> 
+          {/* Set max-height to 100% of viewport and allow scrolling */}
           <div className="font-geistMono font-normal text-5xl italic text-[#423D38] leading-snug">EVENT MANAGEMENT FORM</div>
 
           <div>Event Administrator ID: {user.userId}</div> {/* Display the eventAdminId */}
@@ -96,7 +99,7 @@ export default function EventManagementForm() {
             />
 
             <textarea
-              name="location" // Add name attribute
+              name="location"
               onChange={e => {setEventData({...eventData, location: e.target.value})}}
               required
               rows="1"
@@ -105,7 +108,7 @@ export default function EventManagementForm() {
             />
 
             <textarea
-              name="eventDescription" // Add name attribute
+              name="eventDescription"
               onChange={e => {setEventData({...eventData, eventDescription: e.target.value})}}
               required
               placeholder="Event Description"
@@ -114,7 +117,7 @@ export default function EventManagementForm() {
             />
 
             <select
-              name="skills" // Add name attribute
+              name="skills"
               onChange={e => {setEventData({...eventData, skills: e.target.value})}}
               required
               className="px-1 py-2 border border-[#423D38] rounded-md bg-transparent placeholder-[#423D38]"
@@ -133,7 +136,7 @@ export default function EventManagementForm() {
             </select>
 
             <select
-              name="urgency" // Add name attribute
+              name="urgency"
               onChange={e => {setEventData({...eventData, urgency: e.target.value})}}
               required
               className="px-1 py-2 border border-[#423D38] rounded-md bg-transparent placeholder-[#423D38]"
@@ -144,42 +147,68 @@ export default function EventManagementForm() {
             </select>
 
             <input
-              name="date" // Add name attribute
+              name="date"
               onChange={e => {setEventData({...eventData, date: e.target.value})}}
               required
               type="date"
               className="block w-full px-2 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38]"
             />
-            <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="submit"> {/* Change type to submit */}
+            <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="submit">
               ADD EVENT
             </button>
           </form>
+
+          {/* Fetched event list */}
+          <section id="eventList">
+            <h1>Your Events: </h1>
+            {events.length > 0 ? (
+              <ul className="space-y-4">
+                {events.map(event => (
+                  <li key={event._id} className="border-b border-[#423D38] pb-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h2 className="text-xl font-bold text-[#423D38]">{event.eventName}</h2>
+                        <p>{event.eventDescription}</p>
+                        <p className="italic text-sm text-[#423D38]">{event.location}</p>
+                        <p>{event.date}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          // ! onClick={() => handleEdit(event)}
+                          className="bg-[#B4C4C4] hover:bg-[#423D38] text-white font-bold py-1 px-3 rounded-full"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          // ! onClick={() => handleDelete(event._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-full"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No events available</p>
+            )}
+          </section>
+
         </div>
 
-        <Image 
-          src={beachOne} 
-          objectFit="cover" 
-          className="h-screen w-1/2"
-        />
+        {/* Right section: Fixed Image */}
+        <div className="w-1/2 h-screen sticky top-0"> 
+          {/* Keep the image fixed to the right side */}
+          <Image 
+            src={beachOne} 
+            objectFit="cover" 
+            className="h-full w-full"
+          />
+        </div>
 
-    <section id="eventList">
-      <h1>Your Events: </h1>
-      {events.length > 0 ? (
-        <ul>
-          {events.map(event => (
-            <li key={event._id}> {/* Assuming MongoDB ObjectId */}
-              <h2>{event.eventName}</h2>
-              <p>{event.eventDescription}</p>
-              <p>{event.location}</p>
-              <p>{event.date}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No events available</p>
-      )}
-    </section>
       </div>
- </section>
+    </section>
+
   );
 }

@@ -1,10 +1,10 @@
 const eventDetails = require('../data/eventManagement');
 
-exports.getEvents = async (req, res) => {
+exports.getEvents = (req, res) => {
   try {
     const userId = req.user.userId; 
-    const userEvents = eventDetails.filter(event => event.event_admin_id === userId);
-    console.log(userEvents)
+    const userEvents = eventDetails.filter(event => event.eventAdminId === userId);
+    console.log("GET EVENTS")
     res.status(200).json(userEvents);
   } catch {
     res.status(500).json({ Error: "Failed to retrieve events." });
@@ -13,7 +13,6 @@ exports.getEvents = async (req, res) => {
 
 // Create a new event
 exports.createEventManagement = (req, res) => {
-  console.log(req.body)
   const { eventAdminId, eventName, location, eventDescription, urgency, date } = req.body;
 
   const newEvent = {
@@ -25,10 +24,11 @@ exports.createEventManagement = (req, res) => {
     urgency,
     date,
   };
+  console.log("NEW EVENT:", newEvent);
 
   console.debug("Hello from Event Management!");
   eventDetails.push(newEvent);
-  console.log(eventDetails)
+  console.log("EVENT DETAILS:", eventDetails)
   res.status(201).json(newEvent);
 };
 
