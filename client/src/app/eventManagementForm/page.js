@@ -74,6 +74,22 @@ export default function EventManagementForm() {
         alert('An error occurred while creating this event');
       });
   };
+
+  const handleDelete = (eventId) => {
+    if (confirm("Are you sure you want to delete this event?")) {
+      axios.delete(`http://localhost:8080/eventManagement/delete/${eventId}`, { withCredentials: true })
+        .then(res => {
+          if (res.status === 200) {
+            alert('Event deleted successfully!');
+            setEvents(prevEvents => prevEvents.filter(event => event.event_id !== eventId)); // Update the state to remove the deleted event
+          }
+        })
+        .catch(err => {
+          console.error(err); // Log any errors during the request
+          alert('An error occurred while deleting this event');
+        });
+    }
+  };
   
   return (
     <section id="eventManagement" className="w-screen h-screen bg-[#FAF5F1] flex">
@@ -164,7 +180,7 @@ export default function EventManagementForm() {
             {events.length > 0 ? (
               <ul className="space-y-4">
                 {events.map(event => (
-                  <li key={event._id} className="border-b border-[#423D38] pb-4">
+                  <li key={event.event_id} className="border-b border-[#423D38] pb-4">
                     <div className="flex justify-between items-center">
                       <div>
                         <h2 className="text-xl font-bold text-[#423D38]">{event.eventName}</h2>
@@ -175,13 +191,13 @@ export default function EventManagementForm() {
                       <div className="flex space-x-2">
                         <button
                           // ! onClick={() => handleEdit(event)}
-                          className="bg-[#B4C4C4] hover:bg-[#423D38] text-white font-bold py-1 px-3 rounded-full"
+                          className="bg-[#a08878] hover:bg-[#bcac9c] text-white font-bold py-1 px-3 rounded-full"
                         >
                           Edit
                         </button>
                         <button
-                          // ! onClick={() => handleDelete(event._id)}
-                          className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-full"
+                          onClick={() => handleDelete(event.event_id)}
+                          className="bg-[#B4C4C4] hover:bg-[#423D38] text-white font-bold py-1 px-3 rounded-full"
                         >
                           Delete
                         </button>
@@ -191,7 +207,7 @@ export default function EventManagementForm() {
                 ))}
               </ul>
             ) : (
-              <p>No events available</p>
+              <p className='font-style: italic'>No events available</p>
             )}
           </section>
 

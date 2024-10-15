@@ -6,6 +6,8 @@ const verifyToken = require("../middleware/verifyToken");
 
 router.get('/events', verifyToken, eventManagementController.getEvents);
 router.post('/create', eventManagementController.createEventManagement);
+router.delete('/delete/:id', verifyToken, eventManagementController.deleteEvent);
+
 
 // router.post('/eventManagementForm', eventManagementController.createEventManagement);
 // router.get('/', eventManagementController.getEventManagement);

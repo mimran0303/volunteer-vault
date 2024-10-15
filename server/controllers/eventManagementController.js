@@ -4,7 +4,6 @@ exports.getEvents = (req, res) => {
   try {
     const userId = req.user.userId; 
     const userEvents = eventDetails.filter(event => event.eventAdminId === userId);
-    console.log("GET EVENTS")
     res.status(200).json(userEvents);
   } catch {
     res.status(500).json({ Error: "Failed to retrieve events." });
@@ -24,14 +23,27 @@ exports.createEventManagement = (req, res) => {
     urgency,
     date,
   };
-  console.log("NEW EVENT:", newEvent);
 
-  console.debug("Hello from Event Management!");
   eventDetails.push(newEvent);
-  console.log("EVENT DETAILS:", eventDetails)
   res.status(201).json(newEvent);
 };
 
+exports.deleteEvent = (req, res) => {
+  const eventId = parseInt(req.params.id); // Get the event ID from the request URL
+  const userId = req.user.userId; // Get the user's ID from the request
+  console.log("Deleting event: ", eventId, " from user: ", userId);
+  
+  const eventIndex = eventDetails.findIndex(event => event.event_id === eventId && event.eventAdminId === userId);
+
+  if (eventIndex !== -1) {
+    // Remove the event from the array
+    eventDetails.splice(eventIndex, 1);
+    console.log("EventDetails after deletion: ", eventDetails)
+    res.status(200).json({ message: "Event deleted successfully." });
+  } else {
+    res.status(404).json({ Error: "Event not found or unauthorized." });
+  }
+}
 
 
 // Get all events
