@@ -11,7 +11,7 @@ require('./config');
 // Middleware
 app.use(cors({
     origin: ["http://localhost:3000"],
-    methods: ["POST", "GET"],
+    methods: ["POST", "GET", "PUT", "DELETE"],
     credentials: true
 }));
 app.use(express.json());
@@ -30,6 +30,7 @@ axios.get('http://localhost:8080/some/page)
 */
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protectedRoutes");
+const eventManagementRoutes = require("./routes/eventManagementRoutes")
 
 const volunteerMatchRoute = require('./routes/volunteerMatchRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
@@ -37,6 +38,7 @@ const notificationRoutes = require('./routes/notificationsRoutes');
 
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
+app.use("/eventManagement", eventManagementRoutes)
 
 app.use("/api/volunteers", volunteerMatchRoute);
 app.use("/api/assignments", assignmentRoutes);
