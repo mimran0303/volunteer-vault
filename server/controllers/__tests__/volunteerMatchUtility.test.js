@@ -22,14 +22,10 @@ describe('matchVolunteersToEvent', () => {
         expect(result).toHaveLength(1);
         expect(result[0]).toEqual({
             fullName: 'John Doe', 
-            address1: "123 Main St", 
-            address2: "", 
+            skills: "Communication Skills", 
             city: "Houston", 
             state: "TX", 
             zipcode: "10001", 
-            skills: "Communication Skills", 
-            preferences: "Volunteering on weekends", 
-            availability: "2024-01-01",
         });
     });
 
