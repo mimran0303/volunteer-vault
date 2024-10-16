@@ -129,7 +129,7 @@ describe('Auth Controller', () => {
                 { expiresIn: '1d' }
             );
             expect(res.cookie).toHaveBeenCalledWith('token', 'mocked_jwt_token', { httpOnly: true });
-            expect(res.json).toHaveBeenCalledWith({ Status: "Success" });
+            expect(res.json).toHaveBeenCalledWith({ Status: "Success", token: 'mocked_jwt_token' });
         });
     });
 

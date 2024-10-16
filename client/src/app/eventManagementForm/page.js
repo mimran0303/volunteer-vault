@@ -21,6 +21,9 @@ export default function EventManagementForm() {
       eventAdminId: event.eventAdminId,
       eventName: event.eventName,
       location: event.location,
+      city: event.city,            
+      state: event.state,          
+      zipcode: event.zipcode,      
       eventDescription: event.eventDescription,
       skills: event.skills,
       urgency: event.urgency,
@@ -40,6 +43,9 @@ export default function EventManagementForm() {
     eventAdminId: "",
     eventName: "",
     location: "",
+    city: "",
+    state: "",
+    zipcode: "",
     eventDescription: "",
     skills: "",
     urgency: "",
@@ -164,6 +170,91 @@ export default function EventManagementForm() {
               className="block w-full px-1 py-1 bg-transparent border-b border-[#423D38] focus:ring-[#423D38] focus:border-[#423D38] placeholder-[#423D38]"
             />
 
+            <div className='flex flex-col md:flex-row gap-6'>
+              <input 
+                name='city'
+                onChange={e => {setEventData({...eventData, city: e.target.value})}}
+                required 
+                maxLength="100"
+                type="text" 
+                placeholder="City" 
+                className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38] w-full"
+              />
+
+              <select 
+                name='state'
+                onChange={e => {setEventData({...eventData, state: e.target.value})}}
+                required  
+                className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38] w-full"
+              > 
+
+                  <option className="text-[#423D38]" value="">Select a state</option>
+                  <option value="AL">Alabama</option>
+                  <option value="AK">Alaska</option>
+                  <option value="AZ">Arizona</option>
+                  <option value="AR">Arkansas</option>
+                  <option value="CA">California</option>
+                  <option value="CO">Colorado</option>
+                  <option value="CT">Connecticut</option>
+                  <option value="DE">Delaware</option>
+                  <option value="FL">Florida</option>
+                  <option value="GA">Georgia</option>
+                  <option value="HI">Hawaii</option>
+                  <option value="ID">Idaho</option>
+                  <option value="IL">Illinois</option>
+                  <option value="IN">Indiana</option>
+                  <option value="IA">Iowa</option>
+                  <option value="KS">Kansas</option>
+                  <option value="KY">Kentucky</option>
+                  <option value="LA">Louisiana</option>
+                  <option value="ME">Maine</option>
+                  <option value="MD">Maryland</option>
+                  <option value="MA">Massachusetts</option>
+                  <option value="MI">Michigan</option>
+                  <option value="MN">Minnesota</option>
+                  <option value="MS">Mississippi</option>
+                  <option value="MO">Missouri</option>
+                  <option value="MT">Montana</option>
+                  <option value="NE">Nebraska</option>
+                  <option value="NV">Nevada</option>
+                  <option value="NH">New Hampshire</option>
+                  <option value="NJ">New Jersey</option>
+                  <option value="NM">New Mexico</option>
+                  <option value="NY">New York</option>
+                  <option value="NC">North Carolina</option>
+                  <option value="ND">North Dakota</option>
+                  <option value="OH">Ohio</option>
+                  <option value="OK">Oklahoma</option>
+                  <option value="OR">Oregon</option>
+                  <option value="PA">Pennsylvania</option>
+                  <option value="RI">Rhode Island</option>
+                  <option value="SC">South Carolina</option>
+                  <option value="SD">South Dakota</option>
+                  <option value="TN">Tennessee</option>
+                  <option value="TX">Texas</option>
+                  <option value="UT">Utah</option>
+                  <option value="VT">Vermont</option>
+                  <option value="VA">Virginia</option>
+                  <option value="WA">Washington</option>
+                  <option value="WV">West Virginia</option>
+                  <option value="WI">Wisconsin</option>
+                  <option value="WY">Wyoming</option>
+
+              </select>
+
+              <input 
+                name="zipcode" 
+                onChange={e => {setEventData({...eventData, zipcode: e.target.value})}}
+                required 
+                maxLength="10"
+                minLength="5"
+                type="text" 
+                placeholder="Zipcode" 
+                className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38] w-full"
+              />
+
+            </div>
+
             <textarea
               name="eventDescription"
               onChange={e => {setEventData({...eventData, eventDescription: e.target.value})}}
@@ -199,8 +290,8 @@ export default function EventManagementForm() {
               className="px-1 py-2 border border-[#423D38] rounded-md bg-transparent placeholder-[#423D38]"
             > 
               <option className="text-[#423D38]" value="">Select Urgency</option>
-              <option value="Urgent">Urgent</option>
-              <option value="Take your time">Take your time</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
             </select>
 
             <input
@@ -296,6 +387,91 @@ export default function EventManagementForm() {
               className="block w-full p-2 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
             />
 
+            <div className="flex flex-col md:flex-row gap-6">
+              <input
+                name="city"
+                value={eventData.city}
+                onChange={(e) => setEventData({ ...eventData, city: e.target.value })}
+                required
+                maxLength="100"
+                type="text"
+                placeholder="City"
+                className="block w-full p-2 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
+              />
+
+              <select
+                name="state"
+                value={eventData.state}
+                onChange={(e) => setEventData({ ...eventData, state: e.target.value })}
+                required
+                className="block w-full p-2 border-b border-[#423D38] bg-transparent"
+              >
+                <option value="">Select a state</option>
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+                <option value="CO">Colorado</option>
+                <option value="CT">Connecticut</option>
+                <option value="DE">Delaware</option>
+                <option value="FL">Florida</option>
+                <option value="GA">Georgia</option>
+                <option value="HI">Hawaii</option>
+                <option value="ID">Idaho</option>
+                <option value="IL">Illinois</option>
+                <option value="IN">Indiana</option>
+                <option value="IA">Iowa</option>
+                <option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                <option value="ME">Maine</option>
+                <option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option>
+                <option value="MI">Michigan</option>
+                <option value="MN">Minnesota</option>
+                <option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option>
+                <option value="MT">Montana</option>
+                <option value="NE">Nebraska</option>
+                <option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option>
+                <option value="NJ">New Jersey</option>
+                <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                <option value="NC">North Carolina</option>
+                <option value="ND">North Dakota</option>
+                <option value="OH">Ohio</option>
+                <option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option>
+                <option value="PA">Pennsylvania</option>
+                <option value="RI">Rhode Island</option>
+                <option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option>
+                <option value="TN">Tennessee</option>
+                <option value="TX">Texas</option>
+                <option value="UT">Utah</option>
+                <option value="VT">Vermont</option>
+                <option value="VA">Virginia</option>
+                <option value="WA">Washington</option>
+                <option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option>
+                <option value="WY">Wyoming</option>
+              </select>
+
+              <input
+                name="zipcode"
+                value={eventData.zipcode}
+                onChange={(e) => setEventData({ ...eventData, zipcode: e.target.value })}
+                required
+                maxLength="10"
+                minLength="5"
+                type="text"
+                placeholder="Zipcode"
+                className="block w-full p-2 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
+              />
+            </div>
+
             <textarea
               name="eventDescription"
               value={eventData.eventDescription}
@@ -334,8 +510,8 @@ export default function EventManagementForm() {
               className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             >
               <option value="">Select Urgency</option>
-              <option value="Urgent">Urgent</option>
-              <option value="Take your time">Take your time</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
             </select>
 
             <input

@@ -10,7 +10,7 @@ const assignVolunteersToEvent = (req, res) => {
     const newAssignments = volunteers.filter(volunteer => {
         return !assignedVolunteers.some(
             assigned => assigned.volunteer.fullName === volunteer.fullName &&
-                        assigned.event.skillsRequired === eventDetails.skillsRequired &&
+                        assigned.event.skills === eventDetails.skills &&
                         assigned.event.city === eventDetails.city &&
                         assigned.event.state === eventDetails.state &&
                         assigned.event.zipcode === eventDetails.zipcode &&
@@ -41,7 +41,7 @@ const assignVolunteersToEvent = (req, res) => {
             console.log("Before Notification Creation - userId:", userProfile.userId);
 
             const notification = {
-                message: `You have been assigned to the ${eventDetails.skillsRequired} event on ${eventDetails.availability}.`,
+                message: `You have been assigned to the ${eventDetails.skills} event on ${eventDetails.availability}.`,
                 date: new Date().toISOString(),  // Timestamp
                 isRead: false,  // New notification is unread
                 userId: userProfile.userId  // Use userId from the profile
