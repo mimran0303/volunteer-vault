@@ -59,4 +59,4 @@ const assignVolunteersToEvent = (req, res) => {
     res.status(200).json({ success: true, message: 'Volunteers assigned successfully!', assignedVolunteers });
 };
 
-module.exports = { assignVolunteersToEvent };
+module.exports = { assignVolunteersToEvent, assignedVolunteers, notifications, };
