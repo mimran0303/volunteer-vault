@@ -1,7 +1,6 @@
 // controllers/authController.js
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-// let users = require("../data/users"); // Import hardcoded data
 const salt = 10;
 
 const db = require('../config/index')
@@ -30,7 +29,6 @@ exports.register = (req, res) => {
 };
 
 exports.login = (req, res) => {
-
     const sql = 'SELECT * FROM userCredentials WHERE email = ?';
     db.query(sql, [req.body.email], (err, data) => {
         if(err) {
@@ -65,39 +63,6 @@ exports.login = (req, res) => {
             return res.json({ Error: "Incorrect Email!" });
         }
     })
-
-
-
-
-    // const { email, password } = req.body;
-    // const user = users.find((user) => user[1] === email); // looking for existing email in users array
-
-    // if (!user) {
-    //     return res.json({ Error: "Incorrect Email!" });
-    // }
-
-    // bcrypt.compare(password.toString(), user[2], (err, response) => {
-        // if (err) {
-        //     return res.json({ Error: "Error in bcrypt password comparison!" });
-        // }
-        // if (response) {
-            // JWT signature
-            // const token = jwt.sign(
-            //     { username: user[1], accountType: user[0], userId: user[3], isVerified: user[4] },
-            //     `${process.env.JWT_SECRET_KEY}`,
-            //     { expiresIn: '1d' }
-            // );
-            // res.cookie('token', token, { httpOnly: true });
-            // console.log(users)
-    //         return res.json({ 
-    //             Status: "Success", 
-    //             token,
-    //             isVerified: user[4]
-    //         });
-    //     } else {
-    //         return res.json({ Error: "Incorrect password!" });
-    //     }
-    // });
 };
 
 
