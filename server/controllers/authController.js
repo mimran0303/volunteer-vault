@@ -26,7 +26,7 @@ exports.register = (req, res) => {
         ]; 
 
         users.push(values); // adding new user to users array
-        //console.log(users)
+        console.log(users)
         return res.json({ Status: "Success" });
     });
 };
@@ -51,6 +51,7 @@ exports.login = (req, res) => {
                 { expiresIn: '1d' }
             );
             res.cookie('token', token, { httpOnly: true });
+            console.log(users)
             return res.json({ 
                 Status: "Success", 
                 token,

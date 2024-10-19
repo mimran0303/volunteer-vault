@@ -2,33 +2,39 @@ const userProfiles = require('../data/userProfiles');
 const users = require ('../data/users');
 
 exports.createUserProfile = (req, res) => {
-    const { fullName, address1, address2, city, state, zipcode, skills, preferences, availability } = req.body;
-    const newUserProfile = {
-      id: userProfiles.length + 1,
-      fullName,
-      address1,
-      address2,
-      city,
-      state,
-      zipcode,
-      skills,
-      preferences,
-      availability,
-    };
-    console.debug("Hello from createUserProfilt");
-    userProfiles.push(newUserProfile);
-    let userIndex = users.findIndex(user => user[3] === newUserProfile.userId);
-    if (userIndex !== -1) {
-      // Update the boolean field (fifth element)
-      users[userIndex][4] = true;
-      console.log(users);
-    } else {
-        console.log("User not found");
-    }
+  const { fullName, address1, address2, city, state, zipcode, skills, preferences, availability } = req.body;
+  console.log(req.body)
 
-    console.log(userProfiles)
-    res.status(201).json(newUserProfile);
+  const newUserProfile = {
+    userId: userProfiles.length + 1,
+    fullName,
+    address1,
+    address2,
+    city,
+    state,
+    zipcode,
+    skills,
+    preferences,
+    availability,
   };
+  console.debug("Hello from createUserProfilt");
+  userProfiles.push(newUserProfile);
+
+  // ! isVerified should be set to true in jwt token for first-time logins, do NOT delete this comment 
+
+  let userIndex = users.findIndex(user => user[3] === newUserProfile.userId);
+  if (userIndex !== -1) {
+    // Update the boolean field (fifth element)
+    users[userIndex][4] = true;
+    console.log(users);
+  } else {
+      console.log("User not found");
+  }
+
+
+  console.log(userProfiles)
+  res.status(201).json(newUserProfile);
+};
 
   // get user profiles
 
