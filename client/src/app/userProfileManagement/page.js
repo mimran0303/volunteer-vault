@@ -35,23 +35,22 @@ export default function UserProfileManagement() {
     // Fetch user profile data using the GET request
     axios.get('http://localhost:8080/userProfile/profile', { withCredentials: true })
       .then((response) => {
-        const profile = response.data;
+        const profile = response.data[0];
         
-        // Set the formData with fetched profile data, including the user id
-        setFormData({
-          fullName: profile.fullName || "Jane Doe",
-          address1: profile.address1 || "123 Main St",
-          address2: profile.address2 || "",
-          city: profile.city || "Houston",
-          state: profile.state || "TX",
-          zipcode: profile.zipcode || "10001",
-          skills: profile.skills || "Research Skills",
-          preferences: profile.preferences || "Volunteering on weekends",
-          availability: profile.availability || "2025-01-01"
-        });
-  
-       
-  
+        if (profile) {
+          // Set the formData with fetched profile data
+          setFormData({
+            fullName: profile.fullName,
+            address1: profile.address1,
+            address2: profile.address2,
+            city: profile.city,
+            state: profile.state,
+            zipcode: profile.zipcode,
+            skills: profile.skills,
+            preferences: profile.preferences,
+            availability: profile.availability
+          });
+        }
       })
       .catch((error) => {
         console.error("Error fetching profile:", error);
