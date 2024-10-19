@@ -20,10 +20,13 @@ exports.register = (req, res) => {
         const values = [
             req.body.accountType,
             req.body.email,
-            hash,
+            hash, 
+            users[users.length - 1][3] + 1,
+            false
         ]; 
 
         users.push(values); // adding new user to users array
+        //console.log(users)
         return res.json({ Status: "Success" });
     });
 };
@@ -41,21 +44,27 @@ exports.login = (req, res) => {
             return res.json({ Error: "Error in bcrypt password comparison!" });
         }
         if (response) {
-            // JWT signature! any user data we want to use should go in here
+            // JWT signature
             const token = jwt.sign(
-                { username: user[1], accountType: user[0], userId: user[3]},
+                { username: user[1], accountType: user[0], userId: user[3], isVerified: user[4] },
                 `${process.env.JWT_SECRET_KEY}`,
                 { expiresIn: '1d' }
             );
             res.cookie('token', token, { httpOnly: true });
-            return res.json({ Status: "Success", token});
+            return res.json({ 
+                Status: "Success", 
+                token,
+                isVerified: user[4]
+            });
         } else {
             return res.json({ Error: "Incorrect password!" });
         }
     });
 };
 
+
 exports.logout = (req, res) => {
     res.clearCookie('token');
     return res.json({ Status: "Success" });
 };
+

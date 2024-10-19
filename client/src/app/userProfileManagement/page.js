@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
@@ -11,6 +11,10 @@ import { useAuth } from '@/hooks/auth';
 export default function UserProfileManagement() {
   const { isAuthenticated, user, isLoading } = useAuth();
   const router = useRouter(); // To redirect after successful submission
+  const [profiles, setProfiles] = useState([]);
+  const [isBooting, setIsBooting] = useState(true); // ? same thing as isLoading
+  const [editingProfile, setEditingProfile] = useState(null); // Store the event being edited
+
   const [formData, setFormData] = useState({
     fullName: "",
     address1: "",
@@ -22,6 +26,49 @@ export default function UserProfileManagement() {
     preferences: "",
     availability: ""
   });
+ 
+  
+
+  useEffect(() => {
+    console.log(formData);
+  
+    // Fetch user profile data using the GET request
+    axios.get('http://localhost:8080/userProfile/profile', { withCredentials: true })
+      .then((response) => {
+        const profile = response.data;
+        
+        // Set the formData with fetched profile data, including the user id
+        setFormData({
+          fullName: profile.fullName || "Jane Doe",
+          address1: profile.address1 || "123 Main St",
+          address2: profile.address2 || "",
+          city: profile.city || "Houston",
+          state: profile.state || "TX",
+          zipcode: profile.zipcode || "10001",
+          skills: profile.skills || "Research Skills",
+          preferences: profile.preferences || "Volunteering on weekends",
+          availability: profile.availability || "2025-01-01"
+        });
+  
+       
+  
+      })
+      .catch((error) => {
+        console.error("Error fetching profile:", error);
+  
+        // Generate the error message
+        let errorMessage = "An error occurred while fetching the profile.";
+        if (error.response && error.response.data) {
+          errorMessage += ` Reason: ${error.response.data}`;
+        } else if (error.message) {
+          errorMessage += ` Reason: ${error.message}`;
+        }
+  
+        // Display the error message
+        alert(errorMessage);
+      });
+  
+  }, []); 
 
   if (isLoading) {
     return <p></p>;
@@ -32,18 +79,36 @@ export default function UserProfileManagement() {
   }
 
   // Handle form field changes
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value, 
+    }));
   };
+  
 
   // Handle form submission
  const handleSubmit = (event) => {
   event.preventDefault(); // Prevent default form submission behavior
+  if (editingProfile) {
+    // Editing existing event
+    axios.put(`http://localhost:8080/userProfile/edit/${editingProfile.id}`, formData, { withCredentials: true })
+      .then(res => {
+        if (res.status === 200) {
+          alert('Profile updated successfully!');
+          setProfiles(prevProfiles => prevProfiles.map(ev => ev.id === editingProfile.id ? res.data : ev)); // Update the profile in state
+          setEditingProfile(null); // Reset editing profile after success
+          //closeModal(); // Close the modal
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('An error occurred while editing the profile');
+      });
+  }
 
+  else {
   // Send the form data to the server
   axios.post('http://localhost:8080/auth/userProfileManagement/create', formData)
     .then(res => {
@@ -57,6 +122,7 @@ export default function UserProfileManagement() {
       console.error(err); // Log any errors during the request
       alert('An error occurred while saving the profile.');
     });
+  }
 };
 
 
@@ -76,7 +142,8 @@ export default function UserProfileManagement() {
                   type="text" 
                   name="fullName" // Add name attribute for form data mapping
                   value={formData.fullName} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, fullName: e.target.value})}} // Update state on input change
+                  require
                   placeholder="Full Name" 
                   className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
                 />
@@ -87,7 +154,8 @@ export default function UserProfileManagement() {
                   type="text" 
                   name="address1" // Add name attribute for form data mapping
                   value={formData.address1} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, address1: e.target.value})}} // Update state on input change
+                  require
                   placeholder="Address Line 1" 
                   className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
                 />
@@ -97,7 +165,8 @@ export default function UserProfileManagement() {
                   type="text" 
                   name="address2" // Add name attribute for form data mapping
                   value={formData.address2} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, address2: e.target.value})}} // Update state on input change
+                  require
                   placeholder="Address Line 2" 
                   className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
                 />
@@ -108,7 +177,8 @@ export default function UserProfileManagement() {
                   type="text" 
                   name="city" // Add name attribute for form data mapping
                   value={formData.city} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, city: e.target.value})}} // Update state on input change
+                  require
                   placeholder="City" 
                   className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
                 />
@@ -117,7 +187,8 @@ export default function UserProfileManagement() {
                   required
                   name="state" // Add name attribute for form data mapping
                   value={formData.state} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, state: e.target.value})}} // Update state on input change
+                  require
                   className="py-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
                 > 
                   <option className="text-[#423D38]" value="">Select a state</option>
@@ -180,7 +251,8 @@ export default function UserProfileManagement() {
                   type="text" 
                   name="zipcode" // Add name attribute for form data mapping
                   value={formData.zipcode} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, zipcode: e.target.value})}} // Update state on input change
+                  require
                   placeholder="Zipcode" 
                   className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
                 />
@@ -191,7 +263,8 @@ export default function UserProfileManagement() {
                   required
                   name="skills" // Add name attribute for form data mapping
                   value={formData.skills} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, skills: e.target.value})}} // Update state on input change
+                  require
                   className="p-1 border-b border-[#423D38] bg-transparent placeholder-[#423D38]"
                 > 
                   <option className="text-[#423D38]" value=""> Select Skills </option>
@@ -210,7 +283,8 @@ export default function UserProfileManagement() {
                 <textarea
                   name="preferences" // Add name attribute for form data mapping
                   value={formData.preferences} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, preferences: e.target.value})}} // Update state on input change
+                  require
                   placeholder="Add your preferences here: "
                   rows="11"
                   className="block w-full px-4 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38] placeholder-[#423D38]"
@@ -221,12 +295,12 @@ export default function UserProfileManagement() {
                   type="date"
                   name="availability" // Add name attribute for form data mapping
                   value={formData.availability} // Bind value to formData state
-                  onChange={handleChange} // Update state on input change
+                  onChange={e => {setFormData({...formData, availability: e.target.value})}} // Update state on input change
+                  require
                   className="block w-full px-4 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38]"
                 />
               </div>
             </div>
-
             <button 
               className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-2 rounded-full mt-10 font-geistMono w-40 h-12" 
               style={{ color: '#FFFFFF' }} 

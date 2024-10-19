@@ -1,4 +1,5 @@
-const userProfiles = require('../data/userProfile');
+const userProfiles = require('../data/userProfiles');
+const users = require ('../data/users');
 
 exports.createUserProfile = (req, res) => {
     const { fullName, address1, address2, city, state, zipcode, skills, preferences, availability } = req.body;
@@ -16,6 +17,16 @@ exports.createUserProfile = (req, res) => {
     };
     console.debug("Hello from createUserProfilt");
     userProfiles.push(newUserProfile);
+    let userIndex = users.findIndex(user => user[3] === newUserProfile.userId);
+    if (userIndex !== -1) {
+      // Update the boolean field (fifth element)
+      users[userIndex][4] = true;
+      console.log(users);
+    } else {
+        console.log("User not found");
+    }
+
+    console.log(userProfiles)
     res.status(201).json(newUserProfile);
   };
 
@@ -26,26 +37,36 @@ exports.createUserProfile = (req, res) => {
   // get a user profile by ID
   exports.getUserProfileById = (req, res) => { 
     const { id } = req.params;
-    const profile = userProfiles.find((user) => user.id === parseInt(id)); 
-    if (!profile) return res.status(404).send("User not found");
+    const profile = userProfiles.filter(user => user.userId === req.user.userId)
+   
+    if (!profile) return res.status(404).send("User not found while fetching");
     res.status(200).json(profile);
   };
 
-  // update the profile (using ID)
   exports.updateUserProfileById = (req, res) => {
-    const { id } = req.params;
-    const index = userProfiles.findIndex((user) => user.id === parseInt(id));
-    if (index === -1) return res.status(404).send("User not found");
-    const updatedProfile = { ...userProfiles[index], ...req.body };
-    userProfiles[index] = updatedProfile;
-    res.status(200).json(updatedProfile);
+    const userId = parseInt(req.params.id); // Get the user ID from the URL
+    const userIndex = userProfiles.findIndex(user => user.id === userId); // Find the user by ID
+  
+    if (userIndex === -1) {
+      return res.status(404).json({ Error: "User not found" }); // Return error if user not found
+    }
+  
+    const { fullName, address1, address2, city, state, zipcode, skills, preferences, availability } = req.body;
+    
+    userProfiles[userIndex] = {
+      ...userProfiles[userIndex],  
+      fullName, 
+      address1, 
+      address2, 
+      city, 
+      state, 
+      zipcode,
+      skills, 
+      preferences, 
+      availability
+    };
+  
+    res.status(200).json(userProfiles[userIndex]); // Respond with the updated profile
   };
-
-  // delete the profile
-  exports.deleteUserProfileById = (req, res) => {
-    const { id } = req.params;
-    const index = userProfiles.findIndex((user) => user.id === parseInt(id));
-    if (index === -1) return res.status(404).send("User not found");
-    const deletedProfile = userProfiles.splice(index, 1);
-    res.status(200).json(deletedProfile);
-  };
+  
+  
