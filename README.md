@@ -24,6 +24,17 @@ node -e
 ```bash
 JWT_SECRET_KEY=
 ```
+-  To configure the MySQL database connection, add the following lines to the `.env` file:
+    + `DB_HOST`: The hostname where your database is hosted (e.g., `localhost` for local development or your cloud database address). 
+    + `DB_USER`: The username used to authenticate your database connection (e.g., `root` for a local MySQL setup).
+    + `DB_PASSWORD`: The password for the database user. 
+    + `DB_DATABASE`: The name of the database  (e.g., `volunteer_management_system`).
+```
+DB_HOST=
+DB_USER=
+DB_PASSWORD=
+DB_DATABASE=
+```
 - `\coverage` is where code coverage reports will be stored after running tests. Note that this directory is included in `.gitignore` to avoid committing coverage reports to the repository. Add the following line to the `.env` file.
 ```bash
 /coverage
@@ -39,6 +50,8 @@ npm install
 This installs the following dependencies:
 * **axios** `^1.7.7`
     + Promise-based HTTP client for making requests.
+* **jwt-decode** `^4.0.0`
+    + Decode JWT tokens.
 * **next** `^14.2.12`
     + A React framework for building server-side rendered or statically exported React apps.
 * **react** `^18`
@@ -47,6 +60,9 @@ This installs the following dependencies:
     + Provides DOM-specific methods for React.
 * **react-icons** `^5.3.0`
     + A library of popular icons for use in React projects.
+* **react-modal** `^3.16.1`
+    + Accessible modal dialog component for React projects
+
 
 **Server-side Dependencies** \
 Navigate to the server directory and install server-side dependencies:
@@ -57,6 +73,8 @@ npm install
 This installs the following dependencies:
 * **bcrypt** `^5.1.1`
     + A library for hashing and salting passwords securely.
+* **bcryptjs** `^2.4.3`
+    + Optimized bcrypt in JavaScript with zero dependencies.
 * **cookie-parser** `^1.4.6`
     + Middleware for parsing cookies in requests.
 * **cors** `^2.8.5`
@@ -67,6 +85,8 @@ This installs the following dependencies:
     +  A web framework for building RESTful APIs.
 * **jsonwebtoken** `^9.0.2`
     + A library for creating and verifying JSON Web Tokens (JWT).
+* **mysql2** `^3.11.3`
+    + MySQL client for Node.js with focus on performance.
 
 Additionally, the following development dependencies will be installed:
 * **jest** `^29.7.0`
