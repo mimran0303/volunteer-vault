@@ -40,7 +40,7 @@ export function login() {
           localStorage.setItem('token', token);
           
           // Check isVerified status
-          if (res.data.isVerified === false) {
+          if (res.data.isVerified === 0) {
             // Show modal if user is not verified
             setShowModal(true);
           } else {

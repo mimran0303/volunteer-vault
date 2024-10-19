@@ -30,35 +30,74 @@ exports.register = (req, res) => {
 };
 
 exports.login = (req, res) => {
-    const { email, password } = req.body;
-    const user = users.find((user) => user[1] === email); // looking for existing email in users array
 
-    if (!user) {
-        return res.json({ Error: "Incorrect Email!" });
-    }
-
-    bcrypt.compare(password.toString(), user[2], (err, response) => {
-        if (err) {
-            return res.json({ Error: "Error in bcrypt password comparison!" });
+    const sql = 'SELECT * FROM userCredentials WHERE email = ?';
+    db.query(sql, [req.body.email], (err, data) => {
+        if(err) {
+            // ! needs to be handled
+            throw err;
         }
-        if (response) {
-            // JWT signature
-            const token = jwt.sign(
-                { username: user[1], accountType: user[0], userId: user[3], isVerified: user[4] },
-                `${process.env.JWT_SECRET_KEY}`,
-                { expiresIn: '1d' }
-            );
-            res.cookie('token', token, { httpOnly: true });
-            // console.log(users)
-            return res.json({ 
-                Status: "Success", 
-                token,
-                isVerified: user[4]
-            });
+
+        if(data.length > 0) {
+            bcrypt.compare(req.body.password.toString(), data[0].password, (err, response) => {
+                if(err) return res.json({ Error: "Error in bcrypt password comparison!" });
+                
+                if(response) {
+                    // Generate JWT token
+                    const token = jwt.sign({ userId: data[0].user_id, username: data[0].email, accountType: data[0].account_type, isVerified: data[0].is_verified },
+                        `${process.env.JWT_SECRET_KEY}`,
+                        { expiresIn: '1d' }
+                    );
+                    res.cookie('token', token, { httpOnly: true });
+
+                    return res.json({
+                        Status: "Success", 
+                        token,
+                        isVerified: data[0].is_verified
+                    });
+                } else {
+                    // * this works 
+                    return res.json({ Error: "Incorrect password!" });
+                }
+            })
         } else {
-            return res.json({ Error: "Incorrect password!" });
+            // * this works 
+            return res.json({ Error: "Incorrect Email!" });
         }
-    });
+    })
+
+
+
+
+    // const { email, password } = req.body;
+    // const user = users.find((user) => user[1] === email); // looking for existing email in users array
+
+    // if (!user) {
+    //     return res.json({ Error: "Incorrect Email!" });
+    // }
+
+    // bcrypt.compare(password.toString(), user[2], (err, response) => {
+        // if (err) {
+        //     return res.json({ Error: "Error in bcrypt password comparison!" });
+        // }
+        // if (response) {
+            // JWT signature
+            // const token = jwt.sign(
+            //     { username: user[1], accountType: user[0], userId: user[3], isVerified: user[4] },
+            //     `${process.env.JWT_SECRET_KEY}`,
+            //     { expiresIn: '1d' }
+            // );
+            // res.cookie('token', token, { httpOnly: true });
+            // console.log(users)
+    //         return res.json({ 
+    //             Status: "Success", 
+    //             token,
+    //             isVerified: user[4]
+    //         });
+    //     } else {
+    //         return res.json({ Error: "Incorrect password!" });
+    //     }
+    // });
 };
 
 
