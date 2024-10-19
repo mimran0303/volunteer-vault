@@ -15,6 +15,8 @@ export default function UserProfileManagement() {
   const [isBooting, setIsBooting] = useState(true); // ? same thing as isLoading
   const [editingProfile, setEditingProfile] = useState(null); // Store the event being edited
 
+  const [userId, setUserId] = useState(null)
+
   const [formData, setFormData] = useState({
     fullName: "",
     address1: "",
@@ -50,6 +52,8 @@ export default function UserProfileManagement() {
             preferences: profile.preferences,
             availability: profile.availability
           });
+          setUserId(profile.userId);
+
         }
       })
       .catch((error) => {
@@ -90,13 +94,13 @@ export default function UserProfileManagement() {
   // Handle form submission
  const handleSubmit = (event) => {
   event.preventDefault(); // Prevent default form submission behavior
-  if (editingProfile) {
+
     // Editing existing event
-    axios.put(`http://localhost:8080/userProfile/edit/${editingProfile.id}`, formData, { withCredentials: true })
+    axios.put(`http://localhost:8080/userProfile/edit/${userId}`, formData, { withCredentials: true })
       .then(res => {
         if (res.status === 200) {
           alert('Profile updated successfully!');
-          setProfiles(prevProfiles => prevProfiles.map(ev => ev.id === editingProfile.id ? res.data : ev)); // Update the profile in state
+          // setProfiles(prevProfiles => prevProfiles.map(ev => ev.id === editingProfile.id ? res.data : ev)); // Update the profile in state
           setEditingProfile(null); // Reset editing profile after success
           //closeModal(); // Close the modal
         }
@@ -105,23 +109,23 @@ export default function UserProfileManagement() {
         console.error(err);
         alert('An error occurred while editing the profile');
       });
-  }
 
-  else {
-  // Send the form data to the server
-  axios.post('http://localhost:8080/auth/userProfileManagement/create', formData)
-    .then(res => {
-      if (res.status === 201) {
-        alert('Changes have been saved'); // Show alert on success
-      } else {
-        alert('Error: ' + res.data.Error);
-      }
-    })
-    .catch(err => {
-      console.error(err); // Log any errors during the request
-      alert('An error occurred while saving the profile.');
-    });
-  }
+
+  // else {
+  // // Send the form data to the server
+  // axios.post('http://localhost:8080/auth/userProfileManagement/create', formData)
+  //   .then(res => {
+  //     if (res.status === 201) {
+  //       alert('Changes have been saved'); // Show alert on success
+  //     } else {
+  //       alert('Error: ' + res.data.Error);
+  //     }
+  //   })
+  //   .catch(err => {
+  //     console.error(err); // Log any errors during the request
+  //     alert('An error occurred while saving the profile.');
+  //   });
+  // }
 };
 
 

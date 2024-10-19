@@ -51,7 +51,10 @@ exports.createUserProfile = (req, res) => {
 
   exports.updateUserProfileById = (req, res) => {
     const userId = parseInt(req.params.id); // Get the user ID from the URL
-    const userIndex = userProfiles.findIndex(user => user.id === userId); // Find the user by ID
+    // console.log(userId);
+
+    const userIndex = userProfiles.findIndex(user => user.userId === userId); // Find the user by ID
+    // console.log(userIndex);
   
     if (userIndex === -1) {
       return res.status(404).json({ Error: "User not found" }); // Return error if user not found

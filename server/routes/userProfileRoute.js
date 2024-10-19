@@ -9,7 +9,7 @@ router.post('/userProfileManagement/create', userProfileController.createUserPro
 // router.post('/userProfileManagement', userProfileController.createUserProfile);
 // router.get('/', userProfileController.getAllUserProfiles);
 router.get('/:id', verifyToken, userProfileController.getUserProfileById);
-router.put('/:id/update', userProfileController.updateUserProfileById);
+router.put('/edit/:id', userProfileController.updateUserProfileById);
 // router.get('/profile', verifyToken, userProfileController.getUserProfileByToken);
 // router.put('/edit/:id', verifyToken, eventManagementController.editEvent); // edits a selected event
 
