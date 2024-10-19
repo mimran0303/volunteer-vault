@@ -32,7 +32,7 @@ describe('Profile Management Controller', () => {
             json: jest.fn(), 
         };
 
-        userProfiles = [];
+        // userProfiles = [];
         users = [
             ["volunteer", "user1@example.com", "password1", 1, true],
             ["administrator", "user2@example.com", "password2", 2, true],
@@ -102,37 +102,35 @@ describe('Profile Management Controller', () => {
         });
     });
 
-    // editEvent test
-    // it('should edit an existing event', async () => {
-    //     req.params.id = 1; // Editing event with ID 1
-    //     req.user.userId = 2; // Admin 2 is the owner of the event
+    it('should edit an existing profile', async () => {
+        req.params.id = 1; // Editing user 1
 
-    //     req.body = {
-    //         eventName: 'Updated Event',
-    //         location: 'Updated Location',
-    //         city: 'Updated City',
-    //         state: 'Updated State',
-    //         zipcode: 'Updated Zipcode',
-    //         eventDescription: 'Updated Description',
-    //         skills: "Research Skills",
-    //         urgency: 'Urgent',
-    //         date: '2024-04-04'
-    //     };
+        req.body = {
+            fullName: 'New Name',
+            address1: 'New Address 1',
+            address2: 'New Address 2',
+            city: 'New City',
+            state: 'New State',
+            zipcode: 'New Zipcode',
+            skills: 'New Skill',
+            preferences: 'New Preference',
+            availability: '2024-03-03',
+        };
 
-    //     eventManagementController.editEvent(req, res);
+        userProfileController.updateUserProfileById(req, res);
 
-    //     expect(res.status).toHaveBeenCalledWith(200);
-    //     expect(res.json).toHaveBeenCalledWith({
-    //         ...eventDetails[0],
-    //         eventName: 'Updated Event',
-    //         location: 'Updated Location',
-    //         city: 'Updated City',
-    //         state: 'Updated State',
-    //         zipcode: 'Updated Zipcode',
-    //         eventDescription: 'Updated Description',
-    //         skills: "Research Skills",
-    //         urgency: 'Urgent',
-    //         date: '2024-04-04',
-    //     });
-    // })
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            ...userProfiles[0],
+            fullName: 'New Name',
+            address1: 'New Address 1',
+            address2: 'New Address 2',
+            city: 'New City',
+            state: 'New State',
+            zipcode: 'New Zipcode',
+            skills: 'New Skill',
+            preferences: 'New Preference',
+            availability: '2024-03-03',
+        });
+    })
 })
