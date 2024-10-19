@@ -51,7 +51,7 @@ describe('Auth Controller', () => {
             await authController.register(req, res);
 
             expect(bcrypt.hash).toHaveBeenCalledWith(req.body.password.toString(), 10, expect.any(Function));
-            expect(users[users.length - 1]).toEqual(['volunteer', 'newuser@example.com', 'hashed_password']);
+            expect(users[users.length - 1]).toEqual(['volunteer', 'newuser@example.com', 'hashed_password', users[users.length - 2][3] + 1, false]);
             expect(res.json).toHaveBeenCalledWith({ Status: "Success" });
         });
 
