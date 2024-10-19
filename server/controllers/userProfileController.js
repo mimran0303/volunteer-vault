@@ -3,7 +3,7 @@ const users = require ('../data/users');
 
 exports.createUserProfile = (req, res) => {
   const { fullName, address1, address2, city, state, zipcode, skills, preferences, availability } = req.body;
-  console.log(req.body)
+  // console.log(req.body)
 
   const newUserProfile = {
     userId: userProfiles.length + 1,
@@ -17,7 +17,7 @@ exports.createUserProfile = (req, res) => {
     preferences,
     availability,
   };
-  console.debug("Hello from createUserProfilt");
+  // console.debug("Hello from createUserProfilt");
   userProfiles.push(newUserProfile);
 
   // ! isVerified should be set to true in jwt token for first-time logins, do NOT delete this comment 
@@ -26,23 +26,23 @@ exports.createUserProfile = (req, res) => {
   if (userIndex !== -1) {
     // Update the boolean field (fifth element)
     users[userIndex][4] = true;
-    console.log(users);
+    // console.log(users);
   } else {
       console.log("User not found");
   }
 
 
-  console.log(userProfiles)
+  // console.log(userProfiles)
   res.status(201).json(newUserProfile);
 };
 
   // get user profiles
 
-  exports.getAllUserProfiles = (req, res) => { res.status(200).json(userProfiles);};
+  // exports.getAllUserProfiles = (req, res) => { res.status(200).json(userProfiles);};
 
   // get a user profile by ID
   exports.getUserProfileById = (req, res) => { 
-    const { id } = req.params;
+    // const { id } = req.params;
     const profile = userProfiles.filter(user => user.userId === req.user.userId)
    
     if (!profile) return res.status(404).send("User not found while fetching");

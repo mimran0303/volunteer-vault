@@ -36,9 +36,9 @@ const assignVolunteersToEvent = (req, res) => {
                 volunteer: { ...volunteer, userId: userProfile.userId }  // Attach userId to the volunteer object
             });
 
-            console.log("User Profile for Notification:", userProfile);
-            console.log("User Profile userId for Notification:", userProfile.userId);
-            console.log("Before Notification Creation - userId:", userProfile.userId);
+            // console.log("User Profile for Notification:", userProfile);
+            // console.log("User Profile userId for Notification:", userProfile.userId);
+            // console.log("Before Notification Creation - userId:", userProfile.userId);
 
             const notification = {
                 message: `You have been assigned to the ${eventDetails.skills} event on ${eventDetails.availability}.`,
@@ -49,12 +49,12 @@ const assignVolunteersToEvent = (req, res) => {
 
             notifications.push(notification);  // Push the notification to the array
         } else {
-            console.log("User not found for volunteer:", volunteer);  // Log the missing user
+            // console.log("User not found for volunteer:", volunteer);  // Log the missing user
         }
     });
 
-    console.log("Assigned Volunteers Array: ", assignedVolunteers);
-    console.log("Notifications Array: ", notifications);  // Check the updated notifications array
+    // console.log("Assigned Volunteers Array: ", assignedVolunteers);
+    // console.log("Notifications Array: ", notifications);  // Check the updated notifications array
 
     res.status(200).json({ success: true, message: 'Volunteers assigned successfully!', assignedVolunteers });
 };
