@@ -1,34 +1,32 @@
 // controllers/authController.js
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-let users = require("../data/users"); // Import hardcoded data
+// let users = require("../data/users"); // Import hardcoded data
 const salt = 10;
 
-/*
-The client side expects a response and is checking for either and Error or Status
-see /register/page.js in the client side to see how these responses are handled under axios
-try to display all the errors when logging in or registering (i.e. try registering under an existing email, log in with the wrong email/password)
-*/
+const db = require('../config/index')
+
 exports.register = (req, res) => {
-    const userExists = users.find(user => user[1] === req.body.email); // looking for existing email in users array
-    if (userExists) {
-        return res.json({ Error: "This email is already registered." });
-    }
+    const sql = "INSERT INTO userCredentials (email, password, account_type) VALUES (?)";
 
     bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
-        if (err) return res.json({ Error: "Error in hashing password!" });
-        const values = [
-            req.body.accountType,
-            req.body.email,
-            hash, 
-            users[users.length - 1][3] + 1,
-            false
-        ]; 
+        if(err) return res.json({Error: "Error in hashing password."});
 
-        users.push(values); // adding new user to users array
-        // console.log(users)
-        return res.json({ Status: "Success" });
-    });
+        const values = [req.body.email, hash, req.body.accountType];
+        db.query(sql, [values], (err, result) => {
+            if(err) {
+                if(err.code === 'ER_DUP_ENTRY') {
+                    return res.json({ Error: "This email is already registered." });
+                }
+                else {
+                    // ! needs to be handled
+                    throw err;
+                }
+            }
+
+            return res.json({ Status: "Success" });
+        })
+    })
 };
 
 exports.login = (req, res) => {
