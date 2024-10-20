@@ -2,10 +2,10 @@
 const userProfiles = require('../data/userProfiles');
 
 // Matching logic that takes event details as input and returns matched volunteers
-function matchVolunteersToEvent({ skillsRequired, city, state, zipcode, availability }) {
+function matchVolunteersToEvent({ skills, city, state, zipcode, availability }) {
     // Filter the volunteers based on the provided event details
     const suitableVolunteers = userProfiles.filter(user => {
-        const skillsMatch = user.skills.toLowerCase().includes(skillsRequired.toLowerCase());  // Match required skills
+        const skillsMatch = user.skills.toLowerCase().includes(skills.toLowerCase());  // Match required skills
         const cityMatch = user.city.toLowerCase() === city.toLowerCase();                      // Match city
         const stateMatch = user.state.toLowerCase() === state.toLowerCase();                   // Match state
         const zipcodeMatch = user.zipcode === zipcode;                                         // Match zipcode

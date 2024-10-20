@@ -10,7 +10,7 @@ export default function VolunteerMatchForm()  {
   const [matches, setMatches] = useState([]); // State to store matched volunteers
   const [selectedVolunteers, setSelectedVolunteers] = useState([]); // State to store selected volunteers for assignment
   const [assignedVolunteers, setAssignedVolunteers] = useState([]); // Store assigned volunteers
-  const [skillsRequired, setSkillsRequired] = useState(""); // State for skills input
+  const [skills, setSkills] = useState(""); // State for skills input
   const [city, setCity] = useState(""); // State for city input
   const [state, setState] = useState(""); // State for state input
   const [zipcode, setZipcode] = useState(""); // State for zipcode input
@@ -37,7 +37,7 @@ export default function VolunteerMatchForm()  {
       const response = await fetch('http://localhost:8080/api/volunteers/match', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skillsRequired, city, state, zipcode, availability }) // Send event details to backend
+        body: JSON.stringify({ skills, city, state, zipcode, availability }) // Send event details to backend
       });
 
       const data = await response.json();
@@ -52,7 +52,7 @@ export default function VolunteerMatchForm()  {
 
   const assignVolunteers = async () => {
       const eventDetails = {
-          skillsRequired,
+          skills,
           city,
           state,
           zipcode,
@@ -64,7 +64,7 @@ export default function VolunteerMatchForm()  {
               if (!assigned.volunteer || !assigned.event) return false;
 
               return assigned.volunteer.fullName === volunteer.fullName &&
-                  assigned.event.skillsRequired === skillsRequired &&
+                  assigned.event.skills === skills &&
                   assigned.event.city === city &&
                   assigned.event.state === state &&
                   assigned.event.zipcode === zipcode &&
@@ -94,7 +94,7 @@ export default function VolunteerMatchForm()  {
           newAssignments.forEach(volunteer => {
               notifications.push({
                   userId: volunteer.id,  // Assume volunteer has an ID
-                  message: `You have been assigned to the ${eventDetails.skillsRequired} event on ${eventDetails.availability}.`,
+                  message: `You have been assigned to the ${eventDetails.skills} event on ${eventDetails.availability}.`,
                   isRead: false,
                   date: new Date().toISOString()
               });
@@ -126,15 +126,25 @@ export default function VolunteerMatchForm()  {
             <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
             
             <form className="w-full max-w-md flex flex-col items-center">
-              <input
-                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
-                style={{ color: '#423D38' }}
-                type="text"
-                placeholder="Skills Required"
-                value={skillsRequired}
-                onChange={(e) => setSkillsRequired(e.target.value)} // Update skills required
-                aria-label="Skills Required"
-              />
+            <select
+              className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+              style={{ color: '#423D38' }}
+              value={skills} // Set the selected skill
+              onChange={(e) => setSkills(e.target.value)} // Update selected skill
+              aria-label="Skills Required"
+            >
+              <option value="">Select Skills</option>
+              <option value="Research Skills">Research Skills</option>
+              <option value="Communication Skills">Communication Skills</option>
+              <option value="Teamwork">Teamwork</option>
+              <option value="Physical Fitness">Physical Fitness</option>
+              <option value="Botanical Knowledge">Botanical Knowledge</option>
+              <option value="Knowledge of Marine Biology">Knowledge of Marine Biology</option>
+              <option value="Project Management">Project Management</option>
+              <option value="Advocacy and Policy Work">Advocacy and Policy Work</option>
+              <option value="Fundraising Skills">Fundraising Skills</option>
+              <option value="Diving Skills">Diving Skills</option>
+            </select>
 
               <input
                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
@@ -189,7 +199,7 @@ export default function VolunteerMatchForm()  {
 
                           return (
                             assigned.volunteer.fullName === volunteer.fullName &&
-                            assigned.event.skillsRequired === skillsRequired &&
+                            assigned.event.skills === skills &&
                             assigned.event.city === city &&
                             assigned.event.state === state &&
                             assigned.event.zipcode === zipcode &&
