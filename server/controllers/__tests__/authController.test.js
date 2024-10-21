@@ -23,8 +23,11 @@ describe('authController', () => {
         };
         res = {
             status: jest.fn().mockReturnThis(),
-            json: jest.fn()
+            json: jest.fn(),
+            cookie: jest.fn()
         };
+
+        jest.clearAllMocks();
     });
 
     describe('register', () => {
@@ -93,6 +96,7 @@ describe('authController', () => {
     });
 
     describe('login', () => {        
+        // ! this fails
         it('should login a user successfully with valid credentials', async () => {
             // Mock database query
             const mockUserData = [{
