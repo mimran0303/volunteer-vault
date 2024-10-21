@@ -3,39 +3,38 @@ const userProfiles = require('../data/userProfiles');
 const db = require('../config/index')
 
 // POST request: POST data to the database 
-exports.createUserProfile = (req, res) => {
+exports.createUserProfile = async (req, res) => {
   const sql = "INSERT INTO UserProfile (profile_owner_id, full_name, address_1, address_2, city, state, zip_code, skills, preferences, availability) VALUES (?)";
-  // req.user. => jwt token fields, req.body. => client-side form inputs 
-  const profileValues = [
-    req.user.userId, // jwt token user id
-    req.body.fullName, 
-    req.body.address1, 
-    req.body.address2, 
-    req.body.city, 
-    req.body.state, 
-    req.body.zipcode, 
-    req.body.skills, 
-    req.body.preferences,
-    req.body.availability
-  ];   
 
-  // this query inserts profileValues into UserProfile
-  db.query(sql, [profileValues], (err, result) => {
-    if (err) {
-        return res.status(500).json({ error: "Failed to create user profile" });
-    }
+  try {
+    // req.user. => jwt token fields, req.body. => client-side form inputs 
+    const profileValues = [
+      req.user.userId, // jwt token user id
+      req.body.fullName, 
+      req.body.address1, 
+      req.body.address2, 
+      req.body.city, 
+      req.body.state, 
+      req.body.zipcode, 
+      req.body.skills, 
+      req.body.preferences,
+      req.body.availability
+    ];  
 
-    // on a successful insertion, this query updates is_verified in UserCredentials to true
-    // this results in the initial profile creation form to never appear again after a users first login
+    // Get database connection
+    const db_con = await db();
+
+    // Insert the profile values into UserProfile
+    await db_con.query(sql, [profileValues]);
+
+    // Update is_verified in UserCredentials to 1 for the user
     const sql_update = "UPDATE UserCredentials SET is_verified = 1 WHERE user_id = ?";
-    db.query(sql_update, [req.user.userId], (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: "Failed to update user credentials" });
-      }
+    await db_con.query(sql_update, [req.user.userId]);
 
-      return res.status(201).json({ message: "Profile created and user verified" });
-    });
-  });
+    return res.status(201).json({ message: "Profile created and user verified" });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to create user profile and verify user" });
+  } 
 };
 
 
