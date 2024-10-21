@@ -28,32 +28,36 @@ export function login() {
     availability: ''
   });
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    axios.defaults.withCredentials = true;
+const handleSubmit = (event) => {
+  event.preventDefault();
+  axios.defaults.withCredentials = true;
 
-    axios.post('http://localhost:8080/auth/login', values)
-      .then(res => {
-        if(res.data.Status === "Success") {
-          const token = res.data.token;
-          console.log("Token received: ", token);
-          localStorage.setItem('token', token);
-          
-          // Check isVerified status
-          if (res.data.isVerified === 0) {
-            // Show modal if user is not verified
-            setShowModal(true);
-          } else {
-            router.push('/dashboard');
-          }
-        } else {
-          alert(res.data.Error);
-        }
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  };
+  axios.post('http://localhost:8080/auth/login', values)
+  .then(res => {
+    if (res.status === 200 && res.data.Status === "Success") {
+      const token = res.data.token;
+      // console.log("Token received: ", token);
+      localStorage.setItem('token', token);
+      
+      if (res.data.isVerified === 0) {
+        setShowModal(true);
+      } else {
+        router.push('/dashboard');
+      }
+    } else if (res.data.Error) {
+      alert(res.data.Error);
+    }
+  })
+  .catch(err => {
+    if (err.response && err.response.data && err.response.data.Error) {
+      alert(err.response.data.Error);
+    } else {
+      alert("An unexpected error occurred.");
+    }
+    console.error(err);
+  });
+};
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
