@@ -5,7 +5,7 @@ const verifyToken = require("../middleware/verifyToken");
 
 // CRUD 
 // router.post('/create', userProfileController.createUserProfile);
-router.post('/userProfileManagement/create', userProfileController.createUserProfile);
+router.post('/userProfileManagement/create', verifyToken, userProfileController.createUserProfile);
 // router.post('/userProfileManagement', userProfileController.createUserProfile);
 // router.get('/', userProfileController.getAllUserProfiles);
 router.get('/:id', verifyToken, userProfileController.getUserProfileById);

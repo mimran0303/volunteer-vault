@@ -42,7 +42,7 @@ exports.login = (req, res) => {
                 
                 if(response) {
                     // Generate JWT token
-                    const token = jwt.sign({ userId: data[0].user_id, username: data[0].email, accountType: data[0].account_type, isVerified: data[0].is_verified },
+                    const token = jwt.sign({ userId: data[0].user_id, username: data[0].email, accountType: data[0].account_type },
                         `${process.env.JWT_SECRET_KEY}`,
                         { expiresIn: '1d' }
                     );
