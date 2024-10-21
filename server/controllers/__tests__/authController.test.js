@@ -92,6 +92,102 @@ describe('authController', () => {
         });
     });
 
+    describe('login', () => {        
+        it('should login a user successfully with valid credentials', async () => {
+            // Mock database query
+            const mockUserData = [{
+                user_id: 1,
+                email: 'test@example.com',
+                password: 'hashedpassword',
+                account_type: 'volunteer',
+                is_verified: 1
+            }];
+            const mockQuery = jest.fn().mockResolvedValue([mockUserData]);
+            db.mockResolvedValue({
+                query: mockQuery
+            });
+    
+            // Mock bcrypt comparison
+            bcrypt.compare.mockResolvedValue(true);
+    
+            // Mock JWT sign
+            const mockToken = 'mockToken';
+            jwt.sign.mockReturnValue(mockToken);
+    
+            // Call the login function
+            await authController.login(req, res);
+    
+            // Check that the response is a 200 status with success message and token
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                Status: 'Success',
+                token: mockToken,
+                isVerified: 1
+            });
+    
+            // Check that the jwt token was set in the cookie
+            expect(res.cookie).toHaveBeenCalledWith('token', mockToken, { httpOnly: true });
+    
+            // Check that the database query was executed with the correct email
+            expect(mockQuery).toHaveBeenCalledWith('SELECT * FROM UserCredentials WHERE email = ?', ['test@example.com']);
+        });
+    
+        it('should return a 401 error for incorrect password', async () => {
+            // Mock database query with user data
+            const mockUserData = [{
+                user_id: 1,
+                email: 'test@example.com',
+                password: 'hashedpassword',
+                account_type: 'user',
+                is_verified: 1
+            }];
+            const mockQuery = jest.fn().mockResolvedValue([mockUserData]);
+            db.mockResolvedValue({
+                query: mockQuery
+            });
+    
+            // Mock bcrypt comparison for incorrect password
+            bcrypt.compare.mockResolvedValue(false);
+    
+            // Call the login function
+            await authController.login(req, res);
+    
+            // Check that the response is a 401 status with an error message
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ Error: 'Incorrect password!' });
+        });
+    
+        it('should return a 404 error if email is not found', async () => {
+            // Mock database query with no user found
+            const mockQuery = jest.fn().mockResolvedValue([[]]); // Empty array to simulate no user found
+            db.mockResolvedValue({
+                query: mockQuery
+            });
+    
+            // Call the login function
+            await authController.login(req, res);
+    
+            // Check that the response is a 404 status with an error message
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ Error: 'Incorrect email!' });
+        });
+    
+        it('should return a 500 error if a server error occurs', async () => {
+            // Mock database query to throw an error
+            const mockQuery = jest.fn().mockRejectedValue(new Error('Some DB error'));
+            db.mockResolvedValue({
+                query: mockQuery
+            });
+    
+            // Call the login function
+            await authController.login(req, res);
+    
+            // Check that the response is a 500 status with an error message
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ Error: 'Server error.' });
+        });
+    });
+
     describe('logout', () => {
         it('should return 200 and success when logging out', async () => {
             res.clearCookie = jest.fn();

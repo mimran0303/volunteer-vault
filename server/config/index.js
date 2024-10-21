@@ -17,7 +17,7 @@ async function initializeDatabaseConnection() {
             database: process.env.DB_DATABASE,
         });
 
-        console.log('Connected to database'); // ? no idea why this wont show up
+        console.log('Connected to database'); // ? no idea why this wont show up, shows up in tests ???
         return db_con;
     } catch (err) {
         console.error('Error connecting to the database:', err.message);
