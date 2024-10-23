@@ -21,25 +21,27 @@ export function register() {
     password: ''
   })
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // server.js: app.use("/auth", authRoutes);
-    axios.post('http://localhost:8080/auth/register', values)
-    .then(res => {
-      // Success: handle the response data
-      if(res.data.Status === "Success") {
-        router.push('/login')
+const handleSubmit = (event) => {
+  event.preventDefault();
+  
+  axios.post('http://localhost:8080/auth/register', values)
+  .then(res => {
+      if(res.status === 201 && res.data.Status === "Success") {
+        router.push('/login');
+      } else if (res.data.Error) {
+        alert(res.data.Error);
       }
-      else {
-        // TODO: keep alert() or display the error on the page
-        alert(res.data.Error)
-      }
-    })
-    .catch(err => {
-      // Error: handle the error message
-      console.error(err);
-    });
-  }
+  })
+  .catch(err => {
+    if (err.response && err.response.data && err.response.data.Error) {
+      alert(err.response.data.Error);
+    } else {
+      alert("An unexpected error occurred.");
+    }
+    console.error(err);
+  });
+}
+
 
   return (
     <>

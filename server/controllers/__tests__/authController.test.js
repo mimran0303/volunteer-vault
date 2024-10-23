@@ -1,144 +1,206 @@
-// controllers/__tests__/authController.test.js
+//__tests__/authController.test.js
+
 const authController = require('../authController');
+const db = require('../../config/index');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// Mock bcrypt and jwt methods
+jest.mock('../../config/index')
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 
-// Mock users data
-let users = require('../../data/users'); 
-
-describe('Auth Controller', () => {
-
+describe('authController', () => {
+    let req;
+    let res;
 
     beforeEach(() => {
         req = {
             body: {
-                email: '',
-                password: '',
-                accountType: ''
+                email: 'test@example.com',
+                password: 'password123',
+                accountType: 'volunteer'
             }
         };
         res = {
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
-            cookie: jest.fn(),
-            clearCookie: jest.fn()
+            cookie: jest.fn()
         };
+
+        jest.clearAllMocks();
     });
 
     describe('register', () => {
-        it('should return error if email is already registered', () => {
-            req.body.email = 'user1@example.com';
-            req.body.password = 'password1';
-            req.body.accountType = 'volunteer';
-
-            authController.register(req, res);
-
-            expect(res.json).toHaveBeenCalledWith({ Error: "This email is already registered." });
-        });
-
-        it('should hash password and register a new user', async () => {
-            req.body.email = 'newuser@example.com';
-            req.body.password = 'newpassword';
-            req.body.accountType = 'volunteer';
-
-            bcrypt.hash.mockImplementation((password, saltRounds, callback) => {
-                callback(null, 'hashed_password');
+        it('should register a new user successfully', async () => {
+            // Mock bcrypt hash
+            bcrypt.hash.mockResolvedValue('hashedpassword');
+    
+            // Mock the database query
+            const mockQuery = jest.fn().mockResolvedValue([{ affectedRows: 1 }]);
+            db.mockResolvedValue({
+                query: mockQuery
             });
-
+    
+            // Call the register function
             await authController.register(req, res);
-
-            expect(bcrypt.hash).toHaveBeenCalledWith(req.body.password.toString(), 10, expect.any(Function));
-            expect(users[users.length - 1]).toEqual(['volunteer', 'newuser@example.com', 'hashed_password']);
-            expect(res.json).toHaveBeenCalledWith({ Status: "Success" });
+    
+            // Check that the response is a 201 status with success message
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({ Status: 'Success' });
+    
+            // Check that bcrypt was called with the correct password
+            expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
+    
+            // Check that the database query was executed with the correct SQL and values
+            expect(mockQuery).toHaveBeenCalledWith(
+                "INSERT INTO UserCredentials (email, password, account_type) VALUES (?)",
+                [['test@example.com', 'hashedpassword', 'volunteer']]
+            );
         });
-
-        it('should return error if bcrypt fails during registration', async () => {
-            req.body.email = 'newuser@example.edu';
-            req.body.password = 'newpassword';
-            req.body.accountType = 'volunteer';
-
-            bcrypt.hash.mockImplementation((password, saltRounds, callback) => {
-                callback(new Error('Hash error'), null);
+    
+        it('should return a 409 error if the email is already registered', async () => {
+            // Mock bcrypt hash
+            bcrypt.hash.mockResolvedValue('hashedpassword');
+    
+            // Mock the database query to throw a duplicate entry error
+            const mockQuery = jest.fn().mockRejectedValue({ code: 'ER_DUP_ENTRY' });
+            db.mockResolvedValue({
+                query: mockQuery
             });
-
+    
+            // Call the register function
             await authController.register(req, res);
-
-            expect(res.json).toHaveBeenCalledWith({ Error: "Error in hashing password!" });
+    
+            // Check that the response is a 409 status with an error message
+            expect(res.status).toHaveBeenCalledWith(409);
+            expect(res.json).toHaveBeenCalledWith({ Error: 'This email is already registered.' });
+        });
+    
+        it('should return a 500 error if a database error occurs', async () => {
+            // Mock bcrypt hash
+            bcrypt.hash.mockResolvedValue('hashedpassword');
+    
+            // Mock the database query to throw a generic error
+            const mockQuery = jest.fn().mockRejectedValue(new Error('Some DB error'));
+            db.mockResolvedValue({
+                query: mockQuery
+            });
+    
+            // Call the register function
+            await authController.register(req, res);
+    
+            // Check that the response is a 500 status with an error message
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ Error: 'Database error occurred.', Details: 'Some DB error' });
         });
     });
 
-    describe('login', () => {
-        it('should return error if email is not found', () => {
-            req.body.email = 'nonexistent@example.com';
-            req.body.password = 'somepassword';
-
-            authController.login(req, res);
-
-            expect(res.json).toHaveBeenCalledWith({ Error: "Incorrect Email!" });
-        });
-
-        it('should return error if bcrypt comparison fails during login', async () => {
-            req.body.email = 'user1@example.com';
-            req.body.password = 'password1';
-
-            const mockUser = ['volunteer', 'user1@example.com', '$2b$10$somehashedpassword']; 
-            users.find = jest.fn().mockReturnValue(mockUser);
-
-            bcrypt.compare = jest.fn((password, hash, callback) => {
-                callback(new Error('Bcrypt compare error'), false);
+    describe('login', () => {        
+        // ! this fails
+        it('should login a user successfully with valid credentials', async () => {
+            // Mock database query
+            const mockUserData = [{
+                user_id: 1,
+                email: 'test@example.com',
+                password: 'hashedpassword',
+                account_type: 'volunteer',
+                is_verified: 1
+            }];
+            const mockQuery = jest.fn().mockResolvedValue([mockUserData]);
+            db.mockResolvedValue({
+                query: mockQuery
             });
-
+    
+            // Mock bcrypt comparison
+            bcrypt.compare.mockResolvedValue(true);
+    
+            // Mock JWT sign
+            const mockToken = 'mockToken';
+            jwt.sign.mockReturnValue(mockToken);
+    
+            // Call the login function
             await authController.login(req, res);
-
-            expect(bcrypt.compare).toHaveBeenCalledWith(req.body.password.toString(), mockUser[2], expect.any(Function));
-            expect(res.json).toHaveBeenCalledWith({ Error: "Error in bcrypt password comparison!" });
-        });
-
-        it('should return error if password is incorrect', async () => {
-            req.body.email = 'user1@example.com';
-            req.body.password = 'wrongpassword';
-
-            bcrypt.compare.mockImplementation((password, hash, callback) => {
-                callback(null, false);
+    
+            // Check that the response is a 200 status with success message and token
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                Status: 'Success',
+                token: mockToken,
+                isVerified: 1
             });
-
-            await authController.login(req, res);
-
-            expect(res.json).toHaveBeenCalledWith({ Error: "Incorrect password!" });
+    
+            // Check that the jwt token was set in the cookie
+            expect(res.cookie).toHaveBeenCalledWith('token', mockToken, { httpOnly: true });
+    
+            // Check that the database query was executed with the correct email
+            expect(mockQuery).toHaveBeenCalledWith('SELECT * FROM UserCredentials WHERE email = ?', ['test@example.com']);
         });
-
-        it('should return a success and set JWT token if login is correct', async () => {
-            req.body.email = 'user1@example.com';
-            req.body.password = 'password1';
-
-            bcrypt.compare.mockImplementation((password, hash, callback) => {
-                callback(null, true);
+    
+        it('should return a 401 error for incorrect password', async () => {
+            // Mock database query with user data
+            const mockUserData = [{
+                user_id: 1,
+                email: 'test@example.com',
+                password: 'hashedpassword',
+                account_type: 'user',
+                is_verified: 1
+            }];
+            const mockQuery = jest.fn().mockResolvedValue([mockUserData]);
+            db.mockResolvedValue({
+                query: mockQuery
             });
-
-            jwt.sign.mockReturnValue('mocked_jwt_token');
-
+    
+            // Mock bcrypt comparison for incorrect password
+            bcrypt.compare.mockResolvedValue(false);
+    
+            // Call the login function
             await authController.login(req, res);
-
-            expect(bcrypt.compare).toHaveBeenCalledWith(req.body.password.toString(), expect.any(String), expect.any(Function));
-            expect(jwt.sign).toHaveBeenCalledWith(
-                { username: 'user1@example.com', accountType: 'volunteer' },
-                expect.any(String),
-                { expiresIn: '1d' }
-            );
-            expect(res.cookie).toHaveBeenCalledWith('token', 'mocked_jwt_token', { httpOnly: true });
-            expect(res.json).toHaveBeenCalledWith({ Status: "Success" });
+    
+            // Check that the response is a 401 status with an error message
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ Error: 'Incorrect password!' });
+        });
+    
+        it('should return a 404 error if email is not found', async () => {
+            // Mock database query with no user found
+            const mockQuery = jest.fn().mockResolvedValue([[]]); // Empty array to simulate no user found
+            db.mockResolvedValue({
+                query: mockQuery
+            });
+    
+            // Call the login function
+            await authController.login(req, res);
+    
+            // Check that the response is a 404 status with an error message
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ Error: 'Incorrect email!' });
+        });
+    
+        it('should return a 500 error if a server error occurs', async () => {
+            // Mock database query to throw an error
+            const mockQuery = jest.fn().mockRejectedValue(new Error('Some DB error'));
+            db.mockResolvedValue({
+                query: mockQuery
+            });
+    
+            // Call the login function
+            await authController.login(req, res);
+    
+            // Check that the response is a 500 status with an error message
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ Error: 'Server error.' });
         });
     });
 
     describe('logout', () => {
-        it('should clear the token cookie and return success', () => {
-            authController.logout(req, res);
+        it('should return 200 and success when logging out', async () => {
+            res.clearCookie = jest.fn();
+
+            await authController.logout(req, res);
 
             expect(res.clearCookie).toHaveBeenCalledWith('token');
-            expect(res.json).toHaveBeenCalledWith({ Status: "Success" });
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({ Status: 'Success' });
         });
     });
 });

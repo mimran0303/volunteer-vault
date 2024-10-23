@@ -1,27 +1,42 @@
 
-const userProfiles = require('../data/userProfiles');
+const initializeDatabaseConnection = require('../config/index');
 
-// Matching logic that takes event details as input and returns matched volunteers
-function matchVolunteersToEvent({ skillsRequired, city, state, zipcode, availability }) {
-    // Filter the volunteers based on the provided event details
-    const suitableVolunteers = userProfiles.filter(user => {
-        const skillsMatch = user.skills.toLowerCase().includes(skillsRequired.toLowerCase());  // Match required skills
-        const cityMatch = user.city.toLowerCase() === city.toLowerCase();                      // Match city
-        const stateMatch = user.state.toLowerCase() === state.toLowerCase();                   // Match state
-        const zipcodeMatch = user.zipcode === zipcode;                                         // Match zipcode
-        const availabilityMatch = user.availability === availability;                         // Match availability
+async function matchVolunteersToEvent({ skills, city, state, zip_code, availability }) {
+    let db_con;
+    try {
+        db_con = await initializeDatabaseConnection(); // Get single connection
+        console.log("SQL Query Parameters:", { skills, city, state, zip_code, availability });
+        const [volunteers] = await db_con.query(`
+            SELECT profile_id, full_name, skills, city, state, zip_code, availability 
+            FROM userprofile 
+            WHERE skills LIKE ? 
+            AND city = ? 
+            AND state = ? 
+            AND zip_code = ? 
+            AND availability = ?
+        `, [`%${skills}%`, city, state, zip_code, availability]);
 
-        return skillsMatch && cityMatch && stateMatch && zipcodeMatch && availabilityMatch;
-    });
+        //debugging
+        console.log("Database returned volunteers:", volunteers);
+        if (volunteers.length === 0) {
+            return [];
+        }
 
-    // Return the list of matched volunteers
-    return suitableVolunteers.map(vol => ({
-        fullName: vol.fullName,
-        skills: vol.skills,
-        city: vol.city,
-        state: vol.state,
-        zipcode: vol.zipcode,
-    }));
+        return volunteers.map(vol => ({
+            profile_id: vol.profile_id,
+            full_name: vol.full_name,
+            skills: vol.skills,
+            city: vol.city,
+            state: vol.state,
+            zip_code: vol.zip_code,
+            availability: vol.availability
+        }));
+    } catch (error) {
+        console.error("Error fetching volunteers:", error);
+        throw new Error('Error fetching volunteers');
+    } finally {
+        if (db_con) await db_con.end(); // Close the connection after the query
+    }
 }
 
 module.exports = { matchVolunteersToEvent };

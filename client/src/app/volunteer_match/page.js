@@ -1,8 +1,9 @@
+
 "use client"
 
 import Image from "next/image";
 import waterbg from '../../public/waterbg.png';
-import { useState } from "react"; // Add this to manage state
+import { useState, useEffect} from "react"; // Add this to manage state
 import { useAuth } from "@/hooks/auth"; // authenticator 
 
 export default function VolunteerMatchForm()  {
@@ -10,17 +11,24 @@ export default function VolunteerMatchForm()  {
   const [matches, setMatches] = useState([]); // State to store matched volunteers
   const [selectedVolunteers, setSelectedVolunteers] = useState([]); // State to store selected volunteers for assignment
   const [assignedVolunteers, setAssignedVolunteers] = useState([]); // Store assigned volunteers
-  const [skillsRequired, setSkillsRequired] = useState(""); // State for skills input
+  const [skills, setSkills] = useState(""); // State for skills input
   const [city, setCity] = useState(""); // State for city input
   const [state, setState] = useState(""); // State for state input
-  const [zipcode, setZipcode] = useState(""); // State for zipcode input
+  const [zip_code, setZipcode] = useState(""); // State for zipcode input
   const [availability, setAvailability] = useState(""); // State for availability input
   const [userNotFound, setUserNotFound] = useState(false); // State to track if no volunteers are found
+  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [token, setToken] = useState(null);
 
+  // Use useEffect to access localStorage only on the client side
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token'); // Get token from localStorage
+    setToken(storedToken);
+    // console.log("Stored token", storedToken);
+  }, [])
 
-
-  const token = localStorage.getItem('token'); // Get token from localStorage or use cookies if needed
-  console.log("stored token", token);
+  // const token = localStorage.getItem('token'); // Get token from localStorage or use cookies if needed
+  // console.log("stored token", token);
 
   // Handle selecting/deselecting volunteers
   const handleVolunteerSelection = (volunteer) => {
@@ -37,7 +45,7 @@ export default function VolunteerMatchForm()  {
       const response = await fetch('http://localhost:8080/api/volunteers/match', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skillsRequired, city, state, zipcode, availability }) // Send event details to backend
+        body: JSON.stringify({ skills, city, state, zip_code, availability }) // Send event details to backend
       });
 
       const data = await response.json();
@@ -48,64 +56,46 @@ export default function VolunteerMatchForm()  {
     }
   };
 
-  const notifications = []; // Array to store notifications (or move this to a more permanent storage)
-
   const assignVolunteers = async () => {
-      const eventDetails = {
-          skillsRequired,
-          city,
-          state,
-          zipcode,
-          availability,
-      };
+      console.log("Selected Volunteers:", selectedVolunteers);  // Log selected volunteers
 
-      const newAssignments = selectedVolunteers.filter(volunteer => {
-          return !assignedVolunteers.some(assigned => {
-              if (!assigned.volunteer || !assigned.event) return false;
-
-              return assigned.volunteer.fullName === volunteer.fullName &&
-                  assigned.event.skillsRequired === skillsRequired &&
-                  assigned.event.city === city &&
-                  assigned.event.state === state &&
-                  assigned.event.zipcode === zipcode &&
-                  assigned.event.availability === availability;
-          });
-      });
-
-      if (newAssignments.length === 0) {
-          console.log("No new volunteers to assign.");
+      if (!selectedEventId) {
+          console.log("No event selected.");
           return;
       }
 
       try {
           const response = await fetch('http://localhost:8080/api/assignments/assign', {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ eventDetails, volunteers: newAssignments })
+              headers: { 
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${token}`  // Use token if needed
+              },
+              body: JSON.stringify({
+                  eventId: selectedEventId,
+                  volunteerIds: selectedVolunteers.map(volunteer => volunteer.profile_id)  // Use profile_id instead of id
+              })
           });
 
           const data = await response.json();
-          console.log('Assignment Response:', data);
 
-          // Update assigned volunteers in the frontend
-          setAssignedVolunteers(prevAssigned => [...prevAssigned, ...newAssignments]);
-
-          // Create notifications for each assigned volunteer
-          newAssignments.forEach(volunteer => {
-              notifications.push({
-                  userId: volunteer.id,  // Assume volunteer has an ID
-                  message: `You have been assigned to the ${eventDetails.skillsRequired} event on ${eventDetails.availability}.`,
-                  isRead: false,
-                  date: new Date().toISOString()
-              });
-          });
-
-          console.log("Notifications: ", notifications);
-
-          setSelectedVolunteers([]);  // Clear selected volunteers
+          if (response.ok || response.status === 207) {
+              console.log('Assignment Response:', data);
+              if (data.successes.length > 0) {
+                  alert("Successfully assigned volunteers:\n" + data.successes.join("\n"));
+              }
+              if (data.errors.length > 0) {
+                  alert("Errors occurred:\n" + data.errors.join("\n"));
+              }
+          } else {
+              // Handle other errors
+              console.error('Error:', data.message);
+              alert(data.message);  // Show the error message returned from the backend
+          }
 
       } catch (error) {
           console.error('Error assigning volunteers:', error);
+          alert("An error occurred while assigning volunteers. Please try again.");
       }
   };
 
@@ -126,15 +116,38 @@ export default function VolunteerMatchForm()  {
             <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
             
             <form className="w-full max-w-md flex flex-col items-center">
-              <input
-                className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
-                style={{ color: '#423D38' }}
-                type="text"
-                placeholder="Skills Required"
-                value={skillsRequired}
-                onChange={(e) => setSkillsRequired(e.target.value)} // Update skills required
-                aria-label="Skills Required"
-              />
+              <select
+              className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+              style={{ color: '#423D38' }}
+              value={selectedEventId}  // Bind the dropdown to selectedEventId state
+              onChange={(e) => setSelectedEventId(e.target.value)}  // Update selectedEventId on change
+              aria-label="Select Event"
+            >
+              <option value="">Select Event</option>
+              <option value="1">Community Research
+              </option>
+              <option value="2">Food Drive</option>
+              {/* Add more event options here */}
+            </select>
+            <select
+              className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
+              style={{ color: '#423D38' }}
+              value={skills} // Set the selected skill
+              onChange={(e) => setSkills(e.target.value)} // Update selected skill
+              aria-label="Skills Required"
+            >
+              <option value="">Select Skills</option>
+              <option value="Research Skills">Research Skills</option>
+              <option value="Communication Skills">Communication Skills</option>
+              <option value="Teamwork">Teamwork</option>
+              <option value="Physical Fitness">Physical Fitness</option>
+              <option value="Botanical Knowledge">Botanical Knowledge</option>
+              <option value="Knowledge of Marine Biology">Knowledge of Marine Biology</option>
+              <option value="Project Management">Project Management</option>
+              <option value="Advocacy and Policy Work">Advocacy and Policy Work</option>
+              <option value="Fundraising Skills">Fundraising Skills</option>
+              <option value="Diving Skills">Diving Skills</option>
+            </select>
 
               <input
                 className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
@@ -161,7 +174,7 @@ export default function VolunteerMatchForm()  {
                 style={{ color: '#423D38' }}
                 type="text"
                 placeholder="Zipcode"
-                value={zipcode}
+                value={zip_code}
                 onChange={(e) => setZipcode(e.target.value)} // Update zipcode
                 aria-label="Zipcode"
               />
@@ -188,11 +201,11 @@ export default function VolunteerMatchForm()  {
                           }
 
                           return (
-                            assigned.volunteer.fullName === volunteer.fullName &&
-                            assigned.event.skillsRequired === skillsRequired &&
+                            assigned.volunteer.full_name === volunteer.full_name &&
+                            assigned.event.skills === skills &&
                             assigned.event.city === city &&
                             assigned.event.state === state &&
-                            assigned.event.zipcode === zipcode &&
+                            assigned.event.zip_code === zip_code &&
                             assigned.event.availability === availability
                           );
                       });
@@ -208,7 +221,7 @@ export default function VolunteerMatchForm()  {
                               onChange={() => handleVolunteerSelection(volunteer)}
                             />
                           )}
-                          {volunteer.fullName} - {volunteer.skills}, {volunteer.city}, {volunteer.state}, {volunteer.zipcode}
+                          {volunteer.full_name} - {volunteer.skills}, {volunteer.city}, {volunteer.state}, {volunteer.zipcode}
                         </li>
                       );
                     })}
@@ -251,7 +264,7 @@ export default function VolunteerMatchForm()  {
                 <ul>
                   {assignedVolunteers.map((volunteer, index) => (
                     <li key={index} className="font-geistMono" style={{ color: '#423D38' }}>
-                      {volunteer.fullName} - {volunteer.skills}, {volunteer.city}, {volunteer.state}, {volunteer.zipcode}
+                      {volunteer.full_name} - {volunteer.skills}, {volunteer.city}, {volunteer.state}, {volunteer.zipcode}
                     </li>
                   ))}
                 </ul>
@@ -271,3 +284,39 @@ export default function VolunteerMatchForm()  {
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
