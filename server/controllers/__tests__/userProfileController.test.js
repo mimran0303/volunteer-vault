@@ -1,136 +1,94 @@
-const userProfileController = require('../userProfileController');
+// const { userProfileController } = require('../userProfileController');
+const { createUserProfile } = require('../userProfileController.js');
 
-let userProfiles = require('../../data/userProfiles');
-let users = require('../../data/users'); 
+const db = require('../../config/index'); // Mock the database config
 
+jest.mock('../../config/index'); // Mock the db connection
 
-describe('Profile Management Controller', () => {
-    let req, res;
-    
+describe('userProfileController', () => {
+  let req;
+  let res;
+
     beforeEach(() => {
+        // Mock request object with JWT token and body fields
         req = {
-            user: { userId: 1 }, // Default mock user
-            body: {
-                userId: '',
-                fullName: '',
-                address1: '',
-                address2: '',
-                city: '',
-                state: '',
-                zipcode: '',
-                skills: '',
-                preferences: '',
-                availability: '',
+            user: {
+                userId: 1 // From the JWT token
             },
-            params: {
-                id: 1
+            body: {
+                fullName: 'John Doe',
+                address1: '123 Main St',
+                address2: 'Apt 4B',
+                city: 'New York',
+                state: 'NY',
+                zipcode: '10001',
+                skills: 'Communication Skills',
+                preferences: 'Weekends',
+                availability: '2024-01-01'
             }
         };
 
+        // Mock response object with status and json methods
         res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn(), 
+            status: jest.fn().mockReturnThis(), 
+            json: jest.fn()
         };
-
-        // userProfiles = [];
-        users = [
-            ["volunteer", "user1@example.com", "password1", 1, true],
-            ["administrator", "user2@example.com", "password2", 2, true],
-            ["volunteer", "user3@example.com", "password3", 3, false],
-        ];
     });
 
-    // get profile test
-    it('should get users profile', async () => {
-        req.user.userId = 1; // Mock the logged-in user's ID
-
-        userProfileController.getUserProfileById(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith([{
-                address1: "123 Main St",
-                 address2: "",
-                availability: "2024-01-01",
-               city: "Houston",
-                fullName: "Jane Doe",
-               preferences: "Volunteering on weekends",
-                skills: "Communication Skills",
-                state: "TX",
-               userId: 1,
-                zipcode: "10001",
-             }]);
-    })
-
-    // create profile test
-    it('should create a new profile', async () => {
-        const req = {
-            body: {
-                userId: 3,
-                fullName: 'New Name',
-                address1: 'New Address 1',
-                address2: 'New Address 2',
-                city: 'New City',
-                state: 'New State',
-                zipcode: 'New Zipcode',
-                skills: 'New Skill',
-                preferences: 'New Preference',
-                availability: '2024-03-03',
-            },
-        };
+    describe('create user profile', () => {
+        it('should create a user profile and verify the user', async () => {
+            // Mock the database connection and queries
+            const mockQuery = jest.fn()
+              .mockResolvedValueOnce({ affectedRows: 1 }) // For the INSERT INTO UserProfile
+              .mockResolvedValueOnce({ affectedRows: 1 }); // For the UPDATE UserCredentials
+            
+            db.mockResolvedValue({
+              query: mockQuery
+            });
         
-        userProfileController.createUserProfile(req, res);
-
-        // const updatedUser = users.find(user => user[3] === 3); // Check for userId = 3 (newUserProfile.userId)
-
-        // console.log("EEEEEEEEEEE", updatedUser)
-
-        // expect(updatedUser).toBeDefined();  // Ensure user exists
-        // expect(updatedUser[4]).toBe(true);  // Check if the boolean field was updated to true
-
-        expect(res.status).toHaveBeenCalledWith(201);
-        expect(res.json).toHaveBeenCalledWith({
-            userId: 3,
-            fullName: 'New Name',
-            address1: 'New Address 1',
-            address2: 'New Address 2',
-            city: 'New City',
-            state: 'New State',
-            zipcode: 'New Zipcode',
-            skills: 'New Skill',
-            preferences: 'New Preference',
-            availability: '2024-03-03',
+            // Call the createUserProfile function
+            await createUserProfile(req, res);
+        
+            // Check that the response was a 201 status with success message
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({ message: "Profile created and user verified" });
+        
+            // Check that the correct SQL queries were executed
+            expect(mockQuery).toHaveBeenCalledWith(
+              "INSERT INTO UserProfile (profile_owner_id, full_name, address_1, address_2, city, state, zip_code, skills, preferences, availability) VALUES (?)",
+              [[
+                req.user.userId,
+                req.body.fullName,
+                req.body.address1,
+                req.body.address2,
+                req.body.city,
+                req.body.state,
+                req.body.zipcode,
+                req.body.skills,
+                req.body.preferences,
+                req.body.availability
+              ]]
+            );
+        
+            expect(mockQuery).toHaveBeenCalledWith(
+              "UPDATE UserCredentials SET is_verified = 1 WHERE user_id = ?",
+              [req.user.userId]
+            );
+        });
+        
+        it('should return a 500 error if there is a database error', async () => {
+            // Mock the database query to reject with an error
+            const mockQuery = jest.fn().mockRejectedValue(new Error('DB error'));
+            db.mockResolvedValue({
+            query: mockQuery
+            });
+        
+            // Call the createUserProfile function
+            await createUserProfile(req, res);
+        
+            // Check that the response was a 500 status with an error message
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ error: "Failed to create user profile and verify user" });
         });
     });
-
-    it('should edit an existing profile', async () => {
-        req.params.id = 1; // Editing user 1
-
-        req.body = {
-            fullName: 'New Name',
-            address1: 'New Address 1',
-            address2: 'New Address 2',
-            city: 'New City',
-            state: 'New State',
-            zipcode: 'New Zipcode',
-            skills: 'New Skill',
-            preferences: 'New Preference',
-            availability: '2024-03-03',
-        };
-
-        userProfileController.updateUserProfileById(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            ...userProfiles[0],
-            fullName: 'New Name',
-            address1: 'New Address 1',
-            address2: 'New Address 2',
-            city: 'New City',
-            state: 'New State',
-            zipcode: 'New Zipcode',
-            skills: 'New Skill',
-            preferences: 'New Preference',
-            availability: '2024-03-03',
-        });
-    })
-})
+});
