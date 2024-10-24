@@ -29,10 +29,6 @@ const notificationRoutes = require('./routes/notificationsRoutes');
 
 const volunteerHistoryRoutes = require("./routes/volunteerHistoryRoutes");
 
-<<<<<<< HEAD
-
-=======
->>>>>>> f989a6f7bba89bc6fe78d083d6b6e942a34e741e
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
 app.use("/eventManagement", eventManagementRoutes)
@@ -42,18 +38,10 @@ app.use("/api/volunteers", volunteerMatchRoute);
 app.use("/api/assignments", assignmentRoutes);
 app.use('/api', notificationRoutes);
 
-<<<<<<< HEAD
 app.use("/", volunteerHistoryRoutes);
 
 
 
-=======
-
-
-app.use("/", volunteerHistoryRoutes);
-
-
->>>>>>> f989a6f7bba89bc6fe78d083d6b6e942a34e741e
 app._router.stack.forEach(function(r) {
   if (r.route && r.route.path) {
     console.log(r.route.path);

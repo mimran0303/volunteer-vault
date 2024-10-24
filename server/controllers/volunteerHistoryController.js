@@ -1,37 +1,38 @@
-// This file contains the logic for handling requests. 
-// In this case, the retrieveHistory function fetches the volunteerHistory data and returns it as a JSON response.
+// volunteerHistoryController.js
+exports.retrieveHistory = async (req, res) => {
+    try {
+        const db_con = await initializeDatabaseConnection();
+        console.log("Database connected successfully");
 
-// API Flow: Between the Controller, Route, & Data Files
-//	1.	Client makes a POST request to /retrieveHistory.
-//	2.	The Express route matches this URL and method (POST), and the request is passed to the controller.
-//	3.	The controller retrieves the volunteer history data from the data file.
-//	4.	The data is sent as a JSON response to the client.
+        const [rows] = await db_con.execute(`
+            SELECT 
+                up.full_name AS volunteer_name,
+                vh.participation_status,
+                ed.event_name,
+                ed.event_description,
+                ed.location,
+                ed.skills_required,
+                ed.urgency,
+                ed.event_date
+            FROM 
+                volunteerHistory vh
+            JOIN 
+                userProfile up ON vh.volunteer_id = up.profile_owner_id
+            JOIN 
+                eventDetails ed ON vh.event_id = ed.event_id;
+        `);
 
+        console.log("Retrieved Rows:", rows); // Log the rows retrieved
 
-let volunteerHistory = require("../data/volunteerHistory"); // Import hardcoded data
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No volunteer history found.' });
+        }
 
-// Function to retrieve all participation history
-exports.retrieveHistory = (req, res) => {
-    //console.log("volunteerHistory", volunteerHistory);
-    res.status(200).json(volunteerHistory);
-
-};
-
-
-// Function to update participation status
-/* exports.updateParticipationStatus = (req, res) => {
-    const { volunteerName, eventName, newStatus } = req.body;
-
-    // Find the matching record based on volunteerName and eventName
-    let participationRecord = volunteerHistory.find(record =>
-        record.volunteerName === volunteerName && record.eventName === eventName
-    );
-
-    // If found, update the participation status
-    if (participationRecord) {
-        participationRecord.participationStatus = newStatus;
-        res.status(200).json({ message: "Status updated successfully", record: participationRecord });
-    } else {
-        res.status(404).json({ message: "Volunteer or event not found" });
+        res.status(200).json(rows);
+        await db_con.end();
+    } catch (err) {
+        console.error('Error retrieving volunteer history:', err.message);
+        console.error('Full error:', err); // Log full error for more details
+        res.status(500).json({ error: 'Internal Server Error', details: err.message }); // Return detailed error message
     }
-}; */
+};
