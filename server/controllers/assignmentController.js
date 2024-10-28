@@ -19,27 +19,36 @@ const assignVolunteersToEvent = async (req, res) => {
         const successes = [];
 
         // Insert each volunteer assignment into the volunteerMatch table
-        const insertPromises = uniqueVolunteerIds.map(async (profile_Id) => {
-            if (!profile_Id) {
+        const insertPromises = uniqueVolunteerIds.map(async (volunteerId) => {
+            if (!volunteerId) {
                 errors.push(`Volunteer ID cannot be null or undefined`);
                 return;
             }
 
             try {
+                // Insert assignment into volunteerMatch table
                 await db_con.query(
                     `INSERT INTO volunteerMatch (volunteer_id, event_id) VALUES (?, ?)`,
-                    [profile_Id, eventId]
+                    [volunteerId, eventId]
                 );
-                successes.push(`Volunteer ${profile_Id} assigned successfully`);
+
+                // Insert notification for the assigned volunteer
+                const message = `You have been assigned to event ID ${eventId}.`;
+                await db_con.query(
+                   `INSERT INTO notifications (recipient_id, event_id, message, date, is_read) VALUES (?, ?, ?, NOW(), false)`,
+                    [volunteerId, eventId, message]
+                );
+
+                successes.push(`Volunteer ${volunteerId} assigned successfully`);
             } catch (error) {
                 // Handle duplicate entry error
                 if (error.code === 'ER_DUP_ENTRY') {
-                    console.log(`Volunteer ${profile_Id} is already assigned to event ${eventId}`);
-                    errors.push(`Volunteer ${profile_Id} is already assigned to this event.`);
+                    console.log(`Volunteer ${volunteerId} is already assigned to event ${eventId}`);
+                    errors.push(`Volunteer ${volunteerId} is already assigned to this event.`);
                 } else {
                     // Handle other errors
-                    console.error(`Error assigning Volunteer ${profile_Id}:`, error);
-                    errors.push(`Error assigning Volunteer ${profile_Id}: ${error.message}`);
+                    console.error(`Error assigning Volunteer ${volunteerId}:`, error);
+                    errors.push(`Error assigning Volunteer ${volunteerId}: ${error.message}`);
                 }
             }
         });
@@ -60,8 +69,6 @@ const assignVolunteersToEvent = async (req, res) => {
     } catch (error) {
         console.error('Error assigning volunteers:', error);
         return res.status(500).json({ success: false, message: 'Error assigning volunteers.' });
-    } finally {
-        if (db_con) await db_con.end();  // Close the database connection if it's open
     }
 };
 
