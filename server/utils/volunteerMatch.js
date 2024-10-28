@@ -7,7 +7,7 @@ async function matchVolunteersToEvent({ skills, city, state, zip_code, availabil
         db_con = await initializeDatabaseConnection(); // Get single connection
         console.log("SQL Query Parameters:", { skills, city, state, zip_code, availability });
         const [volunteers] = await db_con.query(`
-            SELECT profile_id, full_name, skills, city, state, zip_code, availability 
+            SELECT profile_owner_id AS volunteer_id, full_name, skills, city, state, zip_code, availability 
             FROM userprofile 
             WHERE skills LIKE ? 
             AND city = ? 
@@ -23,7 +23,7 @@ async function matchVolunteersToEvent({ skills, city, state, zip_code, availabil
         }
 
         return volunteers.map(vol => ({
-            profile_id: vol.profile_id,
+            volunteer_id: vol.volunteer_id,
             full_name: vol.full_name,
             skills: vol.skills,
             city: vol.city,

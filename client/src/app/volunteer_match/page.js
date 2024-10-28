@@ -73,31 +73,79 @@ export default function VolunteerMatchForm()  {
               },
               body: JSON.stringify({
                   eventId: selectedEventId,
-                  volunteerIds: selectedVolunteers.map(volunteer => volunteer.profile_id)  // Use profile_id instead of id
+                  volunteerIds: selectedVolunteers.map(volunteer => volunteer.volunteer_id)  // Send volunteer IDs
               })
           });
 
-          const data = await response.json();
+          const responseText = await response.text();
+          console.log('Raw Response:', responseText);
 
-          if (response.ok || response.status === 207) {
-              console.log('Assignment Response:', data);
-              if (data.successes.length > 0) {
-                  alert("Successfully assigned volunteers:\n" + data.successes.join("\n"));
-              }
-              if (data.errors.length > 0) {
-                  alert("Errors occurred:\n" + data.errors.join("\n"));
-              }
-          } else {
-              // Handle other errors
-              console.error('Error:', data.message);
-              alert(data.message);  // Show the error message returned from the backend
+          const data = JSON.parse(responseText);
+          console.log('Assignment Response:', data);
+
+          if (data.success) {
+              // If the assignment was successful, update the UI
+              setAssignedVolunteers(prevAssigned => [...prevAssigned, ...selectedVolunteers]);
+              setSelectedVolunteers([]);
           }
 
+          // Display messages based on response properties
+          if (data.errors && data.errors.length > 0) {
+              console.error('Errors occurred:', data.errors);
+              alert(`Errors occurred:\n${data.errors.join('\n')}`);
+          } else if (data.successes && data.successes.length > 0) {
+              console.log('Success messages:', data.successes);
+              alert(`Success:\n${data.successes.join('\n')}`);
+          }
       } catch (error) {
           console.error('Error assigning volunteers:', error);
-          alert("An error occurred while assigning volunteers. Please try again.");
       }
   };
+
+
+
+  // const assignVolunteers = async () => {
+  //     console.log("Selected Volunteers:", selectedVolunteers);  // Log selected volunteers
+  //
+  //     if (!selectedEventId) {
+  //         console.log("No event selected.");
+  //         return;
+  //     }
+  //
+  //     try {
+  //         const response = await fetch('http://localhost:8080/api/assignments/assign', {
+  //             method: "POST",
+  //             headers: { 
+  //                 "Content-Type": "application/json",
+  //                 "Authorization": `Bearer ${token}`  // Use token if needed
+  //             },
+  //             body: JSON.stringify({
+  //                 eventId: selectedEventId,
+  //                 volunteerIds: selectedVolunteers.map(volunteer => volunteer.profile_id)  // Use profile_id instead of id
+  //             })
+  //         });
+  //
+  //         const data = await response.json();
+  //
+  //         if (response.ok || response.status === 207) {
+  //             console.log('Assignment Response:', data);
+  //             if (data.successes.length > 0) {
+  //                 alert("Successfully assigned volunteers:\n" + data.successes.join("\n"));
+  //             }
+  //             if (data.errors.length > 0) {
+  //                 alert("Errors occurred:\n" + data.errors.join("\n"));
+  //             }
+  //         } else {
+  //             // Handle other errors
+  //             console.error('Error:', data.message);
+  //             alert(data.message);  // Show the error message returned from the backend
+  //         }
+  //
+  //     } catch (error) {
+  //         console.error('Error assigning volunteers:', error);
+  //         alert("An error occurred while assigning volunteers. Please try again.");
+  //     }
+  // };
 
   if (isLoading) {
     return <p>Loading...</p>;
