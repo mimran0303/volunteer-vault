@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { getEventsByAdmin } = require('../controllers/events_volunteer_match_controller');
+const { getEventsByAdmin } = require('../controllers/eventsDropdownController');
 const authMiddleware = require('../middleware/verifyToken');
 const router = express.Router();
 
