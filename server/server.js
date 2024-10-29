@@ -26,6 +26,7 @@ const userProfileRoute = require("./routes/userProfileRoute");
 const volunteerMatchRoute = require('./routes/volunteerMatchRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const notificationRoutes = require('./routes/notificationsRoutes');
+const eventsRoutes = require('./routes/events_volunteer_match_routes');
 
 const volunteerHistoryRoutes = require("./routes/volunteerHistoryRoutes");
 
@@ -37,6 +38,7 @@ app.use("/userProfile",userProfileRoute)
 app.use("/api/volunteers", volunteerMatchRoute);
 app.use("/api/assignments", assignmentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/events', eventsRoutes);
 
 
 
