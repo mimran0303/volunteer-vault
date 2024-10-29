@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/auth"; // authenticator
 export default function VolunteerMatchForm()  {
   const { isAuthenticated, user, isLoading } = useAuth('administrator'); // Only admins can access
   const [matches, setMatches] = useState([]); // State to store matched volunteers
+  const [events, setEvents] = useState([]);
   const [selectedVolunteers, setSelectedVolunteers] = useState([]); // State to store selected volunteers for assignment
   const [assignedVolunteers, setAssignedVolunteers] = useState([]); // Store assigned volunteers
   const [skills, setSkills] = useState(""); // State for skills input
@@ -19,17 +20,41 @@ export default function VolunteerMatchForm()  {
   const [userNotFound, setUserNotFound] = useState(false); // State to track if no volunteers are found
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [token, setToken] = useState(null);
+  const [error, setError] = useState("");
 
   // Use useEffect to access localStorage only on the client side
   useEffect(() => {
-    const storedToken = localStorage.getItem('token'); // Get token from localStorage
+    const storedToken = localStorage.getItem('token'); 
     setToken(storedToken);
-    // console.log("Stored token", storedToken);
-  }, [])
+
+    if (storedToken) {
+      fetchAdminEvents(storedToken); // Fetch events created by this admin
+    }
+  }, []);
 
   // const token = localStorage.getItem('token'); // Get token from localStorage or use cookies if needed
   // console.log("stored token", token);
+  
+  const fetchAdminEvents = async (token) => {
+    try {
+      const response = await fetch('http://localhost:8080/api/events/admin-events', {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
+      const data = await response.json();
+      if (data.success) {
+        setEvents(data.events); // Store the filtered events
+      } else {
+        console.error("Failed to fetch events:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
+  };
   // Handle selecting/deselecting volunteers
   const handleVolunteerSelection = (volunteer) => {
     setSelectedVolunteers(prevSelected =>
@@ -56,96 +81,50 @@ export default function VolunteerMatchForm()  {
     }
   };
 
-  const assignVolunteers = async () => {
-      console.log("Selected Volunteers:", selectedVolunteers);  // Log selected volunteers
+   const assignVolunteers = async () => {
+          setError(""); // Clear previous error
+          console.log("Selected Volunteers:", selectedVolunteers);
 
-      if (!selectedEventId) {
-          console.log("No event selected.");
-          return;
-      }
-
-      try {
-          const response = await fetch('http://localhost:8080/api/assignments/assign', {
-              method: "POST",
-              headers: { 
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${token}`  // Use token if needed
-              },
-              body: JSON.stringify({
-                  eventId: selectedEventId,
-                  volunteerIds: selectedVolunteers.map(volunteer => volunteer.volunteer_id)  // Send volunteer IDs
-              })
-          });
-
-          const responseText = await response.text();
-          console.log('Raw Response:', responseText);
-
-          const data = JSON.parse(responseText);
-          console.log('Assignment Response:', data);
-
-          if (data.success) {
-              // If the assignment was successful, update the UI
-              setAssignedVolunteers(prevAssigned => [...prevAssigned, ...selectedVolunteers]);
-              setSelectedVolunteers([]);
+          if (!selectedEventId) {
+              setError("Please select an event before assigning volunteers."); // Set error message
+              return;
           }
 
-          // Display messages based on response properties
-          if (data.errors && data.errors.length > 0) {
-              console.error('Errors occurred:', data.errors);
-              alert(`Errors occurred:\n${data.errors.join('\n')}`);
-          } else if (data.successes && data.successes.length > 0) {
-              console.log('Success messages:', data.successes);
-              alert(`Success:\n${data.successes.join('\n')}`);
+          try {
+              const response = await fetch('http://localhost:8080/api/assignments/assign', {
+                  method: "POST",
+                  headers: { 
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${token}`  
+                  },
+                  body: JSON.stringify({
+                      eventId: selectedEventId,
+                      volunteerIds: selectedVolunteers.map(volunteer => volunteer.volunteer_id)
+                  })
+              });
+
+              const responseText = await response.text();
+              console.log('Raw Response:', responseText);
+
+              const data = JSON.parse(responseText);
+              console.log('Assignment Response:', data);
+
+              if (data.success) {
+                  setAssignedVolunteers(prevAssigned => [...prevAssigned, ...selectedVolunteers]);
+                  setSelectedVolunteers([]);
+                  setError(""); // Clear error on successful assignment
+              }
+
+              if (data.errors && data.errors.length > 0) {
+                  setError(`Errors occurred:\n${data.errors.join('\n')}`);
+              } else if (data.successes && data.successes.length > 0) {
+                  alert(`Success:\n${data.successes.join('\n')}`);
+              }
+          } catch (error) {
+              console.error('Error assigning volunteers:', error);
+              setError("An error occurred while assigning volunteers. Please try again.");
           }
-      } catch (error) {
-          console.error('Error assigning volunteers:', error);
-      }
-  };
-
-
-
-  // const assignVolunteers = async () => {
-  //     console.log("Selected Volunteers:", selectedVolunteers);  // Log selected volunteers
-  //
-  //     if (!selectedEventId) {
-  //         console.log("No event selected.");
-  //         return;
-  //     }
-  //
-  //     try {
-  //         const response = await fetch('http://localhost:8080/api/assignments/assign', {
-  //             method: "POST",
-  //             headers: { 
-  //                 "Content-Type": "application/json",
-  //                 "Authorization": `Bearer ${token}`  // Use token if needed
-  //             },
-  //             body: JSON.stringify({
-  //                 eventId: selectedEventId,
-  //                 volunteerIds: selectedVolunteers.map(volunteer => volunteer.profile_id)  // Use profile_id instead of id
-  //             })
-  //         });
-  //
-  //         const data = await response.json();
-  //
-  //         if (response.ok || response.status === 207) {
-  //             console.log('Assignment Response:', data);
-  //             if (data.successes.length > 0) {
-  //                 alert("Successfully assigned volunteers:\n" + data.successes.join("\n"));
-  //             }
-  //             if (data.errors.length > 0) {
-  //                 alert("Errors occurred:\n" + data.errors.join("\n"));
-  //             }
-  //         } else {
-  //             // Handle other errors
-  //             console.error('Error:', data.message);
-  //             alert(data.message);  // Show the error message returned from the backend
-  //         }
-  //
-  //     } catch (error) {
-  //         console.error('Error assigning volunteers:', error);
-  //         alert("An error occurred while assigning volunteers. Please try again.");
-  //     }
-  // };
+      };
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -163,8 +142,8 @@ export default function VolunteerMatchForm()  {
           <div className="flex flex-col items-center">
             <h1 className="text-center text-3xl mb-20 font-geistMono" style={{ color: '#423D38' }}>Volunteer Matching</h1>
             
-            <form className="w-full max-w-md flex flex-col items-center">
-              <select
+          <form className="w-full max-w-md flex flex-col items-center">
+            <select
               className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
               style={{ color: '#423D38' }}
               value={selectedEventId}  // Bind the dropdown to selectedEventId state
@@ -172,10 +151,12 @@ export default function VolunteerMatchForm()  {
               aria-label="Select Event"
             >
               <option value="">Select Event</option>
-              <option value="1">Community Research
-              </option>
-              <option value="2">Food Drive</option>
-              {/* Add more event options here */}
+              {/* Only show events created by the logged-in admin */}
+              {events.map(event => (
+                <option key={event.event_id} value={event.event_id}>
+                  {event.event_name} {/* Display event name */}
+                </option>
+              ))}
             </select>
             <select
               className="w-full bg-transparent border-b-2 border-[#423D38] py-2 px-3 mb-4 focus:border-gray-500 focus:outline-none font-geistMono"
@@ -292,7 +273,10 @@ export default function VolunteerMatchForm()  {
             >
               Find Matches
             </button>
-
+            {/* Error Message */}
+            {error && (
+                <p className="text-red-500 mb-4">{error}</p> // Display error message
+            )}
             {/* Button to assign selected volunteers */}
             {selectedVolunteers.length > 0 && (
               <button
