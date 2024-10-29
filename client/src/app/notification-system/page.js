@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -18,54 +19,71 @@ const NotificationPage = () => {
     setActiveTab(tab);
   };
 
-const fetchNotifications = async () => {
-    if (!isAuthenticated || !user || !user.id) { // Check if user.id is defined
-        setError("User not authenticated or missing ID.");
-        return;
-    }
+  const fetchNotifications = async () => {
+      console.log("Entered fetchNotifications");
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-        setError("No token found. Please log in.");
-        return;
-    }
+      // Debugging each condition
+      if (!isAuthenticated) {
+          console.log("User is not authenticated");
+          setError("User not authenticated or missing ID.");
+          return;
+      }
 
-    try {
-        const response = await axios.get(`http://localhost:8080/api/notifications/${user.id}`, {  // Use `user.id` here safely
-            withCredentials: true,
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        });
+      if (!user) {
+          console.log("User object is missing");
+          setError("User not authenticated or missing ID.");
+          return;
+      }
 
-        console.log("API response:", response.data);
+      if (!user.userId) {
+          console.log("User does not have a volunteer ID");
+          setError("User not authenticated or missing ID.");
+          return;
+      }
 
-        if (response.data.success) {
-            setNotifications(response.data.notifications);
-        } else {
-            setError(response.data.message || "Failed to fetch notifications.");
-        }
-    } catch (err) {
-        setError("An error occurred while fetching notifications.");
-        console.error("Error fetching notifications:", err);
-    }
-};
+      const token = localStorage.getItem("token");
+      if (!token) {
+          console.log("No token found in localStorage");
+          setError("No token found. Please log in.");
+          return;
+      }
+
+      try {
+          console.log("Sending request to notifications API with volunteer_id:", user.userId);
+          const response = await axios.get(`http://localhost:8080/api/notifications/${user.userId}`, {
+              withCredentials: true,
+              headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+              },
+          });
+          console.log("Raw Axios Response:", response); // Check entire response
+          console.log("Data in Axios Response:", response.data);
+
+          if (response.data.success) {
+              setNotifications(response.data.notifications);
+              console.log("Notifications set in state:", response.data.notifications);
+          } else {
+              setError(response.data.message || "Failed to fetch notifications.");
+          }
+      } catch (err) {
+          setError("An error occurred while fetching notifications.");
+          console.error("Error fetching notifications:", err);
+      }
+  };
 
   useEffect(() => {
-    if (!isLoading) {
+    console.log("useEffect is running, isLoading:", isLoading, "user:", user);
+    if (!isLoading && user?.userId) {
       fetchNotifications();
     }
-  }, [isLoading]);
+  }, [isLoading, user?.userId]);
 
-  // Filter notifications based on active tab
-  const filteredNotifications = notifications.filter((notification) => {
-    if (activeTab === "assignments") {
-      return notification.message.includes("assigned"); // Filter for assignment notifications
-    }
-    // Expand filters if needed for "updates" or "reminders" tabs
-    return false;
-  });
+  useEffect(() => {
+    console.log("Notifications set in state:", notifications);
+  }, [notifications]);
+
+  const filteredNotifications = notifications; // Temporarily show all notifications
 
   return (
     <div
@@ -136,24 +154,21 @@ const fetchNotifications = async () => {
             {activeTab === "updates" && "Updates Notifications"}
             {activeTab === "reminders" && "Reminders Notifications"}
           </h3>
-          {filteredNotifications.length > 0 ? (
+
+        {filteredNotifications.length > 0 ? (
             <ul className="list-disc pl-6 space-y-2">
-              {filteredNotifications.map((notification, index) => (
-                <li key={index}>
-                  {activeTab === "assignments" ? (
-                    <div>
-                      <p className="font-bold">{notification.message}</p>
-                      <small>{new Date(notification.date).toLocaleDateString()}</small>
-                    </div>
-                  ) : (
-                    <p>{notification.message}</p>
-                  )}
-                </li>
-              ))}
+                {filteredNotifications.map((notification, index) => (
+                    <li key={index}>
+                        <div>
+                            <p className="font-bold">{notification.message}</p>
+                            <small>Date Assigned: {new Date(notification.date).toLocaleDateString()}</small>
+                        </div>
+                    </li>
+                ))}
             </ul>
-          ) : (
+        ) : (
             <p>No notifications available.</p>
-          )}
+        )}
         </div>
       </div>
     </div>
@@ -161,8 +176,6 @@ const fetchNotifications = async () => {
 };
 
 export default NotificationPage;
-
-
 
 
 
@@ -250,7 +263,7 @@ export default NotificationPage;
 //     return activeTab === "assignments";
 //   });
 //
-//   return (
+//   return (l
 //     <div
 //       className="bg-white bg-opacity-80 min-h-screen flex bg-cover bg-center p-8"
 //       style={{
@@ -320,7 +333,7 @@ export default NotificationPage;
 //             {activeTab === "reminders" && "Reminders Notifications"}
 //           </h3>
 //           {filteredNotifications.length > 0 ? (
-//             <ul className="list-disc pl-6 space-y-2">
+//             <ul className="list-disc pl-6 slpace-y-2">
 //               {filteredNotifications.map((notification, index) => (
 //                 <li key={index}>
 //                   {activeTab === "assignments" ? (

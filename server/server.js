@@ -36,7 +36,7 @@ app.use("/userProfile",userProfileRoute)
 
 app.use("/api/volunteers", volunteerMatchRoute);
 app.use("/api/assignments", assignmentRoutes);
-app.use('/api', notificationRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 
 

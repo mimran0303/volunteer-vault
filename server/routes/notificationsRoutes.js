@@ -2,6 +2,10 @@ const express = require('express');
 const { getNotifications } = require('../controllers/notificationsController');
 const router = express.Router();
 
+// router.get('/:recipientId', (req,res,next) => {
+//     console.log("Route accessed with recipientId:", req.params.recipientId);
+//     next();
+// }, getNotifications);
 router.get('/:recipientId', getNotifications);
 
 module.exports = router;
