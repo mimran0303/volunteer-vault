@@ -1,5 +1,3 @@
-const userProfiles = require('../data/userProfiles');
-
 const db = require('../config/index')
 
 // POST request: POST data to the database 
@@ -53,7 +51,7 @@ exports.getUserProfileById = async (req, res) => {
     // returning retrieved profile to the client    
     return res.status(200).json(rows[0]); 
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    // console.error('Error fetching user profile:', error);
     return res.status(500).send('Server error while fetching user profile');
   }
 };
@@ -84,7 +82,7 @@ exports.updateUserProfileById = async (req, res) => {
 
     return res.status(200).json({ Message: 'User profile updated successfully' });
   } catch (error) {
-    console.error('Error updating user profile:', error);
+    // console.error('Error updating user profile:', error);
     return res.status(500).json({ Error: 'Server error while updating user profile' });
   }
 };
