@@ -17,10 +17,10 @@ async function initializeDatabaseConnection() {
             database: process.env.DB_DATABASE,
         });
 
-        console.log('Connected to database');
+        // console.log('Connected to database');
         return db_con;
     } catch (err) {
-        console.error('Error connecting to the database:', err.message);
+        // console.error('Error connecting to the database:', err.message);
         throw err;
     }
 }
