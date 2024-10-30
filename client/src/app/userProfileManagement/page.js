@@ -37,23 +37,25 @@ export default function UserProfileManagement() {
     // Fetch user profile data using the GET request
     axios.get('http://localhost:8080/userProfile/profile', { withCredentials: true })
       .then((response) => {
-        const profile = response.data[0];
+        const profile = response.data;
         
         if (profile) {
+          // converting mysql formatting to html friendly format
+          const availabilityDate = profile.availability ? profile.availability.split('T')[0] : '';
+
           // Set the formData with fetched profile data
           setFormData({
-            fullName: profile.fullName,
-            address1: profile.address1,
-            address2: profile.address2,
-            city: profile.city,
-            state: profile.state,
-            zipcode: profile.zipcode,
-            skills: profile.skills,
-            preferences: profile.preferences,
-            availability: profile.availability
+            fullName: profile.full_name || '',
+            address1: profile.address_1 || '',
+            address2: profile.address_2 || '',
+            city: profile.city || '',
+            state: profile.state || '',
+            zipcode: profile.zip_code || '',
+            skills: profile.skills || '',
+            preferences: profile.preferences || '',
+            availability: availabilityDate 
           });
-          setUserId(profile.userId);
-
+          setUserId(profile.profile_owner_id);
         }
       })
       .catch((error) => {

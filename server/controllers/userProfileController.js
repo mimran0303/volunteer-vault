@@ -37,15 +37,23 @@ exports.createUserProfile = async (req, res) => {
   } 
 };
 
+exports.getUserProfileById = async (req, res) => { 
+  const userId = req.user.userId;
 
-// GET request: GET users profile data from the database
-// users jwt id should match 'profile_owner_id'
-// if done correctly, data should be displayed in the profile page
-exports.getUserProfileById = (req, res) => { 
-const profile = userProfiles.filter(user => user.userId === req.user.userId)
+  try {
+    const db_con = await db();
 
-if (!profile) return res.status(404).send("User not found while fetching");
-res.status(200).json(profile);
+    const [rows] = await db_con.query('SELECT * FROM UserProfile WHERE profile_owner_id = ?', [userId]);
+
+    if (rows.length === 0) {
+      return res.status(404).send('User not found while fetching');
+    }
+
+    res.status(200).json(rows[0]); 
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).send('Server error while fetching user profile');
+  }
 };
 
 
