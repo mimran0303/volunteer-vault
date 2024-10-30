@@ -38,53 +38,53 @@ exports.createUserProfile = async (req, res) => {
 };
 
 exports.getUserProfileById = async (req, res) => { 
-  const userId = req.user.userId;
+  const userId = req.user.userId; // jwt token user id
 
   try {
     const db_con = await db();
 
     const [rows] = await db_con.query('SELECT * FROM UserProfile WHERE profile_owner_id = ?', [userId]);
 
+    // query returned an empty data array
     if (rows.length === 0) {
       return res.status(404).send('User not found while fetching');
     }
 
-    res.status(200).json(rows[0]); 
+    // returning retrieved profile to the client    
+    return res.status(200).json(rows[0]); 
   } catch (error) {
     console.error('Error fetching user profile:', error);
-    res.status(500).send('Server error while fetching user profile');
+    return res.status(500).send('Server error while fetching user profile');
   }
 };
 
+exports.updateUserProfileById = async (req, res) => {
+  const userId = parseInt(req.params.id); 
 
-// PUT request: PUT edited profile data into database
-// user's req.params.id should match 'profile_owner_id'
-exports.updateUserProfileById = (req, res) => {
-// Get the user ID from the URL, 
-// the GET request should get ALL data (profile_id, profile_owner_id, ...)
-// id needs to be sent from the client side, the id is gotten from the GET request
-const userId = parseInt(req.params.id); 
+  const { fullName, address1, address2, city, state, zipcode, skills, preferences, availability } = req.body;
 
-const userIndex = userProfiles.findIndex(user => user.userId === userId); // Find the user by ID
+  try {
+    const db_con = await db();
 
-if (userIndex === -1) {
-    return res.status(404).json({ Error: "User not found" }); // Return error if user not found
-}
+    const [existingUser] = await db_con.query('SELECT * FROM UserProfile WHERE profile_owner_id = ?', [userId]);
 
-const { fullName, address1, address2, city, state, zipcode, skills, preferences, availability } = req.body;
+    if (existingUser.length === 0) {
+      return res.status(404).json({ Error: 'User not found' });
+    }
 
-userProfiles[userIndex] = {
-    ...userProfiles[userIndex],  
-    fullName, 
-    address1, 
-    address2, 
-    city, 
-    state, 
-    zipcode,
-    skills, 
-    preferences, 
-    availability
-};
+    // Update the user profile
+    const [result] = await db_con.query(
+      'UPDATE UserProfile SET full_name = ?, address_1 = ?, address_2 = ?, city = ?, state = ?, zip_code = ?, skills = ?, preferences = ?, availability = ? WHERE profile_owner_id = ?',
+      [fullName, address1, address2, city, state, zipcode, skills, preferences, availability, userId]
+    );
 
-res.status(200).json(userProfiles[userIndex]); // Respond with the updated profile
+    if (result.affectedRows === 0) {
+      return res.status(500).json({ Error: 'Failed to update user profile' });
+    }
+
+    return res.status(200).json({ Message: 'User profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return res.status(500).json({ Error: 'Server error while updating user profile' });
+  }
 };
