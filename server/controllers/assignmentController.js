@@ -62,7 +62,7 @@ const assignVolunteersToEvent = async (req, res) => {
 
         return res.status(200).json({ success: true, message: 'All volunteers assigned successfully!', successes });
     } catch (error) {
-        console.error('Error assigning volunteers:', error);
+        // console.error('Error assigning volunteers:', error);
         return res.status(500).json({ success: false, message: 'Error assigning volunteers.' });
     } finally {
         if (db_con) await db_con.end();

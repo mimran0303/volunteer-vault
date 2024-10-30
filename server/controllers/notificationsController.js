@@ -24,7 +24,7 @@ const initializeDatabaseConnection = require('../config/index');
 
 const getNotifications = async (req, res) => {
     const recipientId = req.params.recipientId;
-    console.log("Fetching notifications for recipientId:", recipientId);
+    // console.log("Fetching notifications for recipientId:", recipientId);
 
     try {
         const db = await initializeDatabaseConnection();
@@ -33,7 +33,7 @@ const getNotifications = async (req, res) => {
             `SELECT * FROM notifications WHERE recipient_id = ?`, [recipientId]
         );
 
-        console.log("Notifications fetched:", rows);
+        // console.log("Notifications fetched:", rows);
         
         await db.end();  // Close the connection after querying
         
@@ -43,7 +43,7 @@ const getNotifications = async (req, res) => {
             res.status(404).json({ success: false, message: 'No notifications found.' });
         }
     } catch (error) {
-        console.error('Error fetching notifications:', error.message);
+        // console.error('Error fetching notifications:', error.message);
         res.status(500).json({ success: false, message: 'Error fetching notifications' });
     }
 };

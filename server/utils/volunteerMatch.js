@@ -5,7 +5,7 @@ async function matchVolunteersToEvent({ skills, city, state, zip_code, availabil
     let db_con;
     try {
         db_con = await initializeDatabaseConnection(); // Get single connection
-        console.log("SQL Query Parameters:", { skills, city, state, zip_code, availability });
+        // console.log("SQL Query Parameters:", { skills, city, state, zip_code, availability });
         const [volunteers] = await db_con.query(`
             SELECT profile_owner_id AS volunteer_id, full_name, skills, city, state, zip_code, availability 
             FROM userprofile 
@@ -17,7 +17,7 @@ async function matchVolunteersToEvent({ skills, city, state, zip_code, availabil
         `, [`%${skills}%`, city, state, zip_code, availability]);
 
         //debugging
-        console.log("Database returned volunteers:", volunteers);
+        // console.log("Database returned volunteers:", volunteers);
         if (volunteers.length === 0) {
             return [];
         }
@@ -32,7 +32,7 @@ async function matchVolunteersToEvent({ skills, city, state, zip_code, availabil
             availability: vol.availability
         }));
     } catch (error) {
-        console.error("Error fetching volunteers:", error);
+        // console.error("Error fetching volunteers:", error);
         throw new Error('Error fetching volunteers');
     } finally {
         if (db_con) await db_con.end(); // Close the connection after the query

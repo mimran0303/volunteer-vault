@@ -71,7 +71,7 @@ exports.login = async (req, res) => {
             return res.status(404).json({ Error: "Incorrect email!" });
         }
     } catch (err) {
-        console.error('Login error:', err.message);
+        // console.error('Login error:', err.message);
         return res.status(500).json({ Error: "Server error." });
     }
 };
