@@ -49,9 +49,10 @@ exports.getOverview = async (req, res) => {
 
 exports.postReview = async (req, res) => { 
   const { eventId, volunteers } = req.body;
+  let db_con;
 
   try {
-    const db_con = await db(); // Create a database connection
+    db_con = await db(); // Create a database connection
 
     // Start transaction
     await db_con.beginTransaction();
@@ -87,7 +88,7 @@ exports.postReview = async (req, res) => {
     res.status(200).json({ message: "Data inserted and reviewed status updated successfully!" });
   } catch (error) {
     // Rollback the transaction if any error occurs
-    if (db_con.rollback) await db_con.rollback();
+    if (db_con && db_con.rollback) await db_con.rollback();
     // console.error("Error processing data:", error);
     res.status(500).json({ message: "Internal server error", error: error.message });
   } 

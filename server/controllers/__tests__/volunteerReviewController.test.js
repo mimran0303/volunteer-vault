@@ -121,27 +121,25 @@ describe('volunteerReviewController', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ message: 'Data inserted and reviewed status updated successfully!' });
     });
-
-    // ! DANGER
+    
     it('should rollback transaction if an error occurs', async () => {
-      req.body = {
-        eventId: 5,
-        volunteers: [{ profile_id: 101, status: 'Participated', match_id: 1 }],
-      };
-
-      // Mock error in one of the queries
-      dbConnection.query
-        .mockResolvedValueOnce() // Insert VolunteerHistory
-        .mockRejectedValueOnce(new Error('Update error')); // Error in update query
-      dbConnection.beginTransaction.mockResolvedValueOnce();
-      dbConnection.rollback.mockResolvedValueOnce();
-
-      await volunteerReviewController.postReview(req, res);
-
-      // Ensure transaction rollback is called
-      expect(dbConnection.rollback).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error', error: 'Update error' });
+        req.body = {
+          eventId: 5,
+          volunteers: [{ profile_id: 101, status: 'Participated', match_id: 1 }],
+        };
+    
+        dbConnection.beginTransaction.mockResolvedValueOnce();
+        dbConnection.query
+          .mockResolvedValueOnce() // Successful insert into VolunteerHistory
+          .mockRejectedValueOnce(new Error('Update error')); // Simulate error in update query
+        dbConnection.rollback.mockResolvedValueOnce();
+    
+        await volunteerReviewController.postReview(req, res);
+    
+        expect(dbConnection.beginTransaction).toHaveBeenCalled();
+        expect(dbConnection.rollback).toHaveBeenCalled(); // Verify rollback is called
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error', error: 'Update error' });
     });
   });
 });
