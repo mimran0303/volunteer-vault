@@ -42,7 +42,7 @@ exports.getOverview = async (req, res) => {
     const [results] = await db_con.query(sql, req.user.userId);
     res.status(200).json(results); 
   } catch (error) {
-    console.error("Database query error:", error);
+    // console.error("Database query error:", error);
     res.status(500).json({ error: "Internal server error" }); 
   }
 }
@@ -88,7 +88,7 @@ exports.postReview = async (req, res) => {
   } catch (error) {
     // Rollback the transaction if any error occurs
     if (db_con.rollback) await db_con.rollback();
-    console.error("Error processing data:", error);
+    // console.error("Error processing data:", error);
     res.status(500).json({ message: "Internal server error", error: error.message });
   } 
 };
