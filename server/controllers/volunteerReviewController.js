@@ -21,10 +21,7 @@ exports.getOverview = async (req, res) => {
         ed.city AS event_city,
         ed.state AS event_state,
         ed.zip_code AS event_zip_code,
-        ed.event_description,
-        ed.urgency,
-        ed.event_date,
-        ed.required_skills
+        ed.event_date
     FROM 
         VolunteerMatch vm
     JOIN 
