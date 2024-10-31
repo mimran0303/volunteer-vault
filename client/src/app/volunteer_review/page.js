@@ -76,14 +76,14 @@ const VolunteerReview = () => {
 
     const eventData = eventsData[eventId];
     const volunteers = eventData.volunteers.map((volunteer) => ({
-      profile_id: volunteer.profile_id,
+      profile_id: volunteer.profile_owner_id,
       full_name: volunteer.full_name,
       status: volunteerStatus[eventId]?.[volunteer.profile_id] || "",
       rating: volunteerRatings[eventId]?.[volunteer.profile_id] || "",
     }));
 
     // Submit the data to the backend
-    axios.post('http://localhost:8080/volunteerReview/postReview', { eventId, volunteers }, { withCredentials: true })
+    axios.post('http://localhost:8080/volunteerReview/review', { eventId, volunteers }, { withCredentials: true })
       .then(() => {
         alert('Volunteer data submitted successfully!');
       })

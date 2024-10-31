@@ -45,5 +45,12 @@ exports.getOverview = async (req, res) => {
 }
 
 exports.postReview = (req, res) => {
-    
-}
+    try {
+        console.log("Received data:", req.body); // Logs the data sent from the frontend
+        // Perform necessary processing, e.g., saving data to the database.
+        res.status(200).json({ message: "Data received successfully!" });
+    } catch (error) {
+        console.error("Error processing data:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};  
