@@ -3,6 +3,7 @@ const db = require('../config/index')
 exports.getOverview = async (req, res) => {
     const sql = `
     SELECT 
+        vm.match_id,
         up.profile_id,
         up.profile_owner_id,
         up.full_name,
@@ -32,6 +33,8 @@ exports.getOverview = async (req, res) => {
         eventDetails ed ON vm.event_id = ed.event_id
     WHERE 
         ed.event_admin_id = ?
+    AND 
+        vm.is_reviewed = 0
   `;
 
   try {
@@ -44,13 +47,49 @@ exports.getOverview = async (req, res) => {
   }
 }
 
-exports.postReview = (req, res) => {
-    try {
-        console.log("Received data:", req.body); // Logs the data sent from the frontend
-        // Perform necessary processing, e.g., saving data to the database.
-        res.status(200).json({ message: "Data received successfully!" });
-    } catch (error) {
-        console.error("Error processing data:", error);
-        res.status(500).json({ message: "Internal server error", error: error.message });
+exports.postReview = async (req, res) => { 
+  const { eventId, volunteers } = req.body;
+
+  try {
+    const db_con = await db(); // Create a database connection
+
+    // Start transaction
+    await db_con.beginTransaction();
+
+    // SQL queries for insertion and update
+    const insertSql = `
+      INSERT INTO VolunteerHistory (volunteer_id, event_id, participation_status)
+      VALUES (?, ?, ?)
+    `;
+    const updateSql = `
+      UPDATE VolunteerMatch
+      SET is_reviewed = 1
+      WHERE match_id = ?
+    `;
+
+    // Insert each volunteer's participation data and update is_reviewed status
+    for (const volunteer of volunteers) {
+      // Insert into VolunteerHistory
+      await db_con.query(insertSql, [
+        volunteer.profile_id,     // volunteer_id
+        eventId,                  // event_id
+        volunteer.status          // participation_status
+        // TODO: volunteer.rating // rating
+      ]);
+
+      // Update VolunteerMatch to set is_reviewed = 1
+      await db_con.query(updateSql, [volunteer.match_id]);
     }
-};  
+
+    // Commit the transaction
+    await db_con.commit();
+
+    res.status(200).json({ message: "Data inserted and reviewed status updated successfully!" });
+  } catch (error) {
+    // Rollback the transaction if any error occurs
+    if (db_con.rollback) await db_con.rollback();
+    console.error("Error processing data:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  } 
+};
+

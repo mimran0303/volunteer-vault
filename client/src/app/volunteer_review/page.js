@@ -76,6 +76,7 @@ const VolunteerReview = () => {
 
     const eventData = eventsData[eventId];
     const volunteers = eventData.volunteers.map((volunteer) => ({
+      match_id: volunteer.match_id,
       profile_id: volunteer.profile_owner_id,
       full_name: volunteer.full_name,
       status: volunteerStatus[eventId]?.[volunteer.profile_id] || "",
@@ -86,6 +87,7 @@ const VolunteerReview = () => {
     axios.post('http://localhost:8080/volunteerReview/review', { eventId, volunteers }, { withCredentials: true })
       .then(() => {
         alert('Volunteer data submitted successfully!');
+        window.location.reload(); // hard refresh to show new updates
       })
       .catch((error) => {
         console.error("Error submitting volunteer data:", error);
