@@ -1,5 +1,7 @@
 // This file stores the hardcoded volunteer data, which will be fetched when the API is called.
 
+// store all this in a table, then fetch and display
+
 let volunteerHistory = [
     {
         volunteerName: "John Doe",
