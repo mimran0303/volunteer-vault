@@ -1,30 +1,40 @@
-// volunteerHistoryController.js
-const initializeDatabaseConnection = require('../config/index');
+/// volunteerHistoryController.js
+const db = require('../config/index');
 
-exports.retrieveHistory = async (req, res) => {
+const retrieveHistory = async (req, res) => {
     try {
-        const db_con = await initializeDatabaseConnection();
+        const db_con = await db();
         console.log("Database connected successfully");
 
-        const [result] = await db_con.execute(`
-            INSERT INTO volunteerHistory (volunteer_id, event_id, participation_status)
+        // Fetch volunteer history details with necessary joins
+        const [rows] = await db_con.query(`
             SELECT 
-                vm.volunteer_id, 
-                ed.event_id, 
-                FALSE
+                vh.history_id,
+                vh.volunteer_id,
+                vh.event_id,
+                vh.participation_status,
+                up.full_name AS volunteer_name,
+                ed.event_name,
+                ed.event_description,
+                ed.location,
+                ed.required_skills,
+                ed.urgency,
+                ed.event_date
             FROM 
-                volunteerMatch vm
+                volunteerhistory vh
             JOIN 
-                eventDetails ed ON vm.event_id = ed.event_id;
+                userprofile up ON vh.volunteer_id = up.profile_owner_id
+            JOIN 
+                eventdetails ed ON vh.event_id = ed.event_id
         `);
 
-        console.log("Inserted Rows:", result.affectedRows);
-
-        // Only send a single response
-        res.status(200).json({ message: 'Volunteer history populated successfully', insertedRows: result.affectedRows });
         await db_con.end();
-    } catch (err) {
-        console.error('Error populating volunteer history:', err.message);
-        res.status(500).json({ error: 'Internal Server Error', details: err.message });
+        
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error("Error fetching volunteer history:", error);
+        res.status(500).json({ error: "Error fetching volunteer history" });
     }
 };
+
+module.exports = { retrieveHistory  };
