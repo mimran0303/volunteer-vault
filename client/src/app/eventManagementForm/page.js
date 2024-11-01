@@ -58,7 +58,7 @@ export default function EventManagementForm() {
       setEventData((prevData) => ({
         ...prevData,
         eventAdminId: user.userId
-      }));
+        }));
     }
   }, [user]);
 
@@ -75,6 +75,8 @@ export default function EventManagementForm() {
         setIsBooting(false);
       });
   }, []);
+
+  
 
   if (isLoading) {
     return <p></p>;
@@ -140,6 +142,11 @@ export default function EventManagementForm() {
     }
   };
   
+
+
+
+
+
   return (
     <section id="eventManagement" className="w-screen h-screen bg-[#FAF5F1] flex">
       <div className="flex flex-row w-full">
