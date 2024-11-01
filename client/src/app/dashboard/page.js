@@ -75,6 +75,12 @@ export default function dashBoard()  {
                   </button>
                 </Link>
 
+                <Link href="/volunteer_review">
+                  <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center mb-10 text-xs font-geistMono hover:bg-[#ACB7BC]">
+                      Volunteer Reviews
+                  </button>
+                </Link>
+
                 <Link href="/volunteer-history">
                   <button className="h-12 w-40 py-2 px-4 bg-white text-[#423D38] rounded-full flex items-center justify-center mb-10 text-xs font-geistMono hover:bg-[#ACB7BC]">
                       Volunteer History
