@@ -62,15 +62,17 @@ exports.createEventManagement = async (req, res) => {
 
 // PUT request: Edits a selected event
 exports.editEvent = async (req, res) => {
+  console.log(req.body);
   const eventId = parseInt(req.params.id);
-  const { eventName, location, city, state, zipcode, eventDescription, skills, urgency, eventDate } = req.body;
+  console.log(eventId);
+  const { eventName, location, city, state, zipcode, eventDescription, skills, urgency, date } = req.body;
 
   try {
     const db_con = await db();
     
     const sql = "UPDATE eventdetails SET event_name = ?, event_description = ?, location = ?, city = ?, state = ?, zip_code = ?, required_skills = ?, urgency = ?, event_date = ? WHERE event_id = ? AND event_admin_id = ?";
-    const values = [eventName, eventDescription, location, city, state, zipcode, skills, urgency, eventDate, eventId, req.user.userId];
-
+    const values = [eventName, eventDescription, location, city, state, zipcode, skills, urgency, date, eventId, req.user.userId];
+    console.log(values);
     const [result] = await db_con.query(sql, values);
 
     if (result.affectedRows === 0) {
@@ -89,13 +91,15 @@ exports.deleteEvent = async (req, res) => {
 
   try {
     const db_con = await db();
+    console.log(eventId);
 
-    const sql = "DELETE FROM eventdetails WHERE event_id = ? AND event_admin_id = ?";
-    const values = [eventId, req.user.userId];
+    const sql = "DELETE FROM eventdetails WHERE event_id = ?";
+    //const values = [eventId];
 
-    const [result] = await db_con.query(sql, values);
+    await db_con.query(sql, eventId);
 
     if (result.affectedRows === 0) {
+      console.log("hello");
       return res.status(404).json({ Error: "Event not found or unauthorized." });
     }
 

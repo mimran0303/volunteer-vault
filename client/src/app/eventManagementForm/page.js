@@ -17,17 +17,19 @@ export default function EventManagementForm() {
   // FOR EDITS: Open the modal with pre-filled event data
   const openModal = (event) => {
     setEditingEvent(event); // Set the event to edit
+    const formattedDate = new Date(event.event_date).toISOString().split('T')[0];
     setEventData({
       eventAdminId: event.eventAdminId,
-      eventName: event.eventName,
+      eventName: event.event_name,
       location: event.location,
       city: event.city,            
       state: event.state,          
-      zipcode: event.zipcode,      
-      eventDescription: event.eventDescription,
-      skills: event.skills,
+      zipcode: event.zip_code,      
+      eventDescription: event.event_description,
+      skills: event.required_skills,
       urgency: event.urgency,
-      date: event.date,
+      //date: event.event_date,
+      date: formattedDate,
     });
     setIsModalOpen(true); // Open the modal
   };
@@ -322,10 +324,11 @@ export default function EventManagementForm() {
                   <li key={event.event_id} className="border-b border-[#423D38] pb-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h2 className="text-xl font-bold text-[#423D38]">{event.eventName}</h2>
-                        <p>{event.eventDescription}</p>
+                        <h2 className="text-xl font-bold text-[#423D38]">{event.event_name}</h2> {/*change*/}
+                        <p>{event.event_description}</p> {/*change*/}
                         <p className="italic text-sm text-[#423D38]">{event.location}</p>
-                        <p>{event.date}</p>
+                        <p>{new Date(event.event_date).toLocaleDateString()}</p>
+                        {/*<p>{event.event_date}</p>*/}
                       </div>
                       <div className="flex space-x-2">
                         <button
@@ -375,8 +378,8 @@ export default function EventManagementForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               name='eventName'
-              value={eventData.eventName}
-              onChange={e => setEventData({...eventData, eventName: e.target.value})}
+              value={eventData.eventName} //already changed
+              onChange={e => setEventData({...eventData, eventName: e.target.value})}//already changed
               required
               maxLength="100"
               type="text"
@@ -386,8 +389,8 @@ export default function EventManagementForm() {
 
             <textarea
               name="location"
-              value={eventData.location}
-              onChange={e => setEventData({...eventData, location: e.target.value})}
+              value={eventData.location}//change not needed
+              onChange={e => setEventData({...eventData, location: e.target.value})}//change not needed
               required
               rows="1"
               placeholder="Location"
@@ -397,8 +400,8 @@ export default function EventManagementForm() {
             <div className="flex flex-col md:flex-row gap-6">
               <input
                 name="city"
-                value={eventData.city}
-                onChange={(e) => setEventData({ ...eventData, city: e.target.value })}
+                value={eventData.city}//change not needed
+                onChange={(e) => setEventData({ ...eventData, city: e.target.value })}//change not needed
                 required
                 maxLength="100"
                 type="text"
@@ -408,8 +411,8 @@ export default function EventManagementForm() {
 
               <select
                 name="state"
-                value={eventData.state}
-                onChange={(e) => setEventData({ ...eventData, state: e.target.value })}
+                value={eventData.state}// change  not needed
+                onChange={(e) => setEventData({ ...eventData, state: e.target.value })}//change  not needed
                 required
                 className="block w-full p-2 border-b border-[#423D38] bg-transparent"
               >
@@ -468,8 +471,8 @@ export default function EventManagementForm() {
 
               <input
                 name="zipcode"
-                value={eventData.zipcode}
-                onChange={(e) => setEventData({ ...eventData, zipcode: e.target.value })}
+                value={eventData.zipcode} //already changed
+                onChange={(e) => setEventData({ ...eventData, zipcode: e.target.value })}//already changed
                 required
                 maxLength="10"
                 minLength="5"
@@ -481,8 +484,8 @@ export default function EventManagementForm() {
 
             <textarea
               name="eventDescription"
-              value={eventData.eventDescription}
-              onChange={e => setEventData({...eventData, eventDescription: e.target.value})}
+              value={eventData.eventDescription}//already changed
+              onChange={e => setEventData({...eventData, eventDescription: e.target.value})}//already changed
               required
               placeholder="Event Description"
               rows="4"
@@ -491,8 +494,8 @@ export default function EventManagementForm() {
 
             <select
               name="skills"
-              value={eventData.skills}
-              onChange={e => setEventData({...eventData, skills: e.target.value})}
+              value={eventData.skills}//already changes
+              onChange={e => setEventData({...eventData, skills: e.target.value})}//already changed
               required
               className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             >
@@ -511,8 +514,8 @@ export default function EventManagementForm() {
 
             <select
               name="urgency"
-              value={eventData.urgency}
-              onChange={e => setEventData({...eventData, urgency: e.target.value})}
+              value={eventData.urgency} //no need to change
+              onChange={e => setEventData({...eventData, urgency: e.target.value})}//no need to change
               required
               className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             >
@@ -523,8 +526,8 @@ export default function EventManagementForm() {
 
             <input
               name="date"
-              value={eventData.date}
-              onChange={e => setEventData({...eventData, date: e.target.value})}
+              value={eventData.date}//already changed
+              onChange={e => setEventData({...eventData, date: e.target.value})}//already changed
               required
               type="date"
               className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
