@@ -4,7 +4,7 @@ const db = require('../config/index');
 const retrieveHistory = async (req, res) => {
     try {
         const db_con = await db();
-        console.log("Database connected successfully");
+        // console.log("Database connected successfully");
 
         // Fetch volunteer history details with necessary joins
         const [rows] = await db_con.query(`
@@ -32,7 +32,7 @@ const retrieveHistory = async (req, res) => {
         
         res.status(200).json(rows);
     } catch (error) {
-        console.error("Error fetching volunteer history:", error);
+        // console.error("Error fetching volunteer history:", error);
         res.status(500).json({ error: "Error fetching volunteer history" });
     }
 };
