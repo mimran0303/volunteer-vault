@@ -36,7 +36,7 @@ exports.getEvents = async (req, res) => {
 };*/
 
 exports.createEventManagement = async (req, res) => {
-  console.log(req.body)
+  // console.log(req.body)
 
   const  userId  = req.user.userId; // Make sure req.user exists
   const { eventName, eventDescription, location, city, state, zipcode, skills, urgency, date } = req.body;
@@ -48,14 +48,14 @@ exports.createEventManagement = async (req, res) => {
     
     const values = [userId, eventName, eventDescription, location, city, state, zipcode, skills, urgency, date];
     
-    console.log("Values to Insert:", values);
+    // console.log("Values to Insert:", values);
     
     const db_con = await db();
     await db_con.query(sql, values);
     
     res.status(201).json({ message: "Event created successfully" });
   } catch (error) {
-    console.error("Database Error:", error);
+    // console.error("Database Error:", error);
     res.status(500).json({ Error: "Failed to create event." });
   }
 };
