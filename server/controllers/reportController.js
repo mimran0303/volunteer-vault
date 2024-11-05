@@ -3,11 +3,15 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const { createObjectCsvWriter } = require('csv-writer');
 
+// VolunteerHistory, UserProfile
+// fetch list of volunteers and their participation history.
 const fetchVolunteerData = async (startDate, endDate) => {
     console.log('Fetching volunteer data...');
     return []; 
 };
 
+// VolunteerMatch, EventDetails
+// fetch admin's ongoing events details and volunteer assignments
 const fetchEventData = async (startDate, endDate) => {
     console.log('Fetching event data...');
     return []; 
