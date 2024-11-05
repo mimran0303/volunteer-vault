@@ -37,7 +37,7 @@ describe('eventManagementController', () => {
 
       expect(db).toHaveBeenCalled();
       expect(mockDbConnection.query).toHaveBeenCalledWith(
-        'SELECT * FROM eventdetails WHERE event_admin_id = ?',
+        'SELECT * FROM eventdetails WHERE event_admin_id = ? AND event_date >= CURDATE() AND is_concluded = 0',
         [req.user.userId]
       );
       expect(res.status).toHaveBeenCalledWith(200);
