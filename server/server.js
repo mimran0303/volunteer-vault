@@ -32,6 +32,8 @@ const volunteerHistoryRoutes = require("./routes/volunteerHistoryRoutes");
 
 const volunteerReviewRoutes = require("./routes/volunteerReviewRoutes")
 
+const reportRoutes = require("./routes/reportRoutes")
+
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
 app.use("/eventManagement", eventManagementRoutes)
@@ -45,6 +47,7 @@ app.use('/api/events', eventsDropdownRoutes);
 app.use("/", volunteerHistoryRoutes);
 app.use("/volunteerReview", volunteerReviewRoutes)
 
+app.use("/reports", reportRoutes)
 
 app._router.stack.forEach(function(r) {
   if (r.route && r.route.path) {
