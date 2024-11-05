@@ -35,7 +35,9 @@ exports.getOverview = async (req, res) => {
         ed.event_admin_id = ?
     AND 
         vm.is_reviewed = 0
-  `;
+    AND ed.event_date <= CURDATE()
+  `; 
+  // ! only events that have already concluded or are occurring presently will appear
 
   try {
     const db_con = await db();
@@ -68,6 +70,12 @@ exports.postReview = async (req, res) => {
       WHERE match_id = ?
     `;
 
+    const updateEventDetailsSql = `
+      UPDATE EventDetails
+      SET is_concluded = 1
+      WHERE event_id = ?
+    `;
+
     // Insert each volunteer's participation data and update is_reviewed status
     for (const volunteer of volunteers) {
       // Insert into VolunteerHistory
@@ -81,6 +89,8 @@ exports.postReview = async (req, res) => {
       // Update VolunteerMatch to set is_reviewed = 1
       await db_con.query(updateSql, [volunteer.match_id]);
     }
+
+    await db_con.query(updateEventDetailsSql, [eventId]);
 
     // Commit the transaction
     await db_con.commit();
