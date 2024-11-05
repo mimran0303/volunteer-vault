@@ -37,7 +37,6 @@ exports.getOverview = async (req, res) => {
         vm.is_reviewed = 0
     AND ed.event_date <= CURDATE()
   `; 
-  // ! only events that have already concluded or are occurring presently will appear
 
   try {
     const db_con = await db();
@@ -61,8 +60,8 @@ exports.postReview = async (req, res) => {
 
     // SQL queries for insertion and update
     const insertSql = `
-      INSERT INTO VolunteerHistory (volunteer_id, event_id, participation_status)
-      VALUES (?, ?, ?)
+      INSERT INTO VolunteerHistory (volunteer_id, event_id, participation_status, rating)
+      VALUES (?, ?, ?, ?)
     `;
     const updateSql = `
       UPDATE VolunteerMatch
@@ -82,8 +81,8 @@ exports.postReview = async (req, res) => {
       await db_con.query(insertSql, [
         volunteer.profile_id,     // volunteer_id
         eventId,                  // event_id
-        volunteer.status          // participation_status
-        // TODO: volunteer.rating // rating
+        volunteer.status,         // participation_status
+        volunteer.rating          // rating
       ]);
 
       // Update VolunteerMatch to set is_reviewed = 1

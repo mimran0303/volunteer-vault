@@ -13,6 +13,7 @@ const retrieveHistory = async (req, res) => {
                 vh.volunteer_id,
                 vh.event_id,
                 vh.participation_status,
+                vh.rating,
                 up.full_name AS volunteer_name,
                 ed.event_name,
                 ed.event_description,
