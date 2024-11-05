@@ -53,11 +53,14 @@ exports.generateReport = async (req, res) => {
             data = await fetchVolunteerData(startDate, endDate); 
             if (format === 'PDF') {
               const doc = await generateVolunteerPDF(data);
-              res.setHeader('Content-Type', 'application/pdf');
-              doc.pipe(res);
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', 'attachment; filename=volunteer_report.pdf');
+                doc.pipe(res);
             } else if (format === 'CSV') {
               await generateVolunteerCSV(data);
-              res.download('volunteer_report.csv');
+                res.setHeader('Content-Type', 'text/csv');
+                res.setHeader('Content-Disposition', 'attachment; filename=volunteer_report.csv');
+                res.download('volunteer_report.csv');
             }
             break;
           case 'event':
@@ -65,9 +68,12 @@ exports.generateReport = async (req, res) => {
             if (format === 'PDF') {
               const doc = await generateEventPDF(data);
               res.setHeader('Content-Type', 'application/pdf');
+              res.setHeader('Content-Disposition', 'attachment; filename=event_report.pdf');
               doc.pipe(res);
             } else if (format === 'CSV') {
               await generateEventCSV(data);
+              res.setHeader('Content-Type', 'text/csv');
+              res.setHeader('Content-Disposition', 'attachment; filename=event_report.csv');
               res.download('event_report.csv');
             }
             break;

@@ -24,15 +24,24 @@ const Reporting = () => {
       return;
     }
   
-    axios.post(`http://localhost:8080/reports/generate`, reportData, { withCredentials: true })
-      .then(res => {
-        console.log('Response:', res.data);
-        // setDownloadLink(res.data.downloadLink); 
-      })
-      .catch(err => {
-        console.error('Error:', err);
-      });
+    axios.post(`http://localhost:8080/reports/generate`, reportData, {
+      withCredentials: true,
+      responseType: 'blob' 
+    })
+    .then(res => {
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report.${reportData.format.toLowerCase()}`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    })
+    .catch(err => {
+      console.error('Error:', err);
+    });
   };
+  
 
   if (isLoading) {
     return <p>Loading...</p>;
