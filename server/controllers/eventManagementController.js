@@ -8,7 +8,7 @@ exports.getEvents = async (req, res) => {
     const userId = req.user.userId;
     const db_con = await db();
     
-    const [events] = await db_con.query("SELECT * FROM eventdetails WHERE event_admin_id = ?", [userId]);
+    const [events] = await db_con.query("SELECT * FROM eventdetails WHERE event_admin_id = ? AND event_date >= CURDATE()", [userId]);
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ Error: "Failed to retrieve events." });
