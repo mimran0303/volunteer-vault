@@ -105,6 +105,7 @@ export default function UserProfileManagement() {
           // setProfiles(prevProfiles => prevProfiles.map(ev => ev.id === editingProfile.id ? res.data : ev)); // Update the profile in state
           setEditingProfile(null); // Reset editing profile after success
           //closeModal(); // Close the modal
+          window.location.reload();
         }
       })
       .catch(err => {

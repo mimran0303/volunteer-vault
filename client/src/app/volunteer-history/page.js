@@ -45,6 +45,7 @@ const VolunteerHistoryPage = () => {
                             <th className="py-2 px-4 border-b">Urgency</th>
                             <th className="py-2 px-4 border-b">Event Date</th>
                             <th className="py-2 px-4 border-b">Participation Status</th>
+                            <th className="py-2 px-4 border-b">Rating</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,6 +59,7 @@ const VolunteerHistoryPage = () => {
                                 <td className="py-2 px-4 border-b">{entry.urgency}</td>
                                 <td className="py-2 px-4 border-b">{new Date(entry.event_date).toLocaleDateString()}</td>
                                 <td className="py-2 px-4 border-b">{entry.participation_status}</td>
+                                <td className="py-2 px-4 border-b">{entry.rating}</td>
                             </tr>
                         ))}
                     </tbody>

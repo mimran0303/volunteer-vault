@@ -7,7 +7,7 @@ const getEventsByAdmin = async (req, res) => {
     try {
         // console.log("Fetching events for admin ID:", adminId); // Log admin ID
         const db_con = await db();
-        const [events] = await db_con.query(`SELECT * FROM eventdetails WHERE event_admin_id = ?`, [adminId]);
+        const [events] = await db_con.query(`SELECT * FROM eventdetails WHERE event_admin_id = ? AND event_date >= CURDATE() AND is_concluded = 0`, [adminId]);
         // console.log("Events fetched from database:", events); // Log events fetched
         await db_con.end();
 
