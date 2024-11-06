@@ -6,12 +6,11 @@ const { createObjectCsvWriter } = require('csv-writer');
 
 // VolunteerHistory, UserProfile
 // fetch list of volunteers and their participation history.
-const fetchVolunteerData = async (startDate, endDate) => {
+// ! maybe filter by locality. state and city
+const fetchVolunteerData = async (req, startDate, endDate) => {
   try {
     const db_con = await db();
-    // console.log("Database connected successfully");
 
-    // Fetch volunteer history details with necessary joins
     const [rows] = await db_con.query(`
         SELECT 
           vh.volunteer_id,
@@ -28,8 +27,13 @@ const fetchVolunteerData = async (startDate, endDate) => {
             userprofile up ON vh.volunteer_id = up.profile_owner_id
         JOIN 
             eventdetails ed ON vh.event_id = ed.event_id
-        ORDER BY vh.volunteer_id
-    `);
+        WHERE
+          ed.event_date BETWEEN ? AND ?
+        AND 
+          ed.event_admin_id = ?
+        ORDER BY 
+          vh.volunteer_id
+    `, [startDate, endDate, req.user.userId]);
 
     await db_con.end();
     
@@ -42,18 +46,16 @@ const fetchVolunteerData = async (startDate, endDate) => {
 
 // VolunteerMatch, EventDetails
 // fetch admin's ongoing events details and volunteer assignments
-const fetchEventData = async (startDate, endDate) => {
+const fetchEventData = async (req, startDate, endDate) => {
     console.log('Fetching event data...');
     return []; 
 };
 
 // Gabriel
 const generateVolunteerPDF = async (data) => {
-  console.log('Generating volunteer PDF...');
-
   const doc = new PDFDocument({ margin: 30 });
 
-  // Pipe to a file (for testing) or directly to a response in production
+  // Pipe to file
   doc.pipe(fs.createWriteStream('volunteer_report.pdf'));
 
   // Title
@@ -80,16 +82,16 @@ const generateVolunteerPDF = async (data) => {
           row.event_name,
           new Date(row.event_date).toLocaleDateString(),
           row.participation_status,
-          row.rating.toFixed(1) // Assuming rating is a number
+          row.rating.toFixed(1) 
       ]);
 
       // Add a table for this volunteer
       await doc.table({
-          title: `Participation Details for ${volunteerName}`, // Optional subtitle
+          title: `Participation Details for ${volunteerName}`, 
           headers: headers,
           rows: rowsData,
       }, {
-          width: 500, // Optional table width
+          width: 500, 
           prepareHeader: () => doc.font('Helvetica-Bold').fontSize(12),
           prepareRow: (row, indexColumn) => doc.font('Helvetica').fontSize(10),
       });
@@ -103,11 +105,9 @@ const generateVolunteerPDF = async (data) => {
 
       doc.moveDown(0.5);
 
-      // Add the 'Summary' title without affecting the rest of the document
       doc.fontSize(12).font('Helvetica-Bold').text('Summary:', { underline: true });
-      doc.moveDown(0.3); // Add slight spacing for better layout
+      doc.moveDown(0.3); 
 
-      // Reset the font for summary details to ensure consistent styling
       doc.fontSize(11).font('Helvetica').fillColor('black');
       doc.text(`No-shows: ${noShows}`);
       doc.text(`Participations: ${participations}`);
@@ -117,7 +117,8 @@ const generateVolunteerPDF = async (data) => {
 
   }
 
-  // Finalize the document
+  doc.fontSize(10).text('Generated on: ' + new Date().toLocaleString(), { align: 'right' });
+
   doc.end();
 
   return doc;
@@ -151,7 +152,7 @@ exports.generateReport = async (req, res) => {
         let data;
         switch (reportType) {
           case 'volunteer':
-            data = await fetchVolunteerData(startDate, endDate); 
+            data = await fetchVolunteerData(req, startDate, endDate); 
             if (format === 'PDF') {
               const doc = await generateVolunteerPDF(data);
                 res.setHeader('Content-Type', 'application/pdf');
@@ -165,7 +166,7 @@ exports.generateReport = async (req, res) => {
             }
             break;
           case 'event':
-            data = await fetchEventData(startDate, endDate); 
+            data = await fetchEventData(req, startDate, endDate); 
             if (format === 'PDF') {
               const doc = await generateEventPDF(data);
               res.setHeader('Content-Type', 'application/pdf');
