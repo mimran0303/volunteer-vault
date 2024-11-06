@@ -1,7 +1,8 @@
 const db = require('../config/index');
-const PDFDocument = require('pdfkit');
+const PDFDocument = require("pdfkit-table");
 const fs = require('fs');
 const { createObjectCsvWriter } = require('csv-writer');
+
 
 // VolunteerHistory, UserProfile
 // fetch list of volunteers and their participation history.
@@ -50,14 +51,14 @@ const fetchEventData = async (startDate, endDate) => {
 const generateVolunteerPDF = async (data) => {
   console.log('Generating volunteer PDF...');
 
-  const doc = new PDFDocument();
+  const doc = new PDFDocument({ margin: 30 });
 
   // Pipe to a file (for testing) or directly to a response in production
   doc.pipe(fs.createWriteStream('volunteer_report.pdf'));
 
   // Title
   doc.fontSize(18).text('Volunteer Participation Report', { align: 'center' });
-  doc.moveDown();
+  doc.moveDown(2);
 
   // Group data by volunteer_name
   const groupedData = data.reduce((acc, row) => {
@@ -70,52 +71,53 @@ const generateVolunteerPDF = async (data) => {
 
   // Iterate over each volunteer group and create a separate table
   for (const [volunteerName, rows] of Object.entries(groupedData)) {
-      // Volunteer name as a subheading
       doc.fontSize(14).text(`Volunteer: ${volunteerName}`, { underline: true });
       doc.moveDown(0.5);
 
-      // Table headers
-      const tableHeaders = ['Event Name', 'Event Date', 'Participation Status', 'Rating'];
-      doc.fontSize(12).text(tableHeaders.join(' | '), { align: 'left' });
-      doc.moveDown(0.3);
+      // Prepare table headers and rows
+      const headers = ['Event Name', 'Event Date', 'Participation Status', 'Rating'];
+      const rowsData = rows.map(row => [
+          row.event_name,
+          new Date(row.event_date).toLocaleDateString(),
+          row.participation_status,
+          row.rating.toFixed(1) // Assuming rating is a number
+      ]);
 
-      // Print rows for the volunteer
-      let totalRatings = 0;
-      let participations = 0;
-      let noShows = 0;
-
-      rows.forEach(row => {
-          const eventDate = new Date(row.event_date).toLocaleDateString();
-          const rowData = [
-              row.event_name,
-              eventDate,
-              row.participation_status,
-              row.rating
-          ].join(' | ');
-
-          doc.text(rowData);
-
-          // Update statistics
-          totalRatings += row.rating;
-          if (row.participation_status === 'participated') {
-              participations++;
-          } else if (row.participation_status === 'no-show') {
-              noShows++;
-          }
+      // Add a table for this volunteer
+      await doc.table({
+          title: `Participation Details for ${volunteerName}`, // Optional subtitle
+          headers: headers,
+          rows: rowsData,
+      }, {
+          width: 500, // Optional table width
+          prepareHeader: () => doc.font('Helvetica-Bold').fontSize(12),
+          prepareRow: (row, indexColumn) => doc.font('Helvetica').fontSize(10),
       });
 
+      // Calculate and display stats
+      const totalRatings = rows.reduce((sum, row) => sum + row.rating, 0);
+      const participations = rows.filter(row => row.participation_status === 'participated').length;
+      const noShows = rows.filter(row => row.participation_status === 'no-show').length;
       const attendanceRating = ((participations / (participations + noShows)) * 100).toFixed(2) + '%';
       const averageRating = (totalRatings / rows.length).toFixed(2);
 
       doc.moveDown(0.5);
-      doc.fontSize(12).text(`No-shows: ${noShows}`);
+
+      // Add the 'Summary' title without affecting the rest of the document
+      doc.fontSize(12).font('Helvetica-Bold').text('Summary:', { underline: true });
+      doc.moveDown(0.3); // Add slight spacing for better layout
+
+      // Reset the font for summary details to ensure consistent styling
+      doc.fontSize(11).font('Helvetica').fillColor('black');
+      doc.text(`No-shows: ${noShows}`);
       doc.text(`Participations: ${participations}`);
       doc.text(`Attendance Rate: ${attendanceRating}`);
       doc.text(`Average Volunteer Rating: ${averageRating}`);
-      doc.moveDown(1); // Add space after stats
+      doc.moveDown(1);
+
   }
 
-  // End the document
+  // Finalize the document
   doc.end();
 
   return doc;
