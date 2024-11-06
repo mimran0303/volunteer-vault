@@ -49,39 +49,71 @@ const fetchEventData = async (startDate, endDate) => {
 // Gabriel
 const generateVolunteerPDF = async (data) => {
   console.log('Generating volunteer PDF...');
-  
+
   const doc = new PDFDocument();
-  
+
   // Pipe to a file (for testing) or directly to a response in production
   doc.pipe(fs.createWriteStream('volunteer_report.pdf'));
 
-  // title
+  // Title
   doc.fontSize(18).text('Volunteer Participation Report', { align: 'center' });
   doc.moveDown();
 
-  // Define column headers
-  const tableHeaders = ['Volunteer Name', 'Event Name', 'Event Date', 'Participation Status', 'Rating'];
+  // Group data by volunteer_name
+  const groupedData = data.reduce((acc, row) => {
+      if (!acc[row.volunteer_name]) {
+          acc[row.volunteer_name] = [];
+      }
+      acc[row.volunteer_name].push(row);
+      return acc;
+  }, {});
 
-  // Print headers
-  doc.fontSize(12).text(
-      tableHeaders.join(' | '), 
-      { underline: true, align: 'left' }
-  );
-  doc.moveDown(0.5);
+  // Iterate over each volunteer group and create a separate table
+  for (const [volunteerName, rows] of Object.entries(groupedData)) {
+      // Volunteer name as a subheading
+      doc.fontSize(14).text(`Volunteer: ${volunteerName}`, { underline: true });
+      doc.moveDown(0.5);
 
-  // Iterate over the data and print rows
-  data.forEach(row => {
-      const eventDate = new Date(row.event_date).toLocaleDateString();
-      const rowData = [
-          row.volunteer_name,
-          row.event_name,
-          eventDate,
-          row.participation_status,
-          row.rating
-      ].join(' | ');
+      // Table headers
+      const tableHeaders = ['Event Name', 'Event Date', 'Participation Status', 'Rating'];
+      doc.fontSize(12).text(tableHeaders.join(' | '), { align: 'left' });
+      doc.moveDown(0.3);
 
-      doc.text(rowData);
-  });
+      // Print rows for the volunteer
+      let totalRatings = 0;
+      let participations = 0;
+      let noShows = 0;
+
+      rows.forEach(row => {
+          const eventDate = new Date(row.event_date).toLocaleDateString();
+          const rowData = [
+              row.event_name,
+              eventDate,
+              row.participation_status,
+              row.rating
+          ].join(' | ');
+
+          doc.text(rowData);
+
+          // Update statistics
+          totalRatings += row.rating;
+          if (row.participation_status === 'participated') {
+              participations++;
+          } else if (row.participation_status === 'no-show') {
+              noShows++;
+          }
+      });
+
+      const attendanceRating = ((participations / (participations + noShows)) * 100).toFixed(2) + '%';
+      const averageRating = (totalRatings / rows.length).toFixed(2);
+
+      doc.moveDown(0.5);
+      doc.fontSize(12).text(`No-shows: ${noShows}`);
+      doc.text(`Participations: ${participations}`);
+      doc.text(`Attendance Rate: ${attendanceRating}`);
+      doc.text(`Average Volunteer Rating: ${averageRating}`);
+      doc.moveDown(1); // Add space after stats
+  }
 
   // End the document
   doc.end();
