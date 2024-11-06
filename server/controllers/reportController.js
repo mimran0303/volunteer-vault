@@ -6,8 +6,37 @@ const { createObjectCsvWriter } = require('csv-writer');
 // VolunteerHistory, UserProfile
 // fetch list of volunteers and their participation history.
 const fetchVolunteerData = async (startDate, endDate) => {
-    console.log('Fetching volunteer data...');
-    return []; 
+  try {
+    const db_con = await db();
+    // console.log("Database connected successfully");
+
+    // Fetch volunteer history details with necessary joins
+    const [rows] = await db_con.query(`
+        SELECT 
+          vh.volunteer_id,
+          vh.event_id,
+          vh.participation_status,
+          vh.rating,
+          up.full_name AS volunteer_name,
+          ed.event_name,
+          ed.event_admin_id,
+          ed.event_date
+        FROM 
+            volunteerhistory vh
+        JOIN 
+            userprofile up ON vh.volunteer_id = up.profile_owner_id
+        JOIN 
+            eventdetails ed ON vh.event_id = ed.event_id
+        ORDER BY vh.volunteer_id
+    `);
+
+    await db_con.end();
+    
+    return rows;
+  } catch (error) {
+      // console.error("Error fetching volunteer history:", error);
+     return null;
+  }
 };
 
 // VolunteerMatch, EventDetails
@@ -19,11 +48,45 @@ const fetchEventData = async (startDate, endDate) => {
 
 // Gabriel
 const generateVolunteerPDF = async (data) => {
-    console.log('Generating volunteer PDF...');
-    const doc = new PDFDocument();
-    doc.text('Hello from Volunteer PDF');
-    doc.end();
-    return doc;
+  console.log('Generating volunteer PDF...');
+  
+  const doc = new PDFDocument();
+  
+  // Pipe to a file (for testing) or directly to a response in production
+  doc.pipe(fs.createWriteStream('volunteer_report.pdf'));
+
+  // title
+  doc.fontSize(18).text('Volunteer Participation Report', { align: 'center' });
+  doc.moveDown();
+
+  // Define column headers
+  const tableHeaders = ['Volunteer Name', 'Event Name', 'Event Date', 'Participation Status', 'Rating'];
+
+  // Print headers
+  doc.fontSize(12).text(
+      tableHeaders.join(' | '), 
+      { underline: true, align: 'left' }
+  );
+  doc.moveDown(0.5);
+
+  // Iterate over the data and print rows
+  data.forEach(row => {
+      const eventDate = new Date(row.event_date).toLocaleDateString();
+      const rowData = [
+          row.volunteer_name,
+          row.event_name,
+          eventDate,
+          row.participation_status,
+          row.rating
+      ].join(' | ');
+
+      doc.text(rowData);
+  });
+
+  // End the document
+  doc.end();
+
+  return doc;
 };
 
 // Shruthi
