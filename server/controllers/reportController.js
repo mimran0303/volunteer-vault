@@ -1,29 +1,127 @@
 const db = require('../config/index');
-const PDFDocument = require('pdfkit');
+const PDFDocument = require("pdfkit-table");
 const fs = require('fs');
 const { createObjectCsvWriter } = require('csv-writer');
 
+
 // VolunteerHistory, UserProfile
 // fetch list of volunteers and their participation history.
-const fetchVolunteerData = async (startDate, endDate) => {
-    console.log('Fetching volunteer data...');
-    return []; 
+// ! maybe filter by locality. state and city
+const fetchVolunteerData = async (req, startDate, endDate) => {
+  try {
+    const db_con = await db();
+
+    const [rows] = await db_con.query(`
+        SELECT 
+          vh.volunteer_id,
+          vh.event_id,
+          vh.participation_status,
+          vh.rating,
+          up.full_name AS volunteer_name,
+          ed.event_name,
+          ed.event_admin_id,
+          ed.event_date
+        FROM 
+            volunteerhistory vh
+        JOIN 
+            userprofile up ON vh.volunteer_id = up.profile_owner_id
+        JOIN 
+            eventdetails ed ON vh.event_id = ed.event_id
+        WHERE
+          ed.event_date BETWEEN ? AND ?
+        AND 
+          ed.event_admin_id = ?
+        ORDER BY 
+          vh.volunteer_id
+    `, [startDate, endDate, req.user.userId]);
+
+    await db_con.end();
+    
+    return rows;
+  } catch (error) {
+      // console.error("Error fetching volunteer history:", error);
+     return null;
+  }
 };
 
 // VolunteerMatch, EventDetails
 // fetch admin's ongoing events details and volunteer assignments
-const fetchEventData = async (startDate, endDate) => {
+const fetchEventData = async (req, startDate, endDate) => {
     console.log('Fetching event data...');
     return []; 
 };
 
 // Gabriel
 const generateVolunteerPDF = async (data) => {
-    console.log('Generating volunteer PDF...');
-    const doc = new PDFDocument();
-    doc.text('Hello from Volunteer PDF');
-    doc.end();
-    return doc;
+  const doc = new PDFDocument({ margin: 30 });
+
+  // Pipe to file
+  doc.pipe(fs.createWriteStream('volunteer_report.pdf'));
+
+  // Title
+  doc.fontSize(18).text('Volunteer Participation Report', { align: 'center' });
+  doc.moveDown(2);
+
+  // Group data by volunteer_name
+  const groupedData = data.reduce((acc, row) => {
+      if (!acc[row.volunteer_name]) {
+          acc[row.volunteer_name] = [];
+      }
+      acc[row.volunteer_name].push(row);
+      return acc;
+  }, {});
+
+  // Iterate over each volunteer group and create a separate table
+  for (const [volunteerName, rows] of Object.entries(groupedData)) {
+      doc.fontSize(14).text(`Volunteer: ${volunteerName}`, { underline: true });
+      doc.moveDown(0.5);
+
+      // Prepare table headers and rows
+      const headers = ['Event Name', 'Event Date', 'Participation Status', 'Rating'];
+      const rowsData = rows.map(row => [
+          row.event_name,
+          new Date(row.event_date).toLocaleDateString(),
+          row.participation_status,
+          row.rating.toFixed(1) 
+      ]);
+
+      // Add a table for this volunteer
+      await doc.table({
+          title: `Participation Details for ${volunteerName}`, 
+          headers: headers,
+          rows: rowsData,
+      }, {
+          width: 500, 
+          prepareHeader: () => doc.font('Helvetica-Bold').fontSize(12),
+          prepareRow: (row, indexColumn) => doc.font('Helvetica').fontSize(10),
+      });
+
+      // Calculate and display stats
+      const totalRatings = rows.reduce((sum, row) => sum + row.rating, 0);
+      const participations = rows.filter(row => row.participation_status === 'participated').length;
+      const noShows = rows.filter(row => row.participation_status === 'no-show').length;
+      const attendanceRating = ((participations / (participations + noShows)) * 100).toFixed(2) + '%';
+      const averageRating = (totalRatings / rows.length).toFixed(2);
+
+      doc.moveDown(0.5);
+
+      doc.fontSize(12).font('Helvetica-Bold').text('Summary:', { underline: true });
+      doc.moveDown(0.3); 
+
+      doc.fontSize(11).font('Helvetica').fillColor('black');
+      doc.text(`No-shows: ${noShows}`);
+      doc.text(`Participations: ${participations}`);
+      doc.text(`Attendance Rate: ${attendanceRating}`);
+      doc.text(`Average Volunteer Rating: ${averageRating}`);
+      doc.moveDown(1);
+
+  }
+
+  doc.fontSize(10).text('Generated on: ' + new Date().toLocaleString(), { align: 'right' });
+
+  doc.end();
+
+  return doc;
 };
 
 // Shruthi
@@ -54,7 +152,7 @@ exports.generateReport = async (req, res) => {
         let data;
         switch (reportType) {
           case 'volunteer':
-            data = await fetchVolunteerData(startDate, endDate); 
+            data = await fetchVolunteerData(req, startDate, endDate); 
             if (format === 'PDF') {
               const doc = await generateVolunteerPDF(data);
                 res.setHeader('Content-Type', 'application/pdf');
@@ -68,7 +166,7 @@ exports.generateReport = async (req, res) => {
             }
             break;
           case 'event':
-            data = await fetchEventData(startDate, endDate); 
+            data = await fetchEventData(req, startDate, endDate); 
             if (format === 'PDF') {
               const doc = await generateEventPDF(data);
               res.setHeader('Content-Type', 'application/pdf');

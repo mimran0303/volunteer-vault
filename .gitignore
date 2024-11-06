@@ -1,3 +1,6 @@
 .env
 
 /server/coverage
+
+/server/*.csv
+/server/*.pdf
