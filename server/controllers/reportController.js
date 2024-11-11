@@ -46,9 +46,48 @@ const fetchVolunteerData = async (req, startDate, endDate) => {
 
 // VolunteerMatch, EventDetails
 // fetch admin's ongoing events details and volunteer assignments
+// Author -> Tristan
 const fetchEventData = async (req, startDate, endDate) => {
     console.log('Fetching event data...');
-    return []; 
+    try {
+        const db_con = await db();
+
+        const [rows] = await db_con.query(`
+            SELECT 
+                ed.event_id,
+                ed.event_name,
+                ed.event_description,
+                ed.location,
+                ed.city,
+                ed.state,
+                ed.zip_code,
+                ed.required_skills,
+                ed.urgency,
+                ed.event_date,
+                ed.is_concluded,
+                vm.volunteer_id,
+                up.full_name AS volunteer_name,  -- Assuming full_name is the column with volunteer names
+                vm.is_reviewed
+            FROM 
+                eventdetails ed
+            LEFT JOIN 
+                volunteermatch vm ON ed.event_id = vm.event_id
+            LEFT JOIN 
+                userprofile up ON vm.volunteer_id = up.profile_owner_id
+            WHERE 
+                ed.event_date BETWEEN ? AND ?
+                AND ed.event_admin_id = ?
+            ORDER BY 
+                ed.event_id, up.full_name
+        `, [startDate, endDate, req.user.userId]);
+
+        await db_con.end();
+        
+        return rows;
+    } catch (error) {
+        console.error("Error fetching event data:", error);
+        return null;
+    }
 };
 
 // Gabriel
@@ -132,18 +171,66 @@ const generateVolunteerCSV = async (data) => {
 
 // Tristan
 const generateEventPDF = async (data) => {
-    console.log('Generating event PDF...');
-    const doc = new PDFDocument();
-    doc.text('Hello from Event PDF');
+    console.log('Generating Event PDF...');
+    const doc = new PDFDocument({ margin: 30 });
+    doc.pipe(fs.createWriteStream('event_management_report.pdf'));
+
+    // Title
+    doc.fontSize(18).text('Volunteer Event Participation Report', { align: 'center' });
+    doc.moveDown(2);
+
+    // Group data by volunteer_name
+    const groupedData = data.reduce((acc, row) => {
+        if (!acc[row.volunteer_name]) {
+            acc[row.volunteer_name] = [];
+        }
+        acc[row.volunteer_name].push(row);
+        return acc;
+    }, {});
+
+    // Generate report for each volunteer
+    for (const [volunteerName, events] of Object.entries(groupedData)) {
+        // Volunteer header
+        doc.fontSize(14).font('Helvetica-Bold').text(`Volunteer: ${volunteerName}`, { underline: true });
+        doc.moveDown(0.5);
+
+        // Table headers for events
+        const headers = ['Event Name', 'Date', 'Location', 'Status', 'Reviewed'];
+        const rowsData = events.map(event => [
+            event.event_name,
+            new Date(event.event_date).toLocaleDateString(),
+            `${event.city}, ${event.state}, ${event.zip_code}`,
+            event.is_concluded ? 'Concluded' : 'Ongoing',
+            event.is_reviewed ? 'Reviewed' : 'Not Reviewed'
+        ]);
+
+        // Add the event table for this volunteer
+        await doc.table({
+            title: `Events Assigned to ${volunteerName}`,
+            headers: headers,
+            rows: rowsData,
+        }, {
+            width: 500,
+            prepareHeader: () => doc.font('Helvetica-Bold').fontSize(12),
+            prepareRow: (row, indexColumn) => doc.font('Helvetica').fontSize(10),
+        });
+
+        doc.moveDown(1);
+    }
+
+    // Footer with generation date
+    doc.fontSize(10).text('Generated on: ' + new Date().toLocaleString(), { align: 'right' });
     doc.end();
+
+    console.log('PDF generated successfully at: event_management_report.pdf');
     return doc;
 };
+
 
 // Mariam
 const generateEventCSV = async (data) => {
     console.log('Hello from Event CSV');
-    fs.writeFileSync('event_report.csv', 'Hello from Event CSV\n');
-};
+    fs.writeFileSync('event_report.csv', 'Hello from Event CSV\n'); };
 
 exports.generateReport = async (req, res) => {
     const { reportType, format, startDate, endDate } = req.body;
