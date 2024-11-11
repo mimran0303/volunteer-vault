@@ -45,6 +45,10 @@ const VolunteerHistoryPage = () => {
                             <th className="py-2 px-4 border-b">Urgency</th>
                             <th className="py-2 px-4 border-b">Event Date</th>
                             <th className="py-2 px-4 border-b">Participation Status</th>
+<<<<<<< HEAD
+=======
+                            <th className="py-2 px-4 border-b">Rating</th>
+>>>>>>> 91f3836e8035dacb0e3c181299eee37db78f0131
                         </tr>
                     </thead>
                     <tbody>
@@ -54,10 +58,18 @@ const VolunteerHistoryPage = () => {
                                 <td className="py-2 px-4 border-b">{entry.event_name}</td>
                                 <td className="py-2 px-4 border-b">{entry.event_description}</td>
                                 <td className="py-2 px-4 border-b">{entry.location}</td>
+<<<<<<< HEAD
                                 <td className="py-2 px-4 border-b">{entry.skills_required}</td>
                                 <td className="py-2 px-4 border-b">{entry.urgency}</td>
                                 <td className="py-2 px-4 border-b">{new Date(entry.event_date).toLocaleDateString()}</td>
                                 <td className="py-2 px-4 border-b">{entry.participation_status}</td>
+=======
+                                <td className="py-2 px-4 border-b">{entry.required_skills}</td>
+                                <td className="py-2 px-4 border-b">{entry.urgency}</td>
+                                <td className="py-2 px-4 border-b">{new Date(entry.event_date).toLocaleDateString()}</td>
+                                <td className="py-2 px-4 border-b">{entry.participation_status}</td>
+                                <td className="py-2 px-4 border-b">{entry.rating}</td>
+>>>>>>> 91f3836e8035dacb0e3c181299eee37db78f0131
                             </tr>
                         ))}
                     </tbody>
@@ -69,6 +81,7 @@ const VolunteerHistoryPage = () => {
     );
 };
 
+<<<<<<< HEAD
 export default VolunteerHistoryPage;
 
 
@@ -197,3 +210,6 @@ export default VolunteerHistoryPage;
 // };
 //
 // export default VolunteerHistory;
+=======
+export default VolunteerHistoryPage;
+>>>>>>> 91f3836e8035dacb0e3c181299eee37db78f0131

@@ -55,31 +55,30 @@ describe('assignVolunteersToEvent', () => {
     });
     
 
-    // ! uncertain
-    // it('should return 207 if some assignments succeed and others fail', async () => {
-    //     mockReq = { body: { eventId: 1, volunteerIds: [1, 3, null] } };
+    it('should return 207 if some assignments succeed and others fail', async () => {
+        mockReq = { body: { eventId: 1, volunteerIds: [1, 3, null] } };
 
-    //     // Mock database responses in order of execution
-    //     mockDbConnection.query
-    //         .mockResolvedValueOnce([[{ event_name: 'Charity Event' }]]) // Fetch event name
-    //         .mockResolvedValueOnce([]) // Insert for volunteer 3
-    //         .mockResolvedValueOnce([]) // Notification for volunteer 3
-    //         .mockRejectedValueOnce({ code: 'ER_DUP_ENTRY' }) // Duplicate entry error for volunteer 1
-    //         .mockResolvedValueOnce([]); // Skip null/undefined volunteer ID error
+        // Mock database responses in order of execution
+        mockDbConnection.query
+            .mockResolvedValueOnce([[{ event_name: 'Charity Event' }]]) // Fetch event name
+            .mockResolvedValueOnce([]) // Insert for volunteer 3
+            .mockResolvedValueOnce([]) // Notification for volunteer 3
+            .mockRejectedValueOnce({ code: 'ER_DUP_ENTRY' }) // Duplicate entry error for volunteer 1
+            .mockResolvedValueOnce([]); // Skip null/undefined volunteer ID error
 
-    //     await assignVolunteersToEvent(mockReq, mockRes);
+        await assignVolunteersToEvent(mockReq, mockRes);
 
-    //     expect(mockRes.status).toHaveBeenCalledWith(207);
-    //     expect(mockRes.json).toHaveBeenCalledWith({
-    //         success: false,
-    //         message: "Some assignments were successful, but there were errors.",
-    //         successes: ['Volunteer 3 assigned successfully'],
-    //         errors: [
-    //             'Volunteer ID cannot be null or undefined',
-    //             'Volunteer 1 is already assigned to this event.'
-    //         ]
-    //     });
-    // });
+        expect(mockRes.status).toHaveBeenCalledWith(207);
+        expect(mockRes.json).toHaveBeenCalledWith({
+            success: false,
+            message: "Some assignments were successful, but there were errors.",
+            successes: ['Volunteer 3 assigned successfully'],
+            errors: [
+                'Volunteer ID cannot be null or undefined',
+                'Volunteer 1 is already assigned to this event.'
+            ]
+        });
+    });
 
     it('should handle database connection errors and respond with 500 status', async () => {
         mockReq = { body: { eventId: 1, volunteerIds: [1, 3] } };

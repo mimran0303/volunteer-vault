@@ -19,15 +19,15 @@ export default function EventManagementForm() {
     setEditingEvent(event); // Set the event to edit
     setEventData({
       eventAdminId: event.eventAdminId,
-      eventName: event.eventName,
+      eventName: event.event_name,
       location: event.location,
       city: event.city,            
       state: event.state,          
-      zipcode: event.zipcode,      
-      eventDescription: event.eventDescription,
-      skills: event.skills,
+      zipcode: event.zip_code,      
+      eventDescription: event.event_description,
+      skills: event.required_skills,
       urgency: event.urgency,
-      date: event.date,
+      date: new Date(event.event_date).toISOString().split('T')[0],
     });
     setIsModalOpen(true); // Open the modal
   };
@@ -58,7 +58,7 @@ export default function EventManagementForm() {
       setEventData((prevData) => ({
         ...prevData,
         eventAdminId: user.userId
-      }));
+        }));
     }
   }, [user]);
 
@@ -75,6 +75,8 @@ export default function EventManagementForm() {
         setIsBooting(false);
       });
   }, []);
+
+  
 
   if (isLoading) {
     return <p></p>;
@@ -95,7 +97,8 @@ export default function EventManagementForm() {
         .then(res => {
           if (res.status === 200) {
             alert('Event updated successfully!');
-            setEvents(prevEvents => prevEvents.map(ev => ev.event_id === editingEvent.event_id ? res.data : ev)); // Update the event in state
+            window.location.reload();
+            // setEvents(prevEvents => prevEvents.map(ev => ev.event_id === editingEvent.event_id ? res.data : ev)); // Update the event in state
             closeModal(); // Close the modal
           }
         })
@@ -107,7 +110,7 @@ export default function EventManagementForm() {
   
     // CREATING
     else {
-      axios.post('http://localhost:8080/eventManagement/create', eventData)
+      axios.post('http://localhost:8080/eventManagement/create', eventData, { withCredentials: true })
       .then(res => {
         if (res.status === 201) {
           alert('Event created successfully!'); // Show alert on success
@@ -130,7 +133,8 @@ export default function EventManagementForm() {
         .then(res => {
           if (res.status === 200) {
             alert('Event deleted successfully!');
-            setEvents(prevEvents => prevEvents.filter(event => event.event_id !== eventId)); // Update the state to remove the deleted event
+            window.location.reload();
+            // setEvents(prevEvents => prevEvents.filter(event => event.event_id !== eventId)); // Update the state to remove the deleted event
           }
         })
         .catch(err => {
@@ -140,6 +144,11 @@ export default function EventManagementForm() {
     }
   };
   
+
+
+
+
+
   return (
     <section id="eventManagement" className="w-screen h-screen bg-[#FAF5F1] flex">
       <div className="flex flex-row w-full">
@@ -290,8 +299,8 @@ export default function EventManagementForm() {
               className="px-1 py-2 border border-[#423D38] rounded-md bg-transparent placeholder-[#423D38]"
             > 
               <option className="text-[#423D38]" value="">Select Urgency</option>
-              <option value="high">High</option>
-              <option value="low">Low</option>
+              <option value="High">High</option>
+              <option value="Low">Low</option>
             </select>
 
             <input
@@ -299,6 +308,7 @@ export default function EventManagementForm() {
               onChange={e => {setEventData({...eventData, date: e.target.value})}}
               required
               type="date"
+              min={new Date().toISOString().split('T')[0]}
               className="block w-full px-2 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38]"
             />
             <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="submit">
@@ -315,10 +325,10 @@ export default function EventManagementForm() {
                   <li key={event.event_id} className="border-b border-[#423D38] pb-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h2 className="text-xl font-bold text-[#423D38]">{event.eventName}</h2>
-                        <p>{event.eventDescription}</p>
+                        <h2 className="text-xl font-bold text-[#423D38]">{event.event_name}</h2>
+                        <p>{event.event_description}</p>
                         <p className="italic text-sm text-[#423D38]">{event.location}</p>
-                        <p>{event.date}</p>
+                        <p>{new Date(event.event_date).toLocaleDateString()}</p>
                       </div>
                       <div className="flex space-x-2">
                         <button
@@ -510,8 +520,8 @@ export default function EventManagementForm() {
               className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             >
               <option value="">Select Urgency</option>
-              <option value="high">High</option>
-              <option value="low">Low</option>
+              <option value="High">High</option>
+              <option value="Low">Low</option>
             </select>
 
             <input
@@ -520,6 +530,7 @@ export default function EventManagementForm() {
               onChange={e => setEventData({...eventData, date: e.target.value})}
               required
               type="date"
+              min={new Date().toISOString().split('T')[0]}
               className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             />
 
