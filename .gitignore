@@ -1,6 +1,11 @@
 .env
+<<<<<<< HEAD
 
 /server/coverage
 
 /server/*.csv
 /server/*.pdf
+=======
+server/coverage
+server/node_modules
+>>>>>>> 9353437 (server/node_modules removed and gitignore updated)
