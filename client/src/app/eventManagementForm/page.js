@@ -14,6 +14,9 @@ export default function EventManagementForm() {
   const [isModalOpen, setIsModalOpen] = useState(false); // Control modal visibility
   const [editingEvent, setEditingEvent] = useState(null); // Store the event being edited
 
+  const today = new Date();
+  const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T' )[0];
+
   // FOR EDITS: Open the modal with pre-filled event data
   const openModal = (event) => {
     setEditingEvent(event); // Set the event to edit
@@ -308,7 +311,7 @@ export default function EventManagementForm() {
               onChange={e => {setEventData({...eventData, date: e.target.value})}}
               required
               type="date"
-              min={new Date().toISOString().split('T')[0]}
+              min={localDate}
               className="block w-full px-2 py-2 bg-transparent border border-[#423D38] rounded-md focus:ring-[#423D38] focus:border-[#423D38]"
             />
             <button className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-4 rounded-full mt-10 font-geistMono" style={{ color: '#FFFFFF' }} type="submit">
@@ -530,7 +533,7 @@ export default function EventManagementForm() {
               onChange={e => setEventData({...eventData, date: e.target.value})}
               required
               type="date"
-              min={new Date().toISOString().split('T')[0]}
+              min={localDate}
               className="block w-full p-2 border border-[#423D38] bg-transparent rounded-md"
             />
 
