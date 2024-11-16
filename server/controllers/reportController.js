@@ -229,6 +229,7 @@ const generateEventPDF = async (data) => {
 
 
 // Mariam
+//fully working now 
 const generateEventCSV = async (data) => {
     try {
         // Define the CSV fields based on Tristan's query structure
