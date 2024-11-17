@@ -74,4 +74,25 @@ describe('fetchEventData', () => {
     expect(mockDbConnection.end).toHaveBeenCalled(); // Ensure the connection was closed
     consoleSpy.mockRestore();
   });
+
+  it('should handle db connection failure gracefully', async () => {
+    const req = { user: { userId: 1 } };
+    const startDate = '2024-01-01';
+    const endDate = '2024-01-31';
+  
+    db.mockRejectedValue(new Error('Connection failed')); // Simulate db connection failure
+  
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  
+    const result = await fetchEventData(req, startDate, endDate);
+  
+    expect(result).toEqual([]); // Expect an empty array since the query couldn't run
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Error fetching event data:',
+      expect.any(Error)
+    );
+    expect(mockDbConnection.end).not.toHaveBeenCalled(); // Connection shouldn't be closed as it was never opened
+  
+    consoleSpy.mockRestore();
+  });
 });
