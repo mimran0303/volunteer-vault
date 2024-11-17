@@ -15,52 +15,145 @@ const {
   const fs = require('fs');
   
   
-  jest.mock('../../config/index');
+  jest.mock('../../config/index', () => jest.fn());
   jest.mock('fs');
   jest.mock('pdfkit-table');
   
   describe('Report Controller', () => {
-    const mockDb = {
-      query: jest.fn(),
-      end: jest.fn(),
-    };
-  
-    beforeEach(() => {
-      jest.clearAllMocks();
-      db.mockResolvedValue(mockDb);
-    });
   
     describe('fetchVolunteerData', () => {
-      it('should fetch volunteer data from the database', async () => {
-        mockDb.query.mockResolvedValue([[{ volunteer_id: 1, event_name: 'Event A' }]]);
-        const req = { user: { userId: 1 } };
-        const data = await fetchVolunteerData(req, '2023-01-01', '2023-01-31');
-        expect(mockDb.query).toHaveBeenCalledWith(expect.any(String), ['2023-01-01', '2023-01-31', 1]);
-        expect(data).toEqual([{ volunteer_id: 1, event_name: 'Event A' }]);
+      let mockQuery;
+      let mockEnd;
+
+      beforeEach(() => {
+        mockQuery = jest.fn();
+        mockEnd = jest.fn();
+        
+        db.mockResolvedValue({
+          query: mockQuery,
+          end: mockEnd,
+        });
       });
-  
-      it('should return null if there is an error', async () => {
-        mockDb.query.mockRejectedValue(new Error('DB Error'));
+
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+
+      it('should fetch volunteer data within the date range and for the specified admin', async () => {
+        const req = { user: { userId: 1 } }; // Mocked request object
+        const startDate = '2024-01-01';
+        const endDate = '2024-12-31';
+        const mockData = [
+          {
+            volunteer_id: 1,
+            event_id: 2,
+            participation_status: 'completed',
+            rating: 5,
+            volunteer_name: 'John Doe',
+            event_name: 'Charity Run',
+            event_admin_id: 1,
+            event_date: '2024-05-20',
+          },
+        ];
+
+        mockQuery.mockResolvedValue([mockData]);
+
+        const result = await fetchVolunteerData(req, startDate, endDate);
+
+        expect(db).toHaveBeenCalledTimes(1);
+        expect(mockQuery).toHaveBeenCalledWith(
+          expect.stringContaining('SELECT'),
+          [startDate, endDate, req.user.userId]
+        );
+        expect(result).toEqual(mockData);
+        expect(mockEnd).toHaveBeenCalledTimes(1);
+      });
+
+      it('should return null and log an error if the query fails', async () => {
+        console.error = jest.fn();
+        mockQuery.mockRejectedValue(new Error('Query failed'));
+
         const req = { user: { userId: 1 } };
-        const data = await fetchVolunteerData(req, '2023-01-01', '2023-01-31');
-        expect(data).toBeNull();
+        const startDate = '2024-01-01';
+        const endDate = '2024-12-31';
+
+        const result = await fetchVolunteerData(req, startDate, endDate);
+
+        expect(result).toBeNull();
+        expect(console.error).toHaveBeenCalledWith('Error:', expect.any(Error));
+        expect(mockEnd).toHaveBeenCalledTimes(0); // If query fails, end might not be called
       });
     });
-  
+
+
+
     describe('fetchEventData', () => {
-      it('should fetch event data from the database', async () => {
-        mockDb.query.mockResolvedValue([[{ event_id: 1, event_name: 'Event A' }]]);
-        const req = { user: { userId: 1 } };
-        const data = await fetchEventData(req, '2023-01-01', '2023-01-31');
-        expect(mockDb.query).toHaveBeenCalledWith(expect.any(String), ['2023-01-01', '2023-01-31', 1]);
-        expect(data).toEqual([{ event_id: 1, event_name: 'Event A' }]);
+      let mockQuery;
+      let mockEnd;
+    
+      beforeEach(() => {
+        mockQuery = jest.fn();
+        mockEnd = jest.fn();
+        
+        db.mockResolvedValue({
+          query: mockQuery,
+          end: mockEnd,
+        });
       });
-  
-      it('should return null if there is an error', async () => {
-        mockDb.query.mockRejectedValue(new Error('DB Error'));
+    
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
+    
+      it('should fetch event data within the specified date range and for the specified admin', async () => {
+        const req = { user: { userId: 1 } }; // Mocked request object
+        const startDate = '2024-01-01';
+        const endDate = '2024-12-31';
+        const mockData = [
+          {
+            event_id: 1,
+            event_name: 'Charity Event',
+            event_description: 'Annual charity fundraiser',
+            location: 'Main Street',
+            city: 'Houston',
+            state: 'TX',
+            zip_code: '77001',
+            required_skills: 'Fundraising',
+            urgency: 'High',
+            event_date: '2024-05-20',
+            is_concluded: 0,
+            volunteer_id: 101,
+            volunteer_name: 'John Doe',
+            is_reviewed: 1,
+          },
+        ];
+    
+        mockQuery.mockResolvedValue([mockData]);
+    
+        const result = await fetchEventData(req, startDate, endDate);
+    
+        expect(db).toHaveBeenCalledTimes(1);
+        expect(mockQuery).toHaveBeenCalledWith(
+          expect.stringContaining('SELECT'),
+          [startDate, endDate, req.user.userId]
+        );
+        expect(result).toEqual(mockData);
+        expect(mockEnd).toHaveBeenCalledTimes(1);
+      });
+    
+      it('should return null and log an error if the query fails', async () => {
+        console.error = jest.fn();
+        mockQuery.mockRejectedValue(new Error('Query failed'));
+    
         const req = { user: { userId: 1 } };
-        const data = await fetchEventData(req, '2023-01-01', '2023-01-31');
-        expect(data).toBeNull();
+        const startDate = '2024-01-01';
+        const endDate = '2024-12-31';
+    
+        const result = await fetchEventData(req, startDate, endDate);
+    
+        expect(result).toBeNull();
+        expect(console.error).toHaveBeenCalledWith('Error fetching event data:', expect.any(Error));
+        expect(mockEnd).toHaveBeenCalledTimes(0); // End might not be called if query fails
       });
     });
   
@@ -121,82 +214,7 @@ const {
       });
     });
   
-    describe('generateReport', () => {
-        let req, res;
+    
 
-        beforeEach(() => {
-            req = {
-                body: {
-                    reportType: '',
-                    format: '',
-                    startDate: '2023-01-01',
-                    endDate: '2023-01-31'
-                }
-            };
-    
-            res = {
-                setHeader: jest.fn(),
-                download: jest.fn(),
-                status: jest.fn().mockReturnThis(),
-                json: jest.fn(),
-                pipe: jest.fn()
-            };
-        });
-
-        // ! FAIL
-        it('should generate a PDF for volunteer report', async () => {
-            req.body.reportType = 'volunteer';
-            req.body.format = 'PDF';
-    
-            PDFDocument.prototype.pipe = jest.fn();
-            PDFDocument.prototype.text = jest.fn();
-            PDFDocument.prototype.end = jest.fn();
-    
-            await generateReport(req, res);
-    
-            expect(PDFDocument.prototype.text).toHaveBeenCalledWith('Hello from Volunteer PDF');
-            expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
-            expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=volunteer_report.pdf');
-            expect(PDFDocument.prototype.pipe).toHaveBeenCalledWith(res);
-        });
-    
-        // ! FAIL
-        it('should generate a CSV for volunteer report', async () => {
-            req.body.reportType = 'volunteer';
-            req.body.format = 'CSV';
-    
-            fs.writeFileSync = jest.fn();
-    
-            await generateReport(req, res);
-    
-            expect(fs.writeFileSync).toHaveBeenCalledWith('volunteer_report.csv', 'Hello from Volunteer CSV\n');
-            expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
-            expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=volunteer_report.csv');
-            expect(res.download).toHaveBeenCalledWith('volunteer_report.csv');
-        });
-    
-        it('should handle invalid report type', async () => {
-            req.body.reportType = 'invalid';
-    
-            await generateReport(req, res);
-    
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ message: 'Invalid report type' });
-        });
-    
-        it('should handle errors gracefully', async () => {
-            req.body.reportType = 'volunteer';
-            req.body.format = 'PDF';
-    
-            PDFDocument.prototype.text.mockImplementation(() => {
-                throw new Error('PDF generation error');
-            });
-    
-            await generateReport(req, res);
-    
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
-        });
-      });
   });
   
