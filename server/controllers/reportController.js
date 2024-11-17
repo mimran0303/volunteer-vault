@@ -176,7 +176,7 @@ const generateEventPDF = async (data) => {
     doc.pipe(fs.createWriteStream('event_management_report.pdf'));
 
     // Title
-    doc.fontSize(18).text('Volunteer Event Participation Report', { align: 'center' });
+    doc.fontSize(18).text('Volunteer Event Assignments', { align: 'center' });
     doc.moveDown(2);
 
     // Group data by volunteer_name
@@ -195,18 +195,17 @@ const generateEventPDF = async (data) => {
         doc.moveDown(0.5);
 
         // Table headers for events
-        const headers = ['Event Name', 'Date', 'Location', 'Status', 'Reviewed'];
+        const headers = ['Event Name', 'Date', 'Location', 'Required Skills'];
         const rowsData = events.map(event => [
             event.event_name,
             new Date(event.event_date).toLocaleDateString(),
-            `${event.city}, ${event.state}, ${event.zip_code}`,
-            event.is_concluded ? 'Concluded' : 'Ongoing',
-            event.is_reviewed ? 'Reviewed' : 'Not Reviewed'
+            `${event.city}, ${event.state} ${event.zip_code}`,
+            event.required_skills 
         ]);
 
         // Add the event table for this volunteer
         await doc.table({
-            title: `Events Assigned to ${volunteerName}`,
+            // title: `Events Assigned to ${volunteerName}`,
             headers: headers,
             rows: rowsData,
         }, {
