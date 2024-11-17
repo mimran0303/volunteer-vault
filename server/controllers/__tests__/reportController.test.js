@@ -1,220 +1,116 @@
-// reportController.test.js
+const { generateReport } = require('../reportController');
 
-const {
-    fetchVolunteerData,
-    fetchEventData,
-    generateVolunteerPDF,
-    generateVolunteerCSV,
-    generateEventPDF,
-    generateEventCSV,
-    generateReport,
-  } = require('../reportController');
-  
-  const db = require('../../config/index');
-  const PDFDocument = require("pdfkit-table");
-  const fs = require('fs');
-  
-  
-  jest.mock('../../config/index', () => jest.fn());
-  jest.mock('fs');
-  jest.mock('pdfkit-table');
-  
-  describe('Report Controller', () => {
-  
-    describe('fetchVolunteerData', () => {
-      let mockQuery;
-      let mockEnd;
+const { fetchVolunteerData } = require('../../services/volunteerService');
+const { fetchEventData } = require('../../services/eventService');
 
-      beforeEach(() => {
-        mockQuery = jest.fn();
-        mockEnd = jest.fn();
-        
-        db.mockResolvedValue({
-          query: mockQuery,
-          end: mockEnd,
-        });
-      });
+const { generateVolunteerPDF, generateVolunteerCSV, generateEventPDF, generateEventCSV } = require('../../utils/reportGenerators');
 
-      afterEach(() => {
-        jest.clearAllMocks();
-      });
+jest.mock('../../services/volunteerService');
+jest.mock('../../services/eventService');
+jest.mock('../../utils/reportGenerators');
 
-      it('should fetch volunteer data within the date range and for the specified admin', async () => {
-        const req = { user: { userId: 1 } }; // Mocked request object
-        const startDate = '2024-01-01';
-        const endDate = '2024-12-31';
-        const mockData = [
-          {
-            volunteer_id: 1,
-            event_id: 2,
-            participation_status: 'completed',
-            rating: 5,
-            volunteer_name: 'John Doe',
-            event_name: 'Charity Run',
-            event_admin_id: 1,
-            event_date: '2024-05-20',
-          },
-        ];
+const mockRes = () => {
+  const res = {};
+  res.setHeader = jest.fn();
+  res.status = jest.fn().mockReturnThis();
+  res.json = jest.fn();
+  res.download = jest.fn();
+  res.pipe = jest.fn();
+  return res;
+};
 
-        mockQuery.mockResolvedValue([mockData]);
+describe('generateReport', () => {
+  let req, res;
 
-        const result = await fetchVolunteerData(req, startDate, endDate);
-
-        expect(db).toHaveBeenCalledTimes(1);
-        expect(mockQuery).toHaveBeenCalledWith(
-          expect.stringContaining('SELECT'),
-          [startDate, endDate, req.user.userId]
-        );
-        expect(result).toEqual(mockData);
-        expect(mockEnd).toHaveBeenCalledTimes(1);
-      });
-
-      it('should return null and log an error if the query fails', async () => {
-        console.error = jest.fn();
-        mockQuery.mockRejectedValue(new Error('Query failed'));
-
-        const req = { user: { userId: 1 } };
-        const startDate = '2024-01-01';
-        const endDate = '2024-12-31';
-
-        const result = await fetchVolunteerData(req, startDate, endDate);
-
-        expect(result).toBeNull();
-        expect(console.error).toHaveBeenCalledWith('Error:', expect.any(Error));
-        expect(mockEnd).toHaveBeenCalledTimes(0); // If query fails, end might not be called
-      });
-    });
-
-
-
-    describe('fetchEventData', () => {
-      let mockQuery;
-      let mockEnd;
-    
-      beforeEach(() => {
-        mockQuery = jest.fn();
-        mockEnd = jest.fn();
-        
-        db.mockResolvedValue({
-          query: mockQuery,
-          end: mockEnd,
-        });
-      });
-    
-      afterEach(() => {
-        jest.clearAllMocks();
-      });
-    
-      it('should fetch event data within the specified date range and for the specified admin', async () => {
-        const req = { user: { userId: 1 } }; // Mocked request object
-        const startDate = '2024-01-01';
-        const endDate = '2024-12-31';
-        const mockData = [
-          {
-            event_id: 1,
-            event_name: 'Charity Event',
-            event_description: 'Annual charity fundraiser',
-            location: 'Main Street',
-            city: 'Houston',
-            state: 'TX',
-            zip_code: '77001',
-            required_skills: 'Fundraising',
-            urgency: 'High',
-            event_date: '2024-05-20',
-            is_concluded: 0,
-            volunteer_id: 101,
-            volunteer_name: 'John Doe',
-            is_reviewed: 1,
-          },
-        ];
-    
-        mockQuery.mockResolvedValue([mockData]);
-    
-        const result = await fetchEventData(req, startDate, endDate);
-    
-        expect(db).toHaveBeenCalledTimes(1);
-        expect(mockQuery).toHaveBeenCalledWith(
-          expect.stringContaining('SELECT'),
-          [startDate, endDate, req.user.userId]
-        );
-        expect(result).toEqual(mockData);
-        expect(mockEnd).toHaveBeenCalledTimes(1);
-      });
-    
-      it('should return null and log an error if the query fails', async () => {
-        console.error = jest.fn();
-        mockQuery.mockRejectedValue(new Error('Query failed'));
-    
-        const req = { user: { userId: 1 } };
-        const startDate = '2024-01-01';
-        const endDate = '2024-12-31';
-    
-        const result = await fetchEventData(req, startDate, endDate);
-    
-        expect(result).toBeNull();
-        expect(console.error).toHaveBeenCalledWith('Error fetching event data:', expect.any(Error));
-        expect(mockEnd).toHaveBeenCalledTimes(0); // End might not be called if query fails
-      });
-    });
-  
-    describe('generateVolunteerPDF', () => {
-      it('should generate a PDF document', async () => {
-        const data = [{ volunteer_name: 'John Doe', event_name: 'Event A', event_date: '2023-01-01', participation_status: 'participated', rating: 4.5 }];
-        const mockDoc = {
-          pipe: jest.fn(),
-          fontSize: jest.fn().mockReturnThis(),
-          text: jest.fn().mockReturnThis(),
-          moveDown: jest.fn().mockReturnThis(),
-          table: jest.fn().mockResolvedValue(),
-          font: jest.fn().mockReturnThis(),
-          fillColor: jest.fn().mockReturnThis(),
-          end: jest.fn(),
-        };
-        PDFDocument.mockReturnValue(mockDoc);
-        await generateVolunteerPDF(data);
-        expect(mockDoc.text).toHaveBeenCalledWith('Volunteer Participation Report', { align: 'center' });
-        expect(mockDoc.end).toHaveBeenCalled();
-      });
-    });
-  
-    describe('generateVolunteerCSV', () => {
-      it('should generate a CSV file', async () => {
-        const data = [{ volunteer_name: 'John Doe', event_name: 'Event A', event_date: '2023-01-01', participation_status: 'participated', rating: 4.5 }];
-        fs.writeFileSync.mockReturnValue();
-        await generateVolunteerCSV(data);
-        expect(fs.writeFileSync).toHaveBeenCalledWith('volunteer_report.csv', expect.any(String));
-      });
-    });
-  
-    describe('generateEventPDF', () => {
-      it('should generate an Event PDF document', async () => {
-        const data = [{ volunteer_name: 'John Doe', event_name: 'Event A', event_date: '2023-01-01', location: 'City', required_skills: 'Skill' }];
-        const mockDoc = {
-          pipe: jest.fn(),
-          fontSize: jest.fn().mockReturnThis(),
-          text: jest.fn().mockReturnThis(),
-          moveDown: jest.fn().mockReturnThis(),
-          table: jest.fn().mockResolvedValue(),
-          font: jest.fn().mockReturnThis(),
-          end: jest.fn(),
-        };
-        PDFDocument.mockReturnValue(mockDoc);
-        await generateEventPDF(data);
-        expect(mockDoc.text).toHaveBeenCalledWith('Volunteer Event Assignments', { align: 'center' });
-        expect(mockDoc.end).toHaveBeenCalled();
-      });
-    });
-  
-    describe('generateEventCSV', () => {
-      it('should generate an Event CSV file', async () => {
-        const data = [{ event_id: 1, event_name: 'Event A', event_date: '2023-01-01' }];
-        fs.writeFileSync.mockReturnValue();
-        await generateEventCSV(data);
-        expect(fs.writeFileSync).toHaveBeenCalledWith('event_report.csv', expect.any(String));
-      });
-    });
-  
-    
-
+  beforeEach(() => {
+    req = { body: {} };
+    res = mockRes();
   });
-  
+
+  it('should generate a volunteer report in PDF format', async () => {
+    req.body = { reportType: 'volunteer', format: 'PDF', startDate: '2024-01-01', endDate: '2024-01-31' };
+    const mockData = [{ name: 'John Doe', hours: 10 }];
+    const mockDoc = { pipe: jest.fn() };
+
+    fetchVolunteerData.mockResolvedValue(mockData);
+    generateVolunteerPDF.mockResolvedValue(mockDoc);
+
+    await generateReport(req, res);
+
+    expect(fetchVolunteerData).toHaveBeenCalledWith(req, '2024-01-01', '2024-01-31');
+    expect(generateVolunteerPDF).toHaveBeenCalledWith(mockData);
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=volunteer_report.pdf');
+    expect(mockDoc.pipe).toHaveBeenCalledWith(res);
+  });
+
+  it('should generate a volunteer report in CSV format', async () => {
+    req.body = { reportType: 'volunteer', format: 'CSV', startDate: '2024-01-01', endDate: '2024-01-31' };
+    const mockData = [{ name: 'John Doe', hours: 10 }];
+
+    fetchVolunteerData.mockResolvedValue(mockData);
+    generateVolunteerCSV.mockResolvedValue();
+
+    await generateReport(req, res);
+
+    expect(fetchVolunteerData).toHaveBeenCalledWith(req, '2024-01-01', '2024-01-31');
+    expect(generateVolunteerCSV).toHaveBeenCalledWith(mockData);
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=volunteer_report.csv');
+    expect(res.download).toHaveBeenCalledWith('volunteer_report.csv');
+  });
+
+  it('should generate an event report in PDF format', async () => {
+    req.body = { reportType: 'event', format: 'PDF', startDate: '2024-01-01', endDate: '2024-01-31' };
+    const mockData = [{ eventName: 'Charity Run', attendees: 50 }];
+    const mockDoc = { pipe: jest.fn() };
+
+    fetchEventData.mockResolvedValue(mockData);
+    generateEventPDF.mockResolvedValue(mockDoc);
+
+    await generateReport(req, res);
+
+    expect(fetchEventData).toHaveBeenCalledWith(req, '2024-01-01', '2024-01-31');
+    expect(generateEventPDF).toHaveBeenCalledWith(mockData);
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=event_report.pdf');
+    expect(mockDoc.pipe).toHaveBeenCalledWith(res);
+  });
+
+  it('should generate an event report in CSV format', async () => {
+    req.body = { reportType: 'event', format: 'CSV', startDate: '2024-01-01', endDate: '2024-01-31' };
+    const mockData = [{ eventName: 'Charity Run', attendees: 50 }];
+    const mockDoc = { pipe: jest.fn() };
+
+    fetchEventData.mockResolvedValue(mockData);
+    generateEventCSV.mockResolvedValue(mockDoc);
+
+    await generateReport(req, res);
+
+    expect(fetchEventData).toHaveBeenCalledWith(req, '2024-01-01', '2024-01-31');
+    expect(generateEventCSV).toHaveBeenCalledWith(mockData);
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename=event_report.csv');
+    expect(res.download).toHaveBeenCalledWith('event_report.csv');
+  });
+
+  it('should return 400 for invalid report type', async () => {
+    req.body = { reportType: 'invalid', format: 'PDF', startDate: '2024-01-01', endDate: '2024-01-31' };
+
+    await generateReport(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Invalid report type' });
+  });
+
+  it('should return 500 for internal server error', async () => {
+    req.body = { reportType: 'volunteer', format: 'PDF', startDate: '2024-01-01', endDate: '2024-01-31' };
+
+    fetchVolunteerData.mockRejectedValue(new Error('Database error'));
+
+    await generateReport(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Internal server error' });
+  });
+});
