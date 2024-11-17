@@ -307,30 +307,13 @@ export default function UserProfileManagement() {
                 />
               </div>
             </div>
-
-            <div className="flex flex-col space-y-4 mt-10"> {/* Container for vertical alignment and spacing */}
-  <button
-    className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-2 rounded-full font-geistMono w-40 h-12"
-    style={{ color: '#FFFFFF' }}
-    type="submit"
-  >
-    SAVE CHANGES
-  </button>
-  <button
-    className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-2 rounded-full font-geistMono w-40 h-12"
-    style={{ color: '#FFFFFF' }}
-    type="submit"
-  >
-    EDIT
-  </button>
-  <button
-    className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-2 rounded-full font-geistMono w-40 h-12"
-    style={{ color: '#FFFFFF' }}
-    type="submit"
-  >
-    DELETE
-  </button>
-</div>
+            <button 
+              className="bg-[#423D38] hover:bg-[#B4C4C4] font-bold py-2 px-2 rounded-full mt-10 font-geistMono w-40 h-12" 
+              style={{ color: '#FFFFFF' }} 
+              type="submit" // Change button type to submit
+            >
+              SAVE CHANGES
+            </button>
           </form>
 
         </div>

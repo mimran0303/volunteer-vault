@@ -1,7 +1,4 @@
 .env
-<<<<<<< HEAD
-
 /server/coverage
-
 /server/*.csv
 /server/*.pdf
