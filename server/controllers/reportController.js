@@ -1,5 +1,6 @@
 const db = require('../config/index');
 const PDFDocument = require("pdfkit-table");
+const { parse } = require('json2csv');
 const fs = require('fs');
 const { createObjectCsvWriter } = require('csv-writer');
 
@@ -227,9 +228,40 @@ const generateEventPDF = async (data) => {
 
 
 // Mariam
+//fully working now and can generate CSV 
 const generateEventCSV = async (data) => {
-    console.log('Hello from Event CSV');
-    fs.writeFileSync('event_report.csv', 'Hello from Event CSV\n'); };
+    try {
+        // Define the CSV fields based on Tristan's query structure
+        const fields = [
+            { label: 'Event ID', value: 'event_id' },
+            { label: 'Event Name', value: 'event_name' },
+            { label: 'Event Description', value: 'event_description' },
+            { label: 'Location', value: 'location' },
+            { label: 'City', value: 'city' },
+            { label: 'State', value: 'state' },
+            { label: 'Zip Code', value: 'zip_code' },
+            { label: 'Required Skills', value: 'required_skills' },
+            { label: 'Urgency', value: 'urgency' },
+            { label: 'Event Date', value: row => new Date(row.event_date).toLocaleDateString() },
+            { label: 'Is Concluded', value: row => row.is_concluded ? 'Yes' : 'No' },
+            { label: 'Volunteer ID', value: 'volunteer_id' },
+            { label: 'Volunteer Name', value: 'volunteer_name' },
+            { label: 'Is Reviewed', value: row => row.is_reviewed ? 'Yes' : 'No' }
+        ];
+
+        // Convert data to CSV format
+        const csv = parse(data, { fields });
+
+        // Write the CSV content to a file
+        fs.writeFileSync('event_report.csv', csv);
+        console.log('Event CSV file generated successfully at: event_report.csv');
+    } catch (error) {
+        console.error('Error generating Event CSV:', error);
+    }
+    console.log(data)
+};
+
+
 
 exports.generateReport = async (req, res) => {
     const { reportType, format, startDate, endDate } = req.body;
@@ -273,3 +305,5 @@ exports.generateReport = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+

@@ -11,7 +11,7 @@ require('./config');
 // Middleware
 app.use(cors({
     origin: ["http://localhost:3000"],
-    methods: ["POST", "GET", "PUT", "DELETE"],
+    methods: ["POST", "GET","PUT","DELETE"],
     credentials: true
 }));
 app.use(express.json());
@@ -34,6 +34,7 @@ const volunteerReviewRoutes = require("./routes/volunteerReviewRoutes")
 
 const reportRoutes = require("./routes/reportRoutes")
 
+
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
 app.use("/eventManagement", eventManagementRoutes)
@@ -54,6 +55,7 @@ app._router.stack.forEach(function(r) {
     console.log(r.route.path);
   }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
