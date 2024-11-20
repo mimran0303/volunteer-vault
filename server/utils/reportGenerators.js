@@ -81,12 +81,12 @@ const generateVolunteerCSV = async (data) => {
         // Define the CSV fields based on Gabriel's query structure
         const fields = [
             { label: 'Volunteer ID', value: 'volunteer_id' },
-            { label: 'Event ID', value: 'event_id' },
+            { label: 'Volunteer Name', value: 'volunteer_name' },
             { label: 'Participation Status', value: 'participation_status' },
             { label: 'Rating', value: 'rating' },
-            { label: 'Volunteer Name', value: 'volunteer_name' },
+            { label: 'Event ID', value: 'event_id' },
+            // { label: 'Event Admin ID', value: 'event_admin_id' },
             { label: 'Event Name', value: 'event_name' },
-            { label: 'Event Admin ID', value: 'event_admin_id' },
             { label: 'Event Date', value: row => new Date(row.event_date).toLocaleDateString() },
         ];
 
@@ -172,10 +172,10 @@ const generateEventCSV = async (data) => {
             { label: 'Required Skills', value: 'required_skills' },
             { label: 'Urgency', value: 'urgency' },
             { label: 'Event Date', value: row => new Date(row.event_date).toLocaleDateString() },
-            { label: 'Is Concluded', value: row => row.is_concluded ? 'Yes' : 'No' },
+            // { label: 'Is Concluded', value: row => row.is_concluded ? 'Yes' : 'No' },
             { label: 'Volunteer ID', value: 'volunteer_id' },
             { label: 'Volunteer Name', value: 'volunteer_name' },
-            { label: 'Is Reviewed', value: row => row.is_reviewed ? 'Yes' : 'No' }
+            // { label: 'Is Reviewed', value: row => row.is_reviewed ? 'Yes' : 'No' }
         ];
 
         // Convert data to CSV format

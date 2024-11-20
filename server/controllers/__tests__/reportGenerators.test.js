@@ -33,11 +33,27 @@ describe('Report Generators', () => {
     });
   
     describe('generateVolunteerCSV', () => {
-      it('should generate a CSV file', async () => {
-        const data = [{ volunteer_name: 'John Doe', event_name: 'Event A', event_date: '2023-01-01', participation_status: 'participated', rating: 4.5 }];
+      it('should generate a Volunteer CSV file', async () => {
+        const data = [
+          {
+            volunteer_id: 1,
+            volunteer_name: 'John Doe',
+            participation_status: 'Participated',
+            rating: 4.5,
+            event_id: 101,
+            event_name: 'Event A',
+            event_date: '2023-01-01',
+          },
+        ];
+    
         fs.writeFileSync.mockReturnValue();
+    
         await generateVolunteerCSV(data);
-        expect(fs.writeFileSync).toHaveBeenCalledWith('volunteer_report.csv', expect.any(String));
+    
+        expect(fs.writeFileSync).toHaveBeenCalledWith(
+          'volunteer_report.csv',
+          expect.any(String)
+        );
       });
     });
   
