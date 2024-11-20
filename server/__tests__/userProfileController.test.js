@@ -1,8 +1,8 @@
 // userProfileController.test.js
-const { createUserProfile, getUserProfileById, updateUserProfileById } = require('../userProfileController');
-const db = require('../../config/index');
+const { createUserProfile, getUserProfileById, updateUserProfileById } = require('../controllers/userProfileController');
+const db = require('../config/index');
 
-jest.mock('../../config/index'); // Mock the database connection
+jest.mock('../config/index'); // Mock the database connection
 
 describe('userProfileController', () => {
     let mockReq, mockRes, mockDbConnection;

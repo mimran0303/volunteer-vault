@@ -1,8 +1,8 @@
 // notificationsController.test.js
-const { getNotifications } = require('../notificationsController');
-const initializeDatabaseConnection = require('../../config/index');
+const { getNotifications } = require('../controllers/notificationsController');
+const initializeDatabaseConnection = require('../config/index');
 
-jest.mock('../../config/index'); // Mock the database connection
+jest.mock('../config/index'); // Mock the database connection
 
 describe('getNotifications', () => {
     let mockReq, mockRes, mockDbConnection;

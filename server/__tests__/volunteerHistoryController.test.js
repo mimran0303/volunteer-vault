@@ -1,9 +1,9 @@
 // volunteerHistoryController.test.js
-const db = require('../../config/index');
-const { retrieveHistory } = require('../volunteerHistoryController');
+const db = require('../config/index');
+const { retrieveHistory } = require('../controllers/volunteerHistoryController');
 
 // Mock the database connection
-jest.mock('../../config/index');
+jest.mock('../config/index');
 
 describe('volunteerHistoryController', () => {
   let req, res, dbConnection;

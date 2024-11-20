@@ -1,7 +1,7 @@
-const { fetchVolunteerData } = require('../../services/volunteerService'); // Adjust the path as needed
-const db = require('../../config/index'); // Mocked database module
+const { fetchVolunteerData } = require('../services/volunteerService'); // Adjust the path as needed
+const db = require('../config/index'); // Mocked database module
 
-jest.mock('../../config/index'); // Mock the database configuration
+jest.mock('../config/index'); // Mock the database configuration
 
 describe('fetchVolunteerData', () => {
   let mockDbConnection;

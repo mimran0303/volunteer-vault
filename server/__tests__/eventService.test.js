@@ -1,7 +1,7 @@
-const db = require('../../config/index');
-const { fetchEventData } = require('../../services/eventService'); // Adjust the path as needed
+const db = require('../config/index');
+const { fetchEventData } = require('../services/eventService'); // Adjust the path as needed
 
-jest.mock('../../config/index'); // Mock the database configuration
+jest.mock('../config/index'); // Mock the database configuration
 
 describe('fetchEventData', () => {
   let mockDbConnection;

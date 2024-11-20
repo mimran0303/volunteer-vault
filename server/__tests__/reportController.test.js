@@ -1,13 +1,13 @@
-const { generateReport } = require('../reportController');
+const { generateReport } = require('../controllers/reportController');
 
-const { fetchVolunteerData } = require('../../services/volunteerService');
-const { fetchEventData } = require('../../services/eventService');
+const { fetchVolunteerData } = require('../services/volunteerService');
+const { fetchEventData } = require('../services/eventService');
 
-const { generateVolunteerPDF, generateVolunteerCSV, generateEventPDF, generateEventCSV } = require('../../utils/reportGenerators');
+const { generateVolunteerPDF, generateVolunteerCSV, generateEventPDF, generateEventCSV } = require('../utils/reportGenerators');
 
-jest.mock('../../services/volunteerService');
-jest.mock('../../services/eventService');
-jest.mock('../../utils/reportGenerators');
+jest.mock('../services/volunteerService');
+jest.mock('../services/eventService');
+jest.mock('../utils/reportGenerators');
 
 const mockRes = () => {
   const res = {};

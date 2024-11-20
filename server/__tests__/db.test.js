@@ -1,4 +1,4 @@
-const initializeDatabaseConnection = require('../../config/index');
+const initializeDatabaseConnection = require('../config/index');
 const mysql = require('mysql2/promise');
 
 jest.mock('mysql2/promise');

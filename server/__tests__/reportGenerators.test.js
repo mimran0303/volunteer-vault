@@ -3,7 +3,7 @@ const {
     generateVolunteerCSV,
     generateEventPDF,
     generateEventCSV,
-  } = require('../../utils/reportGenerators');
+  } = require('../utils/reportGenerators');
 
 const PDFDocument = require("pdfkit-table");
 const fs = require('fs');

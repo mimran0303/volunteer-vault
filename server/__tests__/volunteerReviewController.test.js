@@ -1,8 +1,8 @@
 // volunteerReviewController.test.js
-const db = require('../../config/index');
-const volunteerReviewController = require('../volunteerReviewController');
+const db = require('../config/index');
+const volunteerReviewController = require('../controllers/volunteerReviewController');
 
-jest.mock('../../config/index');
+jest.mock('../config/index');
 
 describe('volunteerReviewController', () => {
   let req, res, dbConnection;

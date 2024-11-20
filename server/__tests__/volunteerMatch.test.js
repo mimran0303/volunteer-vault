@@ -1,7 +1,7 @@
-const { matchVolunteersToEvent } = require('../../utils/volunteerMatch');
-const initializeDatabaseConnection = require('../../config/index');
+const { matchVolunteersToEvent } = require('../utils/volunteerMatch');
+const initializeDatabaseConnection = require('../config/index');
 
-jest.mock('../../config/index'); // Mock the database connection
+jest.mock('../config/index'); // Mock the database connection
 
 describe('matchVolunteersToEvent', () => {
     let mockDbConnection;
