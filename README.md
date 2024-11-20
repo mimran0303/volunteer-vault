@@ -35,7 +35,7 @@ DB_USER=
 DB_PASSWORD=
 DB_DATABASE=
 ```
-- `\coverage` is where code coverage reports will be stored after running tests. Note that this directory is included in `.gitignore` to avoid committing coverage reports to the repository. Add the following line to the `.env` file.
+- `/coverage` is where code coverage reports will be stored after running tests. Note that this directory is included in `.gitignore` to avoid committing coverage reports to the repository. Add the following line to the `.env` file.
 ```bash
 /coverage
 ```
@@ -79,14 +79,24 @@ This installs the following dependencies:
     + Middleware for parsing cookies in requests.
 * **cors** `^2.8.5`
     +  Middleware for enabling Cross-Origin Resource Sharing.
+* **csv** `^6.3.10`
+    +  CSV generation, parsing, transformation and serialization for Node.js.
+* **csv-writer** `^1.6.0`
+    +  Convert objects/arrays into a CSV string or write them into a file
 * **dotenv** `^16.4.5`
     + Loads environment variables from a `.env` file into `process.env`.
 * **express** `^4.21.0`
     +  A web framework for building RESTful APIs.
+* **json2csv** `^6.0.0-alpha.2`
+    + Convert JSON to CSV.
 * **jsonwebtoken** `^9.0.2`
     + A library for creating and verifying JSON Web Tokens (JWT).
 * **mysql2** `^3.11.3`
     + MySQL client for Node.js with focus on performance.
+* **pdfkit** `^0.15.1`
+    + A JavaScript PDF generation library for Node and the browser.
+* **pdfkit-table** `^0.1.99`
+    + Helps to draw informations in simple tables using pdfkit. 
 
 Additionally, the following development dependencies will be installed:
 * **jest** `^29.7.0`
@@ -102,7 +112,7 @@ Additionally, the following development dependencies will be installed:
     ```bash
     npm run dev
     ```
-    This will start the client in development mode. The default URL is http://localhost:3000.
+    This will start the client in development mode. The default URL is http://localhost:3000
 
 
 2. **Start the Server**
@@ -110,27 +120,27 @@ Additionally, the following development dependencies will be installed:
     ```bash
     npm start
     ```
-    This will start the server on http://localhost:8080 (or another specified port).
+    This will start the server on http://localhost:8080 
 
 ## Configuration Details
 *  **Environment Variables**: The `.env` file contains sensitive information. Ensure it's never committed to version control.
-*  **Port Configuration**: If you want to change the server port number, you can do so by updating the server's configuration file (`server.js`).
 
 ## Testing
 * To run tests, navigate to the `server` directory and execute:
 ```bash
 npm test
 ```
-This will run the tests using Jest and Supertest. Code coverage reports will also be generated.
+This will run the tests using Jest. Code coverage reports will also be generated.
 
 ## Troubleshooting Tips
 1. **Common Issues**:
-    + **Port in Use**: If the server fails to start because the port is already in use, ensure no other process is running on that port, or change the port in the server configuration.
+    + **Port in Use**: If the server fails to start because the port is already in use, ensure no other process is running on that port.
     + **Environment Variable Errors**: Make sure the `.env` file exists and contains the correct environment variables.
+    + **Bcrypt Incompatibility**: Simply uninstall and reinstall `bcrypt`
 2. **Client Fails to Start**:
     + Ensure dependencies are correctly installed with `npm install`.
     + If there's an error related to Next.js, try deleting the `.next` directory and rerunning `npm run dev`.
 3. **Server Crashes on Start**:
     + Ensure dependencies are correctly installed with `npm install`.
-    + Ensure the environment variable (`JWT_SECRET_KEY`) is set up correctly.
+    + Ensure the environment variables are set up correctly.
     + Use `npm run dev` with nodemon for easier debugging during development.
