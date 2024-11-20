@@ -77,8 +77,29 @@ const generateVolunteerPDF = async (data) => {
   
 // Shruthi
 const generateVolunteerCSV = async (data) => {
-    console.log('Hello from Volunteer CSV');
-    fs.writeFileSync('volunteer_report.csv', 'Hello from Volunteer CSV\n');
+    try {
+        // Define the CSV fields based on Gabriel's query structure
+        const fields = [
+            { label: 'Volunteer ID', value: 'volunteer_id' },
+            { label: 'Event ID', value: 'event_id' },
+            { label: 'Participation Status', value: 'participation_status' },
+            { label: 'Rating', value: 'rating' },
+            { label: 'Volunteer Name', value: 'volunteer_name' },
+            { label: 'Event Name', value: 'event_name' },
+            { label: 'Event Admin ID', value: 'event_admin_id' },
+            { label: 'Event Date', value: row => new Date(row.event_date).toLocaleDateString() },
+        ];
+
+        // Convert data to CSV format
+        const csv = parse(data, { fields });
+
+        // Write the CSV content to a file
+        fs.writeFileSync('volunteer_report.csv', csv);
+        console.log('Event CSV file generated successfully at: volunteer_report.csv');
+    } catch (error) {
+        console.error('Error generating Volunteer CSV:', error);
+    }
+    console.log(data)
 };
   
 // Tristan
