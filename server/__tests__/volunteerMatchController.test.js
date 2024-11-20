@@ -1,8 +1,8 @@
 // controllers/volunteerMatchController.test.js
-const { matchVolunteersToEventController } = require('../volunteerMatchController');
-const { matchVolunteersToEvent } = require('../../utils/volunteerMatch');
+const { matchVolunteersToEventController } = require('../controllers/volunteerMatchController');
+const { matchVolunteersToEvent } = require('../utils/volunteerMatch');
 
-jest.mock('../../utils/volunteerMatch');
+jest.mock('../utils/volunteerMatch');
 
 describe('matchVolunteersToEventController', () => {
     const mockReq = {

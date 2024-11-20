@@ -1,7 +1,7 @@
-const { assignVolunteersToEvent } = require('../assignmentController');
-const db = require('../../config/index');
+const { assignVolunteersToEvent } = require('../controllers/assignmentController');
+const db = require('../config/index');
 
-jest.mock('../../config/index'); // Mock the database connection
+jest.mock('../config/index'); // Mock the database connection
 
 describe('assignVolunteersToEvent', () => {
     let mockReq, mockRes, mockDbConnection;

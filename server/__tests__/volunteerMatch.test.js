@@ -1,7 +1,7 @@
-const { matchVolunteersToEvent } = require('../../utils/volunteerMatch');
-const initializeDatabaseConnection = require('../../config/index');
+const { matchVolunteersToEvent } = require('../utils/volunteerMatch');
+const initializeDatabaseConnection = require('../config/index');
 
-jest.mock('../../config/index'); // Mock the database connection
+jest.mock('../config/index'); // Mock the database connection
 
 describe('matchVolunteersToEvent', () => {
     let mockDbConnection;
@@ -57,5 +57,15 @@ describe('matchVolunteersToEvent', () => {
         await expect(matchVolunteersToEvent({
             skills: 'Research Skills', city: 'New York', state: 'NY', zip_code: '10001', availability: 'weekends'
         })).rejects.toThrow('Error fetching volunteers');
+    });
+
+    it('should handle connection initialization errors and not attempt to close db connection', async () => {
+        initializeDatabaseConnection.mockRejectedValue(new Error('Connection error')); // Simulate failure
+    
+        await expect(matchVolunteersToEvent({
+            skills: 'Research Skills', city: 'New York', state: 'NY', zip_code: '10001', availability: 'weekends'
+        })).rejects.toThrow('Error fetching volunteers'); // Expect the error to propagate
+    
+        expect(mockDbConnection.end).not.toHaveBeenCalled(); // Ensure db_con.end is not called
     });
 });

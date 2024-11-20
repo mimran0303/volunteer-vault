@@ -1,7 +1,7 @@
-const { getEvents, createEventManagement, editEvent, deleteEvent} = require('../eventManagementController');
-const db = require('../../config/index');
+const { getEvents, createEventManagement, editEvent, deleteEvent} = require('../controllers/eventManagementController');
+const db = require('../config/index');
 
-jest.mock('../../config/index');
+jest.mock('../config/index');
 
 describe('eventManagementController', () => {
   let req, res, mockDbConnection;

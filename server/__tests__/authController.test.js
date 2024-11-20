@@ -1,11 +1,11 @@
 //__tests__/authController.test.js
 
-const authController = require('../authController');
-const db = require('../../config/index');
+const authController = require('../controllers/authController');
+const db = require('../config/index');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-jest.mock('../../config/index')
+jest.mock('../config/index')
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 

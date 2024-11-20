@@ -1,8 +1,8 @@
 // eventsController.test.js
-const { getEventsByAdmin } = require('../eventsDropdownController');
-const db = require('../../config/index');
+const { getEventsByAdmin } = require('../controllers/eventsDropdownController');
+const db = require('../config/index');
 
-jest.mock('../../config/index'); // Mock the database connection
+jest.mock('../config/index'); // Mock the database connection
 
 describe('getEventsByAdmin', () => {
     let mockReq, mockRes, mockDbConnection;
